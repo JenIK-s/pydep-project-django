@@ -1,24 +1,69 @@
 from django.db import models
 
-
-class Teacher(models.Model):
-    name = models.CharField(max_length=255)
+from users.models import User
 
 
 class Lesson(models.Model):
-    messenger = [
-        ('Tg', 'Telegram'),
-        ('Wt', 'WhatsApp')
-    ]
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+
+    class Meta:
+        verbose_name = 'Занятие'
+        verbose_name_plural = 'Занятия'
+
+    def __str__(self):
+        return self.title
+
+
+class Course(models.Model):
     name = models.CharField(max_length=255)
-    communication_method = models.CharField(
-        max_length=255,
-        choices=messenger
-    )
-    teacher = models.ForeignKey(
-        Teacher,
-        on_delete=models.CASCADE,
-        null=True,
-    )
     price = models.IntegerField(default=1000)
+    lessons = models.ManyToManyField(
+        Lesson,
+        through='LessonInCourse'
+    )
     pub_date = models.DateTimeField()
+
+    class Meta:
+        verbose_name = 'Курс'
+        verbose_name_plural = 'Курсы'
+
+    def __str__(self):
+        return self.name
+
+
+class LessonInCourse(models.Model):
+    lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.CASCADE,
+        verbose_name='Занятие'
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        verbose_name='Занятие'
+    )
+
+    class Meta:
+        verbose_name = 'Занятие в курсе'
+        verbose_name_plural = 'Занятия в курсах '
+
+
+class Group(models.Model):
+    title = models.CharField(max_length=255)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь'
+    )
+    courses = models.ManyToManyField(
+        Course,
+        verbose_name='Курсы'
+    )
+
+    class Meta:
+        verbose_name = 'Группа'
+        verbose_name_plural = 'Группы'
+
+    def __str__(self):
+        return self.title
