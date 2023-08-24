@@ -1,14 +1,28 @@
 {% load static %}
-<header class="site-header">
-    <div class="container">
-        <div class="site-header-inner">
-            <div class="brand header-brand">
-                <h1 class="m-0">
-                    <a href="#">
-                        <img class="header-logo-image" src={% static "dist/images/logo.svg" %} alt="Logo">
-                    </a>
-                </h1>
-            </div>
-        </div>
+<header>
+  <nav class="navbar navbar-light">
+    <div class="container-fluid">
+      <a class="navbar-brand navbar-text">PyDep</a>
+        <form class="d-flex">
+            <a>Вход</a>
+            <a>Регистрация</a>
+
+
+        </form>
+
+{#          {% if user.is_authenticated %}#}
+{#    <form class="d-flex" action="#">#}
+{#              <button class="btn btn-blue mr-2" type="submit">{{ user.username }}</button>#}
+{#      </form>#}
+{#      <form class="d-flex" action={% url "users:logout" %}>#}
+{#              <button class="btn btn-blue mr-2" type="submit">Выход</button>#}
+{#      </form>#}
+{#          {% else %}#}
+{#        <button class="btn btn-orange mr-2" type="submit" href={% url "users:signin" %}>Вход</button>#}
+{#        <button class="btn btn-blue mr-2" type="submit" href={% url "users:signup" %}>Регистрация</button>#}
+{#          {% endif %}#}
+{#    <form action={% url "users:logout" %}>#}
+{#    </form>#}
     </div>
+  </nav>
 </header>
