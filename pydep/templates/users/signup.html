@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 {% block title %}
-Регистрация
+    Регистрация
 {% endblock %}
 {% block content %}
-    <h1>Регистрация</h1>
-    <form method="post" enctype="multipart/form-data" action={% url "users:signup" %}>
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Зарегистрироваться">
-    </form>
+    <div class="container py-5">
+        <h1>Регистрация</h1>
+        <form method="post" enctype="multipart/form-data" action={% url "users:signup" %}>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" class="btn btn-blue" value="Зарегистрироваться">
+        </form>
+    </div>
 {% endblock %}

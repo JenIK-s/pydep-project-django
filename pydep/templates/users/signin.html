@@ -5,11 +5,15 @@
 {% endblock %}
 
 {% block content %}
-<h1>Вход</h1>
-    <form method="post" action={% url "users:signin" %}>
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Войти">
-    </form>
+    <div class="container py-5">
+        <h1>Вход</h1>
+        <div class="form-group row my-3">
+        <form method="post" action={% url "users:signin" %}>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" class="btn btn-blue" value="Войти">
+        </form>
+        </div>
+    </div>
 {% endblock %}
 
