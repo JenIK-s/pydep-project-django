@@ -1,15 +1,15 @@
 {% load static %}
-<header>
-  <nav class="navbar navbar-light">
-    <div class="container-fluid">
-      <a class="navbar-brand navbar-text">PyDep</a>
-        <form class="d-flex">
-            <a>Вход</a>
-            <a>Регистрация</a>
-
-
-        </form>
-
+{#<header>#}
+{#  <nav class="navbar navbar-light">#}
+{#    <div class="container-fluid">#}
+{#      <a class="navbar-brand navbar-text">PyDep</a>#}
+{#        <form class="d-flex">#}
+{#            <a>Вход</a>#}
+{#            <a>Регистрация</a>#}
+{##}
+{##}
+{#        </form>#}
+{##}
 {#          {% if user.is_authenticated %}#}
 {#    <form class="d-flex" action="#">#}
 {#              <button class="btn btn-blue mr-2" type="submit">{{ user.username }}</button>#}
@@ -23,6 +23,34 @@
 {#          {% endif %}#}
 {#    <form action={% url "users:logout" %}>#}
 {#    </form>#}
+{#    </div>#}
+{#  </nav>#}
+{#</header>#}
+<header class="p-3 bg-dark text-white">
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+        <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+            <img src={% static "img/logo.png" %} width="50" height="50" class="d-inline-block align-top" alt="">
+        <span style="color:yellow">Py</span><span style="color:deepskyblue">Dep</span>
+{#          <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>#}
+        </a>
+
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+{#          <li><a href="#" class="nav-link px-2 text-secondary">Главная</a></li>#}
+          <li><a href={% url "lesson:courses" %} class="nav-link px-2 text-white" style="">Курсы</a></li>
+          <li><a href="#" class="nav-link px-2 text-white">Ценообразование</a></li>
+          <li><a href="#" class="nav-link px-2 text-white">FAQ</a></li>
+          <li><a href="#" class="nav-link px-2 text-white">О нас</a></li>
+        </ul>
+
+        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+          <input type="search" class="form-control form-control-dark" placeholder="Search..." aria-label="Search">
+        </form>
+
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+          <li><a href={% url "users:signin" %} class="nav-link px-2 text-white">Войти</a></li>
+          <li><a href={% url "users:signup" %} class="nav-link px-2 text-white">Зарегистрироваться</a></li>
+        </ul>
+      </div>
     </div>
-  </nav>
-</header>
+  </header>

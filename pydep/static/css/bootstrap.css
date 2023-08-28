@@ -2107,7 +2107,7 @@ select.form-control-lg:not([size]):not([multiple]), .input-group-lg > select.for
 .input-group-lg > .input-group-prepend > select.input-group-text:not([size]):not([multiple]),
 .input-group-lg > .input-group-append > select.input-group-text:not([size]):not([multiple]),
 .input-group-lg > .input-group-prepend > select.btn:not([size]):not([multiple]),
-.input-group-lg > .input-group-append > select.btn:not([size]):not([multiple]) {
+.input-group-lg > .input-group-append > select.btn-primary:not([size]):not([multiple]) {
   height: calc(2.875rem + 2px);
 }
 
@@ -8976,7 +8976,7 @@ a.text-dark:hover, a.text-dark:focus {
 
 
 .btn-orange {
-  color: #212529;
+  color: #d9dde0;
   background-color: #FFE873;
   border-color: #FFE873;
 }
@@ -8987,12 +8987,12 @@ a.text-dark:hover, a.text-dark:focus {
 }
 
 .btn-blue {
-  color: #212529;
+  color: #ebecef;
   background-color: #306998;
   border-color: #306998;
 }
 .btn-blue:hover {
-  color: #212529;
+  color: #e1e2e5;
   background-color: #e2e6ea;
   border-color: #dae0e5;
 }
