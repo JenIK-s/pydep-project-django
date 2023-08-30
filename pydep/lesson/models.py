@@ -6,6 +6,7 @@ from users.models import User
 class Lesson(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
+    module = models.IntegerField()
 
     class Meta:
         verbose_name = 'Занятие'
@@ -16,7 +17,8 @@ class Lesson(models.Model):
 
 
 class Course(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField()
     price = models.IntegerField(default=1000)
     lessons = models.ManyToManyField(
         Lesson,
@@ -41,7 +43,7 @@ class LessonInCourse(models.Model):
     course = models.ForeignKey(
         Course,
         on_delete=models.CASCADE,
-        verbose_name='Занятие'
+        verbose_name='Курс'
     )
 
     class Meta:
@@ -55,10 +57,6 @@ class Group(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name='Пользователь'
-    )
-    courses = models.ManyToManyField(
-        Course,
-        verbose_name='Курсы'
     )
 
     class Meta:
