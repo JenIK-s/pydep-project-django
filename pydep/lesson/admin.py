@@ -1,20 +1,46 @@
 from django.contrib import admin
 
-from .models import Course, LessonInCourse, Lesson, Group
+from .models import Course, ModulesInCourse, Lesson, CustomGroup, Module
+
+
+class ModulesInCourseInline(admin.TabularInline):
+    model = ModulesInCourse
+    extra = 1
+    min_num = 1
+
+
+class LessonInline(admin.TabularInline):
+    model = Lesson
+    extra = 1
+    min_num = 1
+
+
+class ModuleInline(admin.TabularInline):
+    model = Module
+    extra = 1
+    min_num = 1
+
+
+@admin.register(Module)
+class ModuleAdmin(admin.ModelAdmin):
+    list_display = (
+        'title',
+    )
 
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
+    inlines = [ModulesInCourseInline,]
     list_display = (
         'name',
         'pub_date',
     )
 
 
-@admin.register(LessonInCourse)
+@admin.register(ModulesInCourse)
 class LessonInCourseAdmin(admin.ModelAdmin):
     list_display = (
-        'lesson',
+        'module',
         'course',
     )
 
@@ -26,9 +52,9 @@ class LessonAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(Group)
-class GroupAdmin(admin.ModelAdmin):
-    list_display = (
-        'title',
-        'user',
-    )
+# @admin.register(CustomGroup)
+# class GroupAdmin(admin.ModelAdmin):
+#     list_display = (
+#         'title',
+#         'user',
+#     )

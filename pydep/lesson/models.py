@@ -1,12 +1,13 @@
+from django.contrib.auth.models import Group
 from django.db import models
 
-from users.models import User
-
+from users.models import CustomUser as User
+# from django.contrib.auth import get_user_model
+# User = get_user_model()
 
 class Lesson(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
-    module = models.IntegerField()
 
     class Meta:
         verbose_name = 'Занятие'
@@ -16,13 +17,32 @@ class Lesson(models.Model):
         return self.title
 
 
+class CustomGroup(Group):
+    price = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Группа'
+        verbose_name_plural = 'Группы'
+
+    def __str__(self):
+        return self.title
+
+
+class Module(models.Model):
+    title = models.CharField(max_length=255, unique=True)
+    lessons = models.ManyToManyField(Lesson)
+
+    def __str__(self):
+        return self.title
+
+
 class Course(models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField()
     price = models.IntegerField(default=1000)
-    lessons = models.ManyToManyField(
-        Lesson,
-        through='LessonInCourse'
+    modules = models.ManyToManyField(
+        Module,
+        through='ModulesInCourse'
     )
     pub_date = models.DateTimeField()
 
@@ -34,11 +54,11 @@ class Course(models.Model):
         return self.name
 
 
-class LessonInCourse(models.Model):
-    lesson = models.ForeignKey(
-        Lesson,
+class ModulesInCourse(models.Model):
+    module = models.ForeignKey(
+        Module,
         on_delete=models.CASCADE,
-        verbose_name='Занятие'
+        verbose_name='Модуль'
     )
     course = models.ForeignKey(
         Course,
@@ -47,21 +67,5 @@ class LessonInCourse(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Занятие в курсе'
-        verbose_name_plural = 'Занятия в курсах '
-
-
-class Group(models.Model):
-    title = models.CharField(max_length=255)
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Пользователь'
-    )
-
-    class Meta:
-        verbose_name = 'Группа'
-        verbose_name_plural = 'Группы'
-
-    def __str__(self):
-        return self.title
+        verbose_name = 'Модули в курсе'
+        verbose_name_plural = 'Модули в курсах'

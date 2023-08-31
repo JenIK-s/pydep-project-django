@@ -8,10 +8,47 @@
         <h1>{{ course.name }}</h1>
         <a>{{ course.description }}</a>
         <br>
-        {% for lesson in lessons_in_course %}
-            <a>{{ lesson.lesson }}</a>
-            <br>
-        {% endfor %}
+            <div class="row">
+                {% for module in modules %}
+
+
+                <div class="col-sm-4">
+                    <div class="card" style="width: 18rem;">
+                        <img class="card-img-top" src={% static "img/logo.png" %}>
+                        <div class="card-body">
+                            <p class="card-text">{{ module.module }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+{#                <div class="col-sm-4">#}
+{#                    <div class="card" style="width: 18rem;">#}
+{#                        <img class="card-img-top" src={% static "img/logo.png" %} alt="Card image cap">#}
+{#                        <div class="card-body">#}
+{#                            <p class="card-text">Some quick example text to build on the card title and make up the bulk#}
+{#                                of the#}
+{#                                card's content.</p>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#                <div class="col-sm-4">#}
+{#                    <div class="card" style="width: 18rem;">#}
+{#                        <img class="card-img-top" src={% static "img/logo.png" %} alt="Card image cap">#}
+{#                        <div class="card-body">#}
+{#                            <p class="card-text">Some quick example text to build on the card title and make up the bulk#}
+{#                                of the#}
+{#                                card's content.</p>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+            </div>
+
+
+
+        {#        {% for lesson in lessons_in_course %}#}
+        {#            <a>{{ lesson.lesson }}</a>#}
+        {#            <br>#}
+        {#        {% endfor %}#}
     </div>
 {% endblock %}
 
