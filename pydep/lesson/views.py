@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
-from .models import Course, LessonInCourse
+from .models import Course, ModulesInCourse
 
 
 def index(request):
@@ -20,10 +20,10 @@ def courses_list(request):
 @login_required
 def course_detail(request, course_name):
     course = Course.objects.get(name=course_name)
-    lessons_in_course = LessonInCourse.objects.filter(course=course)
+    modules = ModulesInCourse.objects.filter(course=course)
     context = {
         'course': course,
-        'lessons_in_course': lessons_in_course,
+        'modules': modules,
     }
     return render(request, 'lesson/course_detail.html', context)
 

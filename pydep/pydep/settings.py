@@ -90,4 +90,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'users:signin'
 LOGIN_REDIRECT_URL = 'lesson:index'
 LOGOUT_REDIRECT_URL = 'lesson:index'
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'users.CustomUser'
+
+AUTH_GROUP_MODEL = 'lesson.CustomGroup'
