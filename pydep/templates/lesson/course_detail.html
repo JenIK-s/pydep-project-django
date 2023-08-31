@@ -16,7 +16,7 @@
                     <div class="card" style="width: 18rem;">
                         <img class="card-img-top" src={% static "img/logo.png" %}>
                         <div class="card-body">
-                            <p class="card-text">{{ module.module }}</p>
+                            <a class="card-text" href={% url "lesson:module_detail" module.module %}>{{ module.module }}</a>
                         </div>
                     </div>
                 </div>
