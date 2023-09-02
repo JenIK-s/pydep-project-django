@@ -5,9 +5,9 @@
 
 {% block content %}
     <div class="container py-5">
-        {% for lesson in lessons %}
-            {{ lesson.title }}
-    {% endfor %}
+        {% for x in lessons %}
+            <a href="">{{ x.title }}</a>
+        {% endfor %}
     </div>
 {% endblock %}
 
