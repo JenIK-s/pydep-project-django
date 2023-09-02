@@ -29,8 +29,15 @@ def course_detail(request, course_name):
 
 
 @login_required
-def lesson_detail(request, course_name, lesson_title):
-    return render(request, 'lesson/lesson_detail.html')
+def lesson_detail(request, course_name, module_name, lesson_name):
+    lesson = Lesson.objects.get(title=lesson_name)
+    context = {
+        'course_name': course_name,
+        'module_name': module_name,
+        'lesson_title': lesson_name,
+        'lesson': lesson,
+    }
+    return render(request, 'lesson/lesson_detail.html', context=context)
 
 
 @login_required
@@ -41,9 +48,9 @@ def module_detail(request, course_name, module_name):
     context = {
         'lessons': lessons,
         'course_name': course_name,
+        'module_name': module.title
     }
     return render(request, 'lesson/module_detail.html', context)
-
 
 
 @login_required
