@@ -29,27 +29,28 @@ def course_detail(request, course_name):
 
 
 @login_required
-def lesson_detail(request, course_name, lesson_title):
-    return render(request, 'lesson/lesson_detail.html')
+def lesson_detail(request, course_name, module_name, lesson_name):
+    lesson = Lesson.objects.get(title=lesson_name)
+    context = {
+        'course_name': course_name,
+        'module_name': module_name,
+        'lesson_title': lesson_name,
+        'lesson': lesson,
+    }
+    return render(request, 'lesson/lesson_detail.html', context=context)
 
 
 @login_required
-def module_detail(request, module_name):
-    lessons_list = Module.objects.filter(title=module_name)
-    lessons_values = None
-    for les in lessons_list:
-        lessons_values = les.lessons.values_list('title', flat=True)
-    lessons = []
-    for lesson in lessons_values:
-        lessons.append(Lesson.objects.filter(title=lesson))
-    for l in lessons:
-        print(l.values('title'))
+def module_detail(request, course_name, module_name):
+    module = Module.objects.get(title=module_name)
+    lessons = module.lessons.all()
 
     context = {
-        'lessons': lessons
+        'lessons': lessons,
+        'course_name': course_name,
+        'module_name': module.title
     }
     return render(request, 'lesson/module_detail.html', context)
-
 
 
 @login_required
