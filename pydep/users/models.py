@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+
 # from lesson.models import CustomGroup
 
 
@@ -32,6 +33,7 @@ class CustomUser(AbstractUser):
     birthday = models.DateTimeField(
         auto_now_add=True,
     )
+
     # group = models.ForeignKey(
     #     CustomGroup,
     #     on_delete=models.CASCADE,
@@ -46,3 +48,13 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+# class Course(models.Model):
+#     title = models.CharField()
+#
+# class Teacher(models.Model):
+#     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+#
+#
+# class Student(models.Model):
+#     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
