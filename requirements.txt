@@ -1,2 +1,3 @@
 Django
 Pillow
+django-ckeditor-5==0.2.9
