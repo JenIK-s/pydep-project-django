@@ -1,7 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
-
-# from lesson.models import CustomGroup
+from django.db import models
 
 
 class CustomUser(AbstractUser):
@@ -32,13 +30,6 @@ class CustomUser(AbstractUser):
     birthday = models.DateTimeField(
         auto_now_add=True,
     )
-    # group = models.ForeignKey(
-    #     CustomGroup,
-    #     on_delete=models.CASCADE,
-    #     verbose_name='Группа',
-    #     blank=True,
-    #     null=True
-    # )
 
     class Meta:
         verbose_name = 'Пользователь'
