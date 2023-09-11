@@ -3,6 +3,8 @@ from django.shortcuts import render
 
 from .models import Course, ModulesInCourse, Module, Lesson
 
+from .context_processors.decorators import course_required
+
 
 def index(request):
     return render(request, 'lesson/index.html')
@@ -17,6 +19,7 @@ def courses_list(request):
     return render(request, 'lesson/courses_list.html', context)
 
 
+@course_required
 @login_required
 def course_detail(request, course_name):
     course = Course.objects.get(name=course_name)
@@ -55,4 +58,12 @@ def module_detail(request, course_name, module_name):
 
 @login_required
 def profile(request):
-    return render(request, 'lesson/profile.html')
+    user = request.user
+    learn_courses = user.courses_learn.all()
+    teach_courses = user.courses_teach.all()
+    print(learn_courses)
+    context = {
+        'learn_courses': learn_courses,
+        'teach_courses': teach_courses,
+    }
+    return render(request, 'lesson/profile.html', context)
