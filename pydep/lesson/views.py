@@ -31,6 +31,7 @@ def course_detail(request, course_name):
     return render(request, 'lesson/course_detail.html', context)
 
 
+@course_required
 @login_required
 def lesson_detail(request, course_name, module_name, lesson_name):
     lesson = Lesson.objects.get(title=lesson_name)
@@ -43,6 +44,7 @@ def lesson_detail(request, course_name, module_name, lesson_name):
     return render(request, 'lesson/lesson_detail.html', context=context)
 
 
+@course_required
 @login_required
 def module_detail(request, course_name, module_name):
     module = Module.objects.get(title=module_name)
