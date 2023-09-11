@@ -5,7 +5,14 @@
 
 {% block content %}
     <div class="container py-5">
-        <h1>Мои курсы:</h1>
+        <h1>Прохожу курсы:</h1>
+    {% if learn_courses %}
+    {% for course in learn_courses %}
+        <a>{{ course.name }}</a>
+    {% endfor %}
+        {% else %}
+        <a>Сейчас Вы не проходите никакие курсы</a>
+    {% endif %}
     </div>
 {% endblock %}
 

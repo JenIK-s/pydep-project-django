@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from lesson.models import Course
+
 
 class CustomUser(AbstractUser):
     username = models.CharField(
@@ -30,6 +32,20 @@ class CustomUser(AbstractUser):
     birthday = models.DateTimeField(
         auto_now_add=True,
     )
+    courses_learn = models.ManyToManyField(
+        Course,
+        blank=True,
+        null=True,
+        verbose_name='Прохожу курсы',
+        related_name='user_course',
+    )
+    courses_teach = models.ManyToManyField(
+        Course,
+        blank=True,
+        null=True,
+        verbose_name='Преподаю курсы'
+    )
+    # is_teacher = models.BooleanField()
 
     class Meta:
         verbose_name = 'Пользователь'
