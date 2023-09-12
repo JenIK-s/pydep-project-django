@@ -40,6 +40,7 @@ class Course(models.Model):
         through='ModulesInCourse',
         verbose_name='Модули'
     )
+    programming_language = models.CharField(max_length=255)
 
     class Meta:
         verbose_name = 'Курс'
