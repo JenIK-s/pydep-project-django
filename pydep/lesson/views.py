@@ -61,11 +61,15 @@ def module_detail(request, course_name, module_name):
 @login_required
 def profile(request):
     user = request.user
+    is_teacher = user.is_teacher
+    is_student = user.is_student
     learn_courses = user.courses_learn.all()
     teach_courses = user.courses_teach.all()
     print(learn_courses)
     context = {
         'learn_courses': learn_courses,
         'teach_courses': teach_courses,
+        'is_teacher': is_teacher,
+        'is_student': is_student,
     }
     return render(request, 'lesson/profile.html', context)

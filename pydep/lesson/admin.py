@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Course, CustomGroup, ModulesInCourse, Lesson, Module
+from .models import Course, ModulesInCourse, Lesson, Module
 
 
 class ModulesInCourseInline(admin.TabularInline):
@@ -48,11 +48,4 @@ class LessonInCourseAdmin(admin.ModelAdmin):
 class LessonAdmin(admin.ModelAdmin):
     list_display = (
         'title',
-    )
-
-
-@admin.register(CustomGroup)
-class GroupAdmin(admin.ModelAdmin):
-    list_display = (
-        'price',
     )
