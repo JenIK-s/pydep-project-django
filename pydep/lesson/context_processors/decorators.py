@@ -8,5 +8,5 @@ def course_required(func):
             result = func(*args, **kwargs)
             return result
         except:
-            return render(args[0], 'lesson/permission_denied.html')
+            return render(args[0], 'lesson/register_course.html')
     return check_course_in_user
