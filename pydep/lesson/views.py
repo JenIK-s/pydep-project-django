@@ -19,6 +19,19 @@ def courses_list(request):
     return render(request, 'lesson/courses_list.html', context)
 
 
+@login_required
+def courses_list_about_languages(request, prog_lang):
+    courses = Course.objects.filter(programming_language=prog_lang)
+    context = {
+        'courses': courses,
+    }
+    return render(
+        request,
+        template_name='lesson/courses_list_about_languages.html',
+        context=context
+    )
+
+
 @course_required
 @login_required
 def course_detail(request, course_name):
