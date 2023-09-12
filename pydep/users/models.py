@@ -35,17 +35,17 @@ class CustomUser(AbstractUser):
     courses_learn = models.ManyToManyField(
         Course,
         blank=True,
-        null=True,
         verbose_name='Прохожу курсы',
         related_name='user_course',
     )
     courses_teach = models.ManyToManyField(
         Course,
         blank=True,
-        null=True,
         verbose_name='Преподаю курсы'
     )
-    # is_teacher = models.BooleanField()
+    is_teacher = models.BooleanField(default=False)
+    is_student = models.BooleanField(default=False)
+    payment = models.IntegerField(blank=True, null=True)
 
     class Meta:
         verbose_name = 'Пользователь'
