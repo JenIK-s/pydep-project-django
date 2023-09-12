@@ -65,17 +65,3 @@ class ModulesInCourse(models.Model):
     class Meta:
         verbose_name = 'Модули в курсе'
         verbose_name_plural = 'Модули в курсах'
-
-
-class CustomGroup(Group):
-    price = models.IntegerField(blank=True, null=True)
-
-    # learn_courses = models.ManyToManyField(Course, blank=True, null=True)
-    # teach_courses = models.ManyToManyField(Course, blank=True, null=True, related_name='customg')
-
-    class Meta:
-        verbose_name = 'Группа'
-        verbose_name_plural = 'Группы'
-
-    def __str__(self):
-        return self.name
