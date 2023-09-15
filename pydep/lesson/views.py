@@ -3,20 +3,25 @@ from django.shortcuts import render
 
 from .models import Course, ModulesInCourse, Module, Lesson
 
-from .context_processors.decorators import course_required
+from .context_processors.decorators import course_required, search_request
 
 
 def index(request):
     return render(request, 'lesson/index.html')
 
 
+@search_request
 @login_required
-def courses_list(request):
-    courses = Course.objects.all()
-    context = {
-        'courses': courses,
-    }
-    return render(request, 'lesson/courses_list.html', context)
+def courses_list(request, queryset=None):
+    if queryset is None:
+        courses = Course.objects.all()
+        context = {
+            'courses': courses,
+        }
+    else:
+        context = {'courses': queryset}
+    return render(request, template_name='lesson/courses_list.html',
+                  context=context)
 
 
 @login_required
@@ -78,7 +83,7 @@ def profile(request):
     is_student = user.is_student
     learn_courses = user.courses_learn.all()
     teach_courses = user.courses_teach.all()
-    print(learn_courses)
+
     context = {
         'learn_courses': learn_courses,
         'teach_courses': teach_courses,
