@@ -53,3 +53,14 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+class RegisterCourse(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    start_date = models.DateField()
+
+    class Meta:
+        verbose_name = 'Запись на курс'
+        verbose_name_plural = 'Записи на курсы'
+        unique_together = ['user', 'course']
