@@ -14,25 +14,25 @@ def index(request):
 @login_required
 def courses_list(request, queryset=None):
     if queryset is None:
-        courses = Course.objects.all()
-        context = {
-            'courses': courses,
-        }
+        context = {'courses': Course.objects.all()}
     else:
         context = {'courses': queryset}
+
     return render(request, template_name='lesson/courses_list.html',
                   context=context)
 
 
+@search_request
 @login_required
-def courses_list_about_languages(request, prog_lang):
-    courses = Course.objects.filter(programming_language=prog_lang)
-    context = {
-        'courses': courses,
-    }
+def courses_list_about_languages(request, prog_lang, queryset=None):
+    if queryset is None:
+        context = {
+            'courses': Course.objects.filter(programming_language=prog_lang)
+        }
+    else:
+        context = {'courses': queryset}
     return render(
-        request,
-        template_name='lesson/courses_list_about_languages.html',
+        request, template_name='lesson/courses_list_about_languages.html',
         context=context
     )
 
