@@ -1,62 +1,50 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 
-from .context_processors.decorators import course_required
-from .forms import RegisterCourseForm
 from .models import Course, ModulesInCourse, Module, Lesson
-from users.models import RegisterCourse
+
+from .context_processors.decorators import course_required, search_request
 
 
 def index(request):
     return render(request, 'lesson/index.html')
 
 
+@search_request
 @login_required
-def courses_list(request):
-    courses = Course.objects.all()
-    context = {
-        'courses': courses,
-    }
-    return render(request, 'lesson/courses_list.html', context)
+def courses_list(request, queryset=None):
+    if queryset is None:
+        context = {'courses': Course.objects.all()}
+    else:
+        context = {'courses': queryset}
+
+    return render(request, template_name='lesson/courses_list.html',
+                  context=context)
 
 
+@search_request
 @login_required
-def courses_list_about_languages(request, prog_lang):
-    courses = Course.objects.filter(programming_language=prog_lang)
-    context = {
-        'courses': courses,
-    }
+def courses_list_about_languages(request, prog_lang, queryset=None):
+    if queryset is None:
+        context = {
+            'courses': Course.objects.filter(programming_language=prog_lang)
+        }
+    else:
+        context = {'courses': queryset}
     return render(
-        request,
-        template_name='lesson/courses_list_about_languages.html',
+        request, template_name='lesson/courses_list_about_languages.html',
         context=context
     )
 
 
+@course_required
 @login_required
 def course_detail(request, course_name):
     course = Course.objects.get(name=course_name)
     modules = ModulesInCourse.objects.filter(course=course)
-
-    form = RegisterCourseForm(request.POST or None)
-
-    if form.is_valid():
-        application = form.save(commit=False)
-        form_data = {
-            'user': request.user,
-            'course': course,
-            'start_date': application.start_date
-        }
-        print(form_data)
-        RegisterCourse.objects.create(**form_data)
-        return redirect('lesson:profile')
-
-
-
     context = {
         'course': course,
         'modules': modules,
-        'form': form,
     }
     return render(request, 'lesson/course_detail.html', context)
 
@@ -74,6 +62,7 @@ def lesson_detail(request, course_name, module_name, lesson_name):
     return render(request, 'lesson/lesson_detail.html', context=context)
 
 
+@course_required
 @login_required
 def module_detail(request, course_name, module_name):
     module = Module.objects.get(title=module_name)
@@ -94,6 +83,7 @@ def profile(request):
     is_student = user.is_student
     learn_courses = user.courses_learn.all()
     teach_courses = user.courses_teach.all()
+
     context = {
         'learn_courses': learn_courses,
         'teach_courses': teach_courses,

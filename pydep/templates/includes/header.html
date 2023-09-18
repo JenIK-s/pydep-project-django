@@ -73,9 +73,12 @@
                 <li><a href="#" class="nav-link px-2 text-white">О нас</a></li>
             </ul>
 
-            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+            <form action="{% url 'lesson:courses' %}" method="get"
+                  class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+                {% csrf_token %}
                 <input type="search" class="form-control form-control-dark"
-                       placeholder="Search..." aria-label="Search">
+                       placeholder="" aria-label="Search" name="search"
+                       autocomplete="off">
             </form>
 
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
