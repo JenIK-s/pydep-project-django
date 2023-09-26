@@ -3,8 +3,7 @@ from functools import wraps
 from django.shortcuts import render
 
 from ..models import Course
-from django.contrib.postgres.search import (SearchVector, SearchQuery,
-                                            SearchRank)
+from django.contrib.postgres.search import TrigramSimilarity
 
 
 def course_required(func):
@@ -25,12 +24,9 @@ def search_request(view_func):
     def wrapper(request, *args, **kwargs):
         query = request.GET.get('search')
         if query is not None:
-            search_vector = SearchVector('name', weight='A')
-
-            search_query = SearchQuery(query)
             queryset = Course.objects.annotate(
-                rank=SearchRank(search_vector, search_query)
-            ).filter(rank__gte=0.3).order_by('-rank')
+                similarity=TrigramSimilarity('name', query)
+            ).filter(similarity__gt=.01).order_by('-similarity')
         else:
             queryset = None
         return view_func(request, queryset=queryset, *args, **kwargs)
