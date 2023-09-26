@@ -1,9 +1,11 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from .models import Course, ModulesInCourse, Module, Lesson
+from .forms import RegisterCourseForm
 
 from .context_processors.decorators import course_required, search_request
+from users.models import RegisterCourse
 
 
 def index(request):
@@ -37,14 +39,27 @@ def courses_list_about_languages(request, prog_lang, queryset=None):
     )
 
 
-@course_required
 @login_required
 def course_detail(request, course_name):
     course = Course.objects.get(name=course_name)
     modules = ModulesInCourse.objects.filter(course=course)
+    form = RegisterCourseForm(request.POST or None)
+
+    if form.is_valid():
+        application = form.save(commit=False)
+        form_data = {
+            'user': request.user,
+            'course': course,
+            'start_date': application.start_date
+        }
+        print(form_data)
+        RegisterCourse.objects.create(**form_data)
+        return redirect('lesson:profile')
+
     context = {
         'course': course,
         'modules': modules,
+        'form': form,
     }
     return render(request, 'lesson/course_detail.html', context)
 
@@ -62,7 +77,6 @@ def lesson_detail(request, course_name, module_name, lesson_name):
     return render(request, 'lesson/lesson_detail.html', context=context)
 
 
-@course_required
 @login_required
 def module_detail(request, course_name, module_name):
     module = Module.objects.get(title=module_name)
@@ -89,5 +103,6 @@ def profile(request):
         'teach_courses': teach_courses,
         'is_teacher': is_teacher,
         'is_student': is_student,
+        'user': user,
     }
     return render(request, 'lesson/profile.html', context)
