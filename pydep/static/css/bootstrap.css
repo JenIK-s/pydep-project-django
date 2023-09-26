@@ -9000,3 +9000,9 @@ a.text-dark:hover, a.text-dark:focus {
 .navbar-text {
   color: white;
 }
+
+
+
+.round {
+    border-radius: 50%;
+}

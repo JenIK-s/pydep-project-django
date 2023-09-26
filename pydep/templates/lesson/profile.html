@@ -5,28 +5,110 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container py-5">
-    {% if user.image %}
-        {% thumbnail user.image "960x339" crop="center" upscale=True as im %}
-        <img class="card-img-top" src={{ im.url }}>
-        {% endthumbnail %}
-    {% endif %}
-        <a>{{ user.get_full_name }}</a>
-        {% if user.is_staff %}
-            <h1>Модератор</h1>
-        {% endif %}
-        {% if is_student %}
-            <h1>Прохожу курсы:</h1>
-            {% for course in learn_courses %}
-                <a>{{ course.name }}</a>
-            {% endfor %}
-        {% endif %}
-        {% if is_teacher %}
-            <h1>Преподаю курсы:</h1>
-            {% for course in teach_courses %}
-                <a>{{ course.name }}</a>
-            {% endfor %}
-        {% endif %}
+    <style>
+        .round {
+            border-radius: 50%;
+        }
+
+        .highlighted-text {
+            border: 1px solid black;
+            padding: 5px;
+            border-radius: 5px;
+        }
+    </style>
+    {#    <div class="container py-5">#}
+    {#    {% if user.image %}#}
+    {#        {% thumbnail user.image "135x135" crop="center" upscale=True as im %}#}
+    {#            <img class="round" src="{{ im.url }}">#}
+    {#        {% endthumbnail %}#}
+    {##}
+    {#    {% endif %}#}
+    {#        <a>{{ user.get_full_name }}</a>#}
+    {#        {% if user.is_staff %}#}
+    {#            <a class="lef highlighted-text">Модератор</a>#}
+    {#        {% endif %}#}
+    {#        {% if is_student %}#}
+    {#            <h1>Прохожу курсы:</h1>#}
+    {#            {% for course in learn_courses %}#}
+    {#                <a>{{ course.name }}</a>#}
+    {#            {% endfor %}#}
+    {#        {% endif %}#}
+    {#        {% if is_teacher %}#}
+    {#            <h1>Преподаю курсы:</h1>#}
+    {#            {% for course in teach_courses %}#}
+    {#                <a>{{ course.name }}</a>#}
+    {#            {% endfor %}#}
+    {#        {% endif %}#}
+    {#    </div>#}
+
+
+
+    <link rel="stylesheet" href="https://bootstraptema.ru/plugins/2015/bootstrap3/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <script src="https://bootstraptema.ru/plugins/jquery/jquery-1.11.3.min.js"></script>
+    <script src="https://bootstraptema.ru/plugins/2015/b-v3-3-6/bootstrap.min.js"></script>
+
+    <br><br><br>
+
+
+    <div class="container">
+        <div id="main">
+            <div class="col-lg-4 col-md-4 col-xs-12">
+                <div class="panel-heading">
+                    <div class="text-center">
+                        <div class="text-center" id="author">
+                            {% thumbnail user.image "200x200" crop="center" upscale=True as im %}
+                                <img class="round" src="{{ im.url }}">
+                            {% endthumbnail %}
+                            <h3>{{ user.get_full_name }}</h3>
+                            {% if user.is_staff %}
+                                <small class="label label-warning">Модератор</small>
+                            {% endif %}
+                            {% if is_student %}
+                                <small class="label label-warning">Студент</small>
+                            {% endif %}
+                            {% if is_teacher %}
+                                <small class="label label-warning">Преподаватель</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8 col-md-8 col-xs-12">
+                <div class="panel">
+                    <div class="panel-body">
+                        <ul id="myTab" class="nav nav-pills">
+                            <li class="active"><a href="#detail" data-toggle="tab">О пользователе</a></li>
+                            <li class=""><a href="#contact" data-toggle="tab">Контакты</a></li>
+                        </ul>
+                        <div id="myTabContent" class="tab-content">
+                            <hr>
+                            <div class="tab-pane fade active in" id="detail">
+                                {% if is_student %}
+                                    <h4>Прохожу курсы:</h4>
+                                    {% for course in learn_courses %}
+                                        <a>- {{ course.name }}</a><br>
+                                    {% endfor %}
+                                {% endif %}
+                                {% if is_teacher %}
+                                    <h4>Преподаю курсы:</h4>
+                                    {% for course in teach_courses %}
+                                        <a>- {{ course.name }}</a><br>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="tab-pane fade" id="contact">
+                                <p></p>
+                                <form role="form">
+                                    <div class="form-group">
+                                        <a>Telegram - @jnwebv</a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
-
