@@ -58,7 +58,7 @@ class CustomUser(AbstractUser):
 class RegisterCourse(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    start_date = models.DateField()
+    start_date = models.DateField(verbose_name='Дата старта потока')
 
     class Meta:
         verbose_name = 'Запись на курс'

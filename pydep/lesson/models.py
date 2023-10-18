@@ -33,6 +33,7 @@ class Course(models.Model):
     name = models.CharField(max_length=255, unique=True, verbose_name='Название')
     description = models.TextField(verbose_name='Описание')
     price = models.IntegerField(default=1000, verbose_name='Цена')
+    image = models.ImageField(upload_to='courses', verbose_name='Логотип курса')
     modules = models.ManyToManyField(
         Module,
         through='ModulesInCourse',

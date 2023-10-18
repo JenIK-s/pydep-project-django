@@ -13,7 +13,6 @@ def index(request):
 
 
 @search_request
-@login_required
 def courses_list(request, queryset=None):
     if queryset is None:
         context = {'courses': Course.objects.all()}
