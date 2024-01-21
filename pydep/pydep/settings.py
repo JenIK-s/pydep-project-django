@@ -59,7 +59,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'pydep.wsgi.application'
+BASE = {
 
+}
 DATABASES = {
     'default': {
         'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
