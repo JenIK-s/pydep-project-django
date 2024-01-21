@@ -8,12 +8,13 @@
 
 {% block content %}
     <div class="container py-5">
+    {% if courses %}
         {% for course in courses %}
         <div class="card mb-3" style="max-width: 540px;">
             <div class="row no-gutters">
                 <div class="col-md-4">
                     <a href={% url "lesson:course_detail" course.name %}>
-                    <img src={{ course.image.url }} %} class="card-img" alt="...">
+                    <img src={% if course.image.url %}{{ course.image.url }} {% else %}{% static 'img/no_img.png' %}{% endif %}class="card-img" alt="...">
                         </a>
                 </div>
                 <div class="col-md-8">
@@ -26,6 +27,9 @@
             </div>
         </div>
         {% endfor %}
+    {% else %}
+    <h3 align="center">По Вашему запросу ничего не найдено :(</h3>
+    {% endif %}
     </div>
 {% endblock %}
 

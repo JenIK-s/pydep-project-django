@@ -10,12 +10,17 @@ urlpatterns = [
     path('profile/', profile, name='profile'),
     path('courses/', courses_list, name='courses'),
     path('course/<str:course_name>/', course_detail, name='course_detail'),
-    path('course/<str:course_name>/<str:module_name>/', module_detail,
-         name='module_detail'),
-    path('course/<str:course_name>/<str:module_name>/<str:lesson_name>/',
-         lesson_detail,
-         name='lesson_detail'
-         ),
-    path('courses/<str:prog_lang>', courses_list_about_languages,
-name='courses_list_about_languages')
+    path(
+        'course/<str:course_name>/<str:module_name>/',
+        module_detail,
+        name='module_detail'),
+    path(
+        'course/<str:course_name>/<str:module_name>/<str:lesson_name>/',
+        lesson_detail,
+        name='lesson_detail'
+    ),
+    path('courses/<str:prog_lang>',
+         courses_list_about_languages,
+         name='courses_list_about_languages'
+    )
 ]

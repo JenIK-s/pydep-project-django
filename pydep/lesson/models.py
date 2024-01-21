@@ -19,6 +19,7 @@ class Lesson(models.Model):
 
 class Module(models.Model):
     title = models.CharField(max_length=255, unique=True)
+    description = models.TextField(verbose_name='Описание')
     lessons = models.ManyToManyField(Lesson)
 
     class Meta:

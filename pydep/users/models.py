@@ -21,6 +21,7 @@ class CustomUser(AbstractUser):
         null=True,
         verbose_name='Аватар',
     )
+    description = models.TextField()
     first_name = models.CharField(
         max_length=50,
         verbose_name='Ваше имя',
