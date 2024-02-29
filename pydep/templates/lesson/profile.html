@@ -15,128 +15,28 @@
             padding: 5px;
             border-radius: 5px;
         }
+        .image{
+    object-fit: cover;
+    height: 120px;
+}
     </style>
-    {#    <div class="container py-5">#}
-    {#    {% if user.image %}#}
-    {#        {% thumbnail user.image "135x135" crop="center" upscale=True as im %}#}
-    {#            <img class="round" src="{{ im.url }}">#}
-    {#        {% endthumbnail %}#}
-    {##}
-    {#    {% endif %}#}
-    {#        <a>{{ user.get_full_name }}</a>#}
-    {#        {% if user.is_staff %}#}
-    {#            <a class="lef highlighted-text">Модератор</a>#}
-    {#        {% endif %}#}
-    {#        {% if is_student %}#}
-    {#            <h1>Прохожу курсы:</h1>#}
-    {#            {% for course in learn_courses %}#}
-    {#                <a>{{ course.name }}</a>#}
-    {#            {% endfor %}#}
-    {#        {% endif %}#}
-    {#        {% if is_teacher %}#}
-    {#            <h1>Преподаю курсы:</h1>#}
-    {#            {% for course in teach_courses %}#}
-    {#                <a>{{ course.name }}</a>#}
-    {#            {% endfor %}#}
-    {#        {% endif %}#}
-    {#    </div>#}
-
-
-
-    {#    <link rel="stylesheet" href="https://bootstraptema.ru/plugins/2015/bootstrap3/bootstrap.min.css"/>#}
-    {#    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>#}
-    {#    <script src="https://bootstraptema.ru/plugins/jquery/jquery-1.11.3.min.js"></script>#}
-    {#    <script src="https://bootstraptema.ru/plugins/2015/b-v3-3-6/bootstrap.min.js"></script>#}
-
-    {#    <br><br><br>#}
-
-
-    {#    <div class="container">#}
-    {#        <div id="main">#}
-    {#            <div class="col-lg-4 col-md-4 col-xs-12">#}
-    {#                <div class="panel-heading">#}
-    {#                    <div class="text-center">#}
-    {#                        <div class="text-center" id="author">#}
-    {#                            {% thumbnail user.image "200x200" crop="center" upscale=True as im %}#}
-    {#                                <img class="round" src="{{ im.url }}">#}
-    {#                            {% endthumbnail %}#}
-    {#                            <h3>{{ user.get_full_name }}</h3>#}
-    {#                            {% if user.is_staff %}#}
-    {#                                <small class="label label-warning">Модератор</small>#}
-    {#                            {% endif %}#}
-    {#                            {% if is_student %}#}
-    {#                                <small class="label label-warning">Студент</small>#}
-    {#                            {% endif %}#}
-    {#                            {% if is_teacher %}#}
-    {#                                <small class="label label-warning">Преподаватель</small>#}
-    {#                            {% endif %}#}
-    {#                        </div>#}
-    {#                    </div>#}
-    {#                </div>#}
-    {#            </div>#}
-    {#            <div class="col-lg-8 col-md-8 col-xs-12">#}
-    {#                <div class="panel">#}
-    {#                    <div class="panel-body">#}
-    {#                        <ul id="myTab" class="nav nav-pills">#}
-    {#                            <li class="active"><a href="#detail" data-toggle="tab">О пользователе</a></li>#}
-    {#                            <li class=""><a href="#contact" data-toggle="tab">Контакты</a></li>#}
-    {#                        </ul>#}
-    {#                        <div id="myTabContent" class="tab-content">#}
-    {#                            <hr>#}
-    {#                            <div class="tab-pane fade active in" id="detail">#}
-    {#                                {% if is_student %}#}
-    {#                                    <h4>Прохожу курсы:</h4>#}
-    {#                                    {% for course in learn_courses %}#}
-    {#                                        <a>- {{ course.name }}</a><br>#}
-    {#                                    {% endfor %}#}
-    {#                                {% endif %}#}
-    {#                                {% if is_teacher %}#}
-    {#                                    <h4>Преподаю курсы:</h4>#}
-    {#                                    {% for course in teach_courses %}#}
-    {#                                        <a>- {{ course.name }}</a><br>#}
-    {#                                    {% endfor %}#}
-    {#                                {% endif %}#}
-    {#                            </div>#}
-    {#                            <div class="tab-pane fade" id="contact">#}
-    {#                                <p></p>#}
-    {#                                <form role="form">#}
-    {#                                    <div class="form-group">#}
-    {#                                        <a>Telegram - @jnwebv</a>#}
-    {#                                    </div>#}
-    {#                                </form>#}
-    {#                            </div>#}
-    {#                        </div>#}
-    {#                    </div>#}
-    {#                </div>#}
-    {#            </div>#}
-    {#        </div>#}
-    {#    </div>#}
-
-
     <div class="card mb-5">
         <div class="card-header hover-actions-trigger d-flex justify-content-center align-items-end position-relative mb-7 mb-xxl-0"
              style="min-height: 214px; ">
-            <div class="bg-holder rounded-top"
-                 style="background-image:{% static "assets/img/generic/cover-photo.png)" %};">
-            </div>
-            <input class="d-none" id="upload-cover-image" type="file"/>
-            <label class="cover-image-file-input" for="upload-cover-image"></label>
+            <img class="bg-holder rounded-top image" src="{{ user.background_image.url }}" alt="Фон">
             <div class="hover-actions end-0 bottom-0 pe-1 pb-2 text-white"><span
-                    class="fa-solid fa-camera me-2 overlay-icon"></span></div>
+                    class="fa-solid  me-2 overlay-icon"></span></div>
             <!--/.bg-holder-->
-
-            <input class="d-none" id="upload-porfile-picture" type="file"/>
             <div class="hoverbox feed-profile" style="width: 150px; height: 150px">
-                <div class="hoverbox-content bg-black rounded-circle d-flex flex-center z-index-1"
-                     style="--phoenix-bg-opacity: .56;"><span class="fa-solid fa-camera fs-7 text-300 light"></span>
+                <div class="hoverbox-content  rounded-circle  flex-center z-index-1"
+                     style="--phoenix-bg-opacity: .56;"><span class="fa-solid  fs-7 text-300 light"></span>
                 </div>
                 <div class="position-relative bg-400 rounded-circle cursor-pointer d-flex flex-center mb-xxl-7">
                     {% if  user.image %}
-                        <div class="avatar avatar-5xl"><img
-                                class="rounded-circle rounded-circle bg-white img-thumbnail shadow-sm"
-                                src={{ user.image.url }} alt=""/></div>
+                        <div class="avatar avatar-5xl">
+                            <img class="rounded-circle bg-white img-thumbnail shadow-sm" src={{ user.image.url }}>
+                        </div>
                     {% endif %}
-                    <label class="w-100 h-100 position-absolute z-index-1" for="upload-porfile-picture"></label>
                 </div>
             </div>
         </div>
@@ -149,22 +49,28 @@
                     <div class="mb-5">
                         <div class="d-md-flex align-items-center">
                             {% if user.is_student %}
-                                <div class="d-flex align-items-center"><span
-                                        class="fa-solid fa-user-group fs--1 text-700 me-2 me-lg-1 me-xl-2"></span><a
-                                        class="text-1100" href="#!"><span class="fs-1 fw-bold text-600 hover-text-1100">Студент&nbsp;</span></a>
+                                <div class="d-flex align-items-center">
+                                    <span class="fa-solid fa-user fs--1 text-700 me-2 me-lg-1 me-xl-2"></span>
+                                    <a class="text-1100">
+                                        <span class="fs-1 fw-bold text-600">Студент&nbsp;</span>
+                                    </a>
                                 </div>
                             {% endif %}
                             {% if user.is_teacher %}
-                                <div class="d-flex align-items-center"><span
-                                        class="fa-solid fa-user-check fs--1 text-700 me-2 me-lg-1 me-xl-2"></span><a
-                                        class="text-1100" href="#!"><span class="fs-1 fw-bold text-600 hover-text-1100">Преподаватель&nbsp;</span></a>
+                                <div class="d-flex align-items-center">
+                                    <span class="fa-solid fa-user-graduate fs--1 text-700 me-2 me-lg-1 me-xl-2"></span>
+                                    <a class="text-1100">
+                                        <span class="fs-1 fw-bold text-600">Преподаватель&nbsp;</span>
+                                    </a>
                                 </div>
                             {% endif %}
                             {% if user.is_superuser %}
-                                <div class="d-flex align-items-center"><span
-                                        class="fa-solid fa-location-dot fs--1 text-700 me-2 me-lg-1 me-xl-2"></span><a
-                                        class="text-1100" href="#!"><span
-                                        class="fs-1 fw-semi-bold text-600 hover-text-1100">Модератор </span></a></div>
+                                <div class="d-flex align-items-center">
+                                    <span class="fa-solid fa-user-shield fs--1 text-700 me-2 me-lg-1 me-xl-2"></span>
+                                    <a class="text-1100">
+                                        <span class="fs-1 fw-bold text-600">Модератор </span>
+                                    </a>
+                                </div>
                             {% endif %}
                         </div>
                     </div>
@@ -173,24 +79,25 @@
                 <div class="col-auto">
                     <div class="row g-2">
                         <div class="col-auto order-xxl-2">
-                            <a class="btn btn-primary lh-1"><span class="fa-solid fa-user-plus me-2"></span>Редактировать</a>
+                            <a class="btn btn-primary lh-1" href={% url "lesson:profile_edit" %}><span
+                                    class="fa-solid fa-user-cog me-2"></span>Редактировать</a>
                         </div>
                         <div class="col-auto order-xxl-1">
                             <a class="btn btn-phoenix-primary lh-1" href={% url "users:logout" %}><span
-                                    class="fa-solid fa-message me-2"></span>Выход</a>
+                                    class="fa-solid fa-user-times me-2"></span>Выход</a>
                         </div>
                     </div>
 
                 </div>
             </div>
             <hr>
-            {% if is_student and learn_courses%}
+            {% if is_student and learn_courses %}
                 <h3>Прохожу курсы:</h3>
                 {% for course in learn_courses %}
                     <a>- {{ course.name }}</a><br>
                 {% endfor %}
             {% endif %}
-            {% if is_teacher and teach_courses%}
+            {% if is_teacher and teach_courses %}
                 <h3>Преподаю курсы:</h3>
                 {% for course in teach_courses %}
                     <a>- {{ course.name }}</a><br>

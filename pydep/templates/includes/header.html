@@ -1,38 +1,4 @@
 {% load static %}
-{#<header class="blog-header py-3">#}
-{#    <div class="container">#}
-{#        <div class="row flex-nowrap justify-content-between align-items-center">#}
-{#        <div class="col-4 pt-1">#}
-{#          <a class="link-secondary" href={% url "lesson:courses" %}>Курсы</a>#}
-{#        </div>#}
-{#        <div class="col-4 text-center">#}
-{#          <a class="blog-header-logo text-dark" href={% url "lesson:index" %}>{PyDep}</a>#}
-{#        </div>#}
-{#        <div class="col-4 d-flex justify-content-end align-items-center">#}
-{#          <form action="{% url 'lesson:courses' %}" method="get"#}
-{#                  class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">#}
-{#                {% csrf_token %}#}
-{#                <input type="search" class="form-control form-control-dark"#}
-{#                       placeholder="" aria-label="Search" name="search"#}
-{#                       autocomplete="off">#}
-{#            </form>#}
-{#            {% if user.is_authenticated %}#}
-{#                <a href="{% url "lesson:profile" %}"#}
-{#                           class="nav-link px-2 text-black">#}
-{#                            {{ user.username }}#}
-{#                        </a>#}
-{#                <a class="btn btn-sm btn-outline-secondary" href={% url "users:logout" %}>Выход</a>#}
-{#                {% else %}#}
-{#                <a class="btn btn-sm btn-outline-secondary" href={% url "users:signin" %}>Вход</a>#}
-{#                <a class="btn btn-sm btn-outline-secondary" href={% url "users:signup" %}>Регистрация</a>#}
-{#            {% endif %}#}
-{##}
-{#        </div>#}
-{#      </div>#}
-{#    </div>#}
-{#</header>#}
-
-
 <header>
     <div class="main" id="top">
         <nav class="navbar navbar-top fixed-top navbar-expand" id="navbarDefault">
@@ -68,32 +34,23 @@
                 </div>
                 <ul class="navbar-nav navbar-nav-icons flex-row">
                     <li class="nav-item">
-                        <div class="theme-control-toggle fa-icon-wait px-2">
-                            <input class="form-check-input ms-0 theme-control-toggle-input" type="checkbox"
-                                   data-theme-control="phoenixTheme" value="dark" id="themeControlToggle"/>
-                            <label class="mb-0 theme-control-toggle-label theme-control-toggle-light"
-                                   for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left"
-                                   title="Switch theme"><span class="icon" data-feather="moon"></span></label>
-                            <label class="mb-0 theme-control-toggle-label theme-control-toggle-dark"
-                                   for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left"
-                                   title="Switch theme"><span class="icon" data-feather="sun"></span></label>
-                        </div>
                     </li>
                     <li class="nav-item dropdown">
                         <div class="dropdown-menu dropdown-menu-end notification-dropdown-menu py-0 shadow border border-300 navbar-dropdown-caret"
                              id="navbarDropdownNotfication" aria-labelledby="navbarDropdownNotfication">
                             <div class="border-300">
                                 <div class="px-2 px-sm-3 py-3 border-300 notification-card position-relative read border-bottom">
-                                    <button class="btn fs--2 btn-sm dropdown-toggle dropdown-caret-none transition-none notification-dropdown-toggle"
-                                            type="button" data-bs-toggle="dropdown" data-boundary="window"
-                                            aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span
-                                            class="fas fa-ellipsis-h fs--2 text-900"></span></button>
+
 
                                     <li class="nav-item dropdown">
-                                        <a class="nav-link lh-1 pe-0" id="navbarDropdownUser" href={% url "lesson:profile" %}>
+                                        <a class="nav-link lh-1 pe-0" id="navbarDropdownUser"
+                                           href={% url "lesson:profile" %}>
                                             <div class="avatar avatar-l">
-                                                {% if  user.image  %}
-                                                <img class="rounded-circle" src={{ user.image.url }} alt=""/>
+                                                {% if  user.image %}
+                                                    <img class="rounded-circle" src={{ user.image.url }} alt=""/>
+                                                {% else %}
+{#                                                    <img class="rounded-circle" src={{ user.image.url }} alt=""/>#}
+                                                    <img class="rounded-circle" src={% static "img/anonymous_user.png" %} width="220">
                                                 {% endif %}
                                             </div>
                                         </a>

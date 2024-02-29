@@ -2,10 +2,11 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
 from .models import Course, ModulesInCourse, Module, Lesson
-from .forms import RegisterCourseForm
+from .forms import RegisterCourseForm, EditProfile
 
 from .context_processors.decorators import course_required, search_request
 from users.models import RegisterCourse
+import os
 
 
 def index(request):
@@ -105,3 +106,21 @@ def profile(request):
         'user': user,
     }
     return render(request, 'lesson/profile.html', context)
+
+
+def profile_edit(request):
+    if request.method == 'POST':
+        form = EditProfile(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            if request.FILES.get('image', None) != None:
+                try:
+                    os.remove(request.user.image.url)
+                except Exception as e:
+                    print('Exception in removing old profile image: ', e)
+                request.user.image = request.FILES['image']
+                request.user.save()
+            return redirect('lesson:profile')
+    else:
+        form = EditProfile(instance=request.user)
+        return render(request, 'lesson/profile_edit.html', {'form': form})

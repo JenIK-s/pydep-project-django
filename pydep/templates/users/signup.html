@@ -3,12 +3,50 @@
     Регистрация
 {% endblock %}
 {% block content %}
-    <div class="container py-5">
-        <h1>Регистрация</h1>
+    <style>
+        body {
+            height: 100%;
+        }
+
+        body {
+            align-items: center;
+            padding-top: 200px;
+            padding-bottom: 40px;
+            background-color: #f5f5f5;
+        }
+
+        .form-signin {
+            width: 100%;
+            max-width: 330px;
+            padding: 15px;
+            margin: auto;
+        }
+
+        .form-signin .checkbox {
+            font-weight: 400;
+        }
+
+        .form-signin .form-floating:focus-within {
+            z-index: 2;
+        }
+        .form-container {
+            margin-bottom: 5px;
+        }
+    </style>
+    <main class="form-signin">
+        <div class="text-center">
+            <h1 class="h3 mb-3 fw-normal">Регистрация</h1>
+        </div>
         <form method="post" enctype="multipart/form-data" action={% url "users:signup" %}>
             {% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit" class="btn btn-blue" value="Зарегистрироваться">
+            {% for elem in form %}
+                <div class="form-floating">
+                    {{ elem }}
+                    <label for="floatingInput">{{ elem.label }}</label>
+                </div>
+            {% endfor %}
+            <input type="submit" class="w-100 btn btn-lg btn-primary" value="Зарегистрироваться">
+            <a>Уже зарегестрированы? </a><a class="" href={% url "users:signin" %}>Войти</a>
         </form>
-    </div>
+    </main>
 {% endblock %}

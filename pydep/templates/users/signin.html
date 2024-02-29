@@ -7,41 +7,60 @@
 
 {% endblock %}
 {% block content %}
-{#    <div class="container py-5">#}
-{#        <h1>Вход</h1>#}
-{#        <div class="form-group row my-3">#}
-{#        <form method="post" action={% url "users:signin" %}>#}
-{#            {% csrf_token %}#}
-{#            {{ form.as_p }}#}
-{#            <input type="submit" class="btn btn-blue" value="Войти">#}
-{#        </form>#}
-{#        </div>#}
-{#    </div>#}
-<div class="container py-5">
-<main class="form-signin">
-  <form>
-    <h1 class="h3 mb-3 fw-normal">Авторизуйтесь</h1>
+    <style>
+        body {
+            height: 100%;
+        }
 
-    <div class="form-floating">
-      <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
-      <label for="floatingInput">Логин</label>
-    </div>
-    <div class="form-floating">
-      <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
-      <label for="floatingPassword">Пароль</label>
-    </div>
+        body {
+            align-items: center;
+            padding-top: 240px;
+            padding-bottom: 40px;
+            background-color: #f5f5f5;
+        }
 
-    <button class="w-100 btn btn-lg btn-primary" type="submit">Войти</button>
-  </form>
-    <form method="post" action={% url "users:signin" %}>
-        <div class="form-floating">
-            {% csrf_token %}
-            {% for elem in form %}
-            {% endfor %}
-            {{ form.as_p }}
-            <input type="submit" class="btn btn-blue" value="Войти">
-        </form>
-</main>
-    </div>
+        .form-signin {
+            width: 100%;
+            max-width: 330px;
+            padding: 15px;
+            margin: auto;
+        }
+
+        .form-signin .checkbox {
+            font-weight: 400;
+        }
+
+        .form-signin .form-floating:focus-within {
+            z-index: 2;
+        }
+
+        .form-signin input[type="email"] {
+            margin-bottom: -1px;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+        .form-container {
+            margin-bottom: 5px;
+        }
+
+    </style>
+    <main class="form-signin">
+        <div class="text-center">
+            <h1 class="h3 mb-3 fw-normal">Авторизация</h1>
+        </div>
+            <form method="post" enctype="multipart/form-data" action={% url "users:signin" %}>
+                {% csrf_token %}
+                {% for elem in form %}
+                    <div class="form-floating">
+                        {{ elem }}
+                        <label for="floatingInput">{{ elem.label }}</label>
+                        <a></a>
+                    </div>
+                {% endfor %}
+                <input type="submit" class="w-100 btn btn-lg btn-primary" value="Войти">
+                <a>Нет аккаунта? </a><a class="" href={% url "users:signup" %}>Зарегестрироваться</a>
+            </form>
+    </main>
+
 {% endblock %}
 

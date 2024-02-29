@@ -1,13 +1,14 @@
 from django.urls import path
 from .views import (course_detail, courses_list, index,
                     lesson_detail, profile, module_detail,
-                    courses_list_about_languages)
+                    courses_list_about_languages, profile_edit)
 
 app_name = 'lesson'
 
 urlpatterns = [
     path('', index, name='index'),
     path('profile/', profile, name='profile'),
+    path('profile/edit/', profile_edit, name='profile_edit'),
     path('courses/', courses_list, name='courses'),
     path('course/<str:course_name>/', course_detail, name='course_detail'),
     path(
