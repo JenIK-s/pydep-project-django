@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+{% endblock %}
+
+{% block content %}
+    <style>
+        body {
+            height: 100%;
+        }
+
+        body {
+            align-items: center;
+            padding-top: 180px;
+            padding-bottom: 40px;
+            background-color: #f5f5f5;
+        }
+
+        .form-signin {
+            width: 100%;
+            max-width: 330px;
+            padding: 15px;
+            margin: auto;
+        }
+
+        .form-signin .checkbox {
+            font-weight: 400;
+        }
+
+        .form-signin .form-floating:focus-within {
+            z-index: 2;
+        }
+
+        .form-container {
+            margin-bottom: 5px;
+        }
+    </style>
+    <main class="form-signin">
+        <div class="text-center">
+            <h1 class="h3 mb-3 fw-normal">Редактирование профиля</h1>
+        </div>
+        <form method="post" enctype="multipart/form-data" action={% url "lesson:profile_edit" %}>
+            {% csrf_token %}
+            <div class="form-floating">
+            {{ form.email }}
+                <label for="floatingInput">{{ form.email.label }}</label>
+                </div>
+{#                <div class="form-floating">#}
+            <img class=" bg-white img-thumbnail shadow-sm" src="/media/{{ form.image.value }}" width="120">
+            {{ form.image }}
+            <img class=" bg-white img-thumbnail shadow-sm" src="/media/{{ form.background_image.value }}" width="120">
+            {{ form.background_image }}
+{#                    </div>#}
+                    <div class="form-floating">
+            {{ form.password1 }}
+            <label for="floatingInput">{{ form.password1.label }}</label>
+                        </div>
+                        <div class="form-floating">
+            {{ form.password2 }}
+            <label for="floatingInput">{{ form.password1.label }}</label>
+                        </div>
+            <input type="submit" class="w-100 btn btn-lg btn-primary" value="Редактировать">
+        </form>
+    </main>
+{% endblock %}
+
