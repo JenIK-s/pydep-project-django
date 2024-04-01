@@ -42,23 +42,20 @@
         <form method="post" enctype="multipart/form-data" action={% url "lesson:profile_edit" %}>
             {% csrf_token %}
             <div class="form-floating">
-            {{ form.email }}
+                {{ form.email }}
                 <label for="floatingInput">{{ form.email.label }}</label>
-                </div>
-{#                <div class="form-floating">#}
+            </div>
+
             <img class=" bg-white img-thumbnail shadow-sm" src="/media/{{ form.image.value }}" width="120">
             {{ form.image }}
+
             <img class=" bg-white img-thumbnail shadow-sm" src="/media/{{ form.background_image.value }}" width="120">
             {{ form.background_image }}
-{#                    </div>#}
-                    <div class="form-floating">
-            {{ form.password1 }}
-            <label for="floatingInput">{{ form.password1.label }}</label>
-                        </div>
-                        <div class="form-floating">
-            {{ form.password2 }}
-            <label for="floatingInput">{{ form.password1.label }}</label>
-                        </div>
+
+            <div class="form-floating">
+                {{ form.description }}
+                <label for="floatingInput">{{ form.description.label }}</label>
+            </div>
             <input type="submit" class="w-100 btn btn-lg btn-primary" value="Редактировать">
         </form>
     </main>

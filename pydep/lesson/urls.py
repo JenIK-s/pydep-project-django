@@ -1,7 +1,10 @@
 from django.urls import path
-from .views import (course_detail, courses_list, index,
-                    lesson_detail, profile, module_detail,
-                    courses_list_about_languages, profile_edit)
+from .views import (
+    course_detail, courses_list, index,
+    lesson_detail, profile, module_detail,
+    courses_list_about_languages, profile_edit, register_course_admin,
+    register_course
+)
 
 app_name = 'lesson'
 
@@ -23,5 +26,8 @@ urlpatterns = [
     path('courses/<str:prog_lang>',
          courses_list_about_languages,
          name='courses_list_about_languages'
-    )
+    ),
+    path('courses/register_course_admin/', register_course_admin, name='register_course_admin'),
+    path('courses/register_course/', register_course, name='register_course')
+
 ]

@@ -63,9 +63,15 @@ class CustomUser(AbstractUser):
 
 
 class RegisterCourse(models.Model):
+    choises = (
+        ('wait', 'Ожидание'),
+        ('rejected', 'Отколнена'),
+        ('approved', 'Одобрена')
+    )
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     start_date = models.DateField(verbose_name='Дата старта потока')
+    status = models.CharField(max_length=9, default='wait', choices=choises, verbose_name='Статус заявки')
 
     class Meta:
         verbose_name = 'Запись на курс'

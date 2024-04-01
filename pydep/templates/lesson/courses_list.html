@@ -7,28 +7,49 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container py-5">
+    <style>
+        .image {
+            object-fit: cover;
+            height: 200px;
+            {#width: 200px;#}
+        }
+    </style>
+        <div class="container py-5">
     {% if courses %}
-        {% for course in courses %}
-        <div class="card mb-3" style="max-width: 540px;">
-            <div class="row no-gutters">
-                <div class="col-md-4">
-                    <a href={% url "lesson:course_detail" course.name %}>
-                    <img src={% if course.image.url %}{{ course.image.url }} {% else %}{% static 'img/no_img.png' %}{% endif %}class="card-img" alt="...">
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+            {% for course in courses %}
+                {#        <div class="card mb-3" style="max-width: 540px;">#}
+                {#            <div class="row no-gutters">#}
+                {#                <div class="col-md-4">#}
+                {#                    <a href={% url "lesson:course_detail" course.name %}>#}
+                {#                    <img src={% if course.image.url %}{{ course.image.url }} {% else %}{% static 'img/no_img.png' %}{% endif %}class="card-img" alt="...">#}
+                {#                        </a>#}
+                {#                </div>#}
+                {#                <div class="col-md-8">#}
+                {#                    <div class="card-body">#}
+                {#                        <h5 class="card-title">{{ course.name }}</h5>#}
+                {#                        <p class="card-text">{{ course.description }}</p>#}
+                {#                        <p class="card-text"><small class="text-muted">{{ course.price }} руб.</small></p>#}
+                {#                    </div>#}
+                {#                </div>#}
+                {#            </div>#}
+                {#        </div>#}
+
+                <div class="col">
+                    <div class="card">
+                        <a href={% url "lesson:course_detail" course.name %}>
+                        <img src="{{ course.image.url }}" class="card-img-top image" alt="...">
                         </a>
-                </div>
-                <div class="col-md-8">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ course.name }}</h5>
-                        <p class="card-text">{{ course.description }}</p>
-                        <p class="card-text"><small class="text-muted">{{ course.price }} руб.</small></p>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ course.name }}</h5>
+                            <p class="card-text">{{ course.price }} руб.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     {% else %}
-    <h3 align="center">По Вашему запросу ничего не найдено :(</h3>
+        <h3 align="center">По Вашему запросу ничего не найдено :(</h3>
     {% endif %}
     </div>
 {% endblock %}
