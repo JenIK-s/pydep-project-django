@@ -1,9 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-
+from django.http import HttpResponse
 from .models import Course, ModulesInCourse, Module, Lesson
 from .forms import RegisterCourseForm, EditProfile
-
+from .context_processors.bot import send_message
 from .context_processors.decorators import course_required, search_request
 from users.models import RegisterCourse
 import os
@@ -54,6 +54,7 @@ def course_detail(request, course_name):
         }
         print(form_data)
         RegisterCourse.objects.create(**form_data)
+        send_message('861963780', f'Вы отправили заявку на курс {course.name}.')
         return redirect('lesson:profile')
 
     context = {
@@ -113,14 +114,45 @@ def profile_edit(request):
         form = EditProfile(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            if request.FILES.get('image', None) != None:
-                try:
-                    os.remove(request.user.image.url)
-                except Exception as e:
-                    print('Exception in removing old profile image: ', e)
+            if request.FILES.get('image', None):
                 request.user.image = request.FILES['image']
-                request.user.save()
+            if request.FILES.get('email', None):
+                request.user.email = request.FILES['email']
+            if request.FILES.get('background_image', None):
+                request.user.background_image = request.FILES['background_image']
+            if request.FILES.get('description', None):
+                request.user.description = request.FILES['description']
+            request.user.save()
             return redirect('lesson:profile')
     else:
         form = EditProfile(instance=request.user)
         return render(request, 'lesson/profile_edit.html', {'form': form})
+
+
+def register_course_admin(request):
+    queryset = RegisterCourse.objects.all()
+    if request.method == 'POST':
+        result = request.POST.get('action').split('_')
+        operation, register_id = result
+        course = RegisterCourse.objects.filter(pk=register_id)
+        match operation:
+            case 'ap':
+                try:
+                    course_object = course.first().course
+                    course.first().user.courses_learn.add(course_object)
+                    course.update(status="approved")
+                    send_message('861963780', 'Ваша заявка ОДОБРЕНА')
+                except:
+                    return HttpResponse(404)
+            case 'rj':
+                course.update(status="rejected")
+                send_message('861963780', 'Ваша заявка ОТКОЛНЕНА')
+            case 'dl':
+                course.delete()
+        return redirect('lesson:register_course_admin')
+    return render(request, 'lesson/register_course_admin.html', {'queryset': queryset})
+
+
+def register_course(request):
+    queryset = RegisterCourse.objects.filter(user=request.user)
+    return render(request, 'lesson/register_course.html', {'queryset': queryset})

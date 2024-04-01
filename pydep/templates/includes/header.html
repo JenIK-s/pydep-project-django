@@ -50,7 +50,8 @@
                                                     <img class="rounded-circle" src={{ user.image.url }} alt=""/>
                                                 {% else %}
 {#                                                    <img class="rounded-circle" src={{ user.image.url }} alt=""/>#}
-                                                    <img class="rounded-circle" src={% static "img/anonymous_user.png" %} width="220">
+                                                    <img class="rounded-circle" src="{% static "img/anonymous_user.png" %}" width="220">
+
                                                 {% endif %}
                                             </div>
                                         </a>

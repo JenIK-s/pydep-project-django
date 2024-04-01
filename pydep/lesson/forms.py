@@ -46,25 +46,30 @@ class EditProfile(UserChangeForm):
         label='Фотография',
         required=False
     )
-    password1 = forms.CharField(
-        label='Ваш пароль',
-        strip=False,
-        widget=PasswordInput(
-            attrs={'class': 'form-control form-container', 'placeholder': 'Введите пароль',
-                   'autocomplete': 'new-password'}),
-        help_text='Your password must contain at least 8 characters.',
+    background_image = forms.ImageField(
+        widget=forms.ClearableFileInput(
+            attrs={
+                'class': 'form-control form-container',
+                'placeholder': 'Выберите изображение',
+                'id': "floatingInput"
+            }
+        ),
+        label='Фон профиля',
         required=False
     )
-    password2 = forms.CharField(
-        label='Подтверждение пароля',
-        strip=False,
-        widget=PasswordInput(
-            attrs={'class': 'form-control form-container', 'placeholder': 'Введите пароль',
-                   'autocomplete': 'new-password'}),
-        help_text='Your password must contain at least 8 characters.',
+    description = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control form-container',
+                'placeholder': 'Выберите изображение',
+                'id': "floatingInput"
+            }
+        ),
+        label='Статус',
         required=False
     )
 
+
     class Meta(UserChangeForm.Meta):
         model = get_user_model()
-        fields = ('email', 'image', 'background_image', 'password1', 'password2')
+        fields = ('email', 'image', 'background_image', 'description')

@@ -15,15 +15,21 @@
             padding: 5px;
             border-radius: 5px;
         }
-        .image{
-    object-fit: cover;
-    height: 120px;
-}
+
+        .image {
+            object-fit: cover;
+            height: 120px;
+        }
     </style>
     <div class="card mb-5">
         <div class="card-header hover-actions-trigger d-flex justify-content-center align-items-end position-relative mb-7 mb-xxl-0"
              style="min-height: 214px; ">
-            <img class="bg-holder rounded-top image" src="{{ user.background_image.url }}" alt="Фон">
+            {% if user.background_image %}
+                <img class="bg-holder rounded-top image" src="{{ user.background_image.url }}" alt="Фон">
+            {% else %}
+                <img class="bg-holder rounded-top image" src="{% static 'assets/img/generic/cover-photo.png' %}"
+                     alt="Фон">
+            {% endif %}
             <div class="hover-actions end-0 bottom-0 pe-1 pb-2 text-white"><span
                     class="fa-solid  me-2 overlay-icon"></span></div>
             <!--/.bg-holder-->
@@ -78,12 +84,23 @@
                 </div>
                 <div class="col-auto">
                     <div class="row g-2">
+                        <div class="col-auto order-xxl-1">
+                            <a class="btn btn-secondary lh-1" href={% url "lesson:register_course" %}><span
+                                    class="fa-solid fa-user-clock me-2"></span>Запись на курсы</a>
+                        </div>
+                        {% if user.is_staff or user.is_superuser %}
+                            <div class="col-auto order-xxl-1">
+                                <a class="btn btn-primary lh-1"
+                                   href={% url "lesson:register_course_admin" %}><span
+                                        class="fa-solid fa-user-plus me-2"></span>Заявки на курсы</a>
+                            </div>
+                        {% endif %}
                         <div class="col-auto order-xxl-2">
                             <a class="btn btn-primary lh-1" href={% url "lesson:profile_edit" %}><span
                                     class="fa-solid fa-user-cog me-2"></span>Редактировать</a>
                         </div>
                         <div class="col-auto order-xxl-1">
-                            <a class="btn btn-phoenix-primary lh-1" href={% url "users:logout" %}><span
+                            <a class="btn btn-secondary lh-1" href={% url "users:logout" %}><span
                                     class="fa-solid fa-user-times me-2"></span>Выход</a>
                         </div>
                     </div>

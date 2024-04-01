@@ -4,8 +4,32 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container py-5">
-        <h1>Поздравляем с успешной записью на курс</h1>
+    <style>
+        .image {
+            object-fit: cover;
+            height: 200px;
+        }
+    </style>
+    <div class="text-center container py-5">
+        {% for elem in queryset %}
+            <div class="col-md-4">
+                <div class="card" style="width: 18rem;">
+                    <img class="image" src="{{ elem.course.image.url }}" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ elem.course.name }}</h5>
+                        {% if elem.status == "wait" %}
+                            <a href="#" class="btn btn-secondary">Ожидание...</a>
+                        {% endif %}
+                        {% if elem.status == "rejected" %}
+                            <a href="#" class="btn btn-danger">Отколнено</a>
+                        {% endif %}
+                        {% if elem.status == "approved" %}
+                            <a href="#" class="btn btn-success">Одобрено</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
     </div>
 {% endblock %}
 

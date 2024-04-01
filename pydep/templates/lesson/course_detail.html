@@ -7,32 +7,44 @@
 {% endblock %}
 
 {% block content %}
+    <style>
+        .image {
+            object-fit: cover;
+            height: 200px;
+        }
+    </style>
     <div class="container py-5">
         <h1>{{ course.name }}</h1>
         <a>{{ course.description }}</a>
         <br>
         <div class="row">
-            <div class="card-deck">
+{#            <div class="card-deck">#}
+        <div class="row row-cols-1 row-cols-md-4 g-4">
                 {% for module in modules %}
-
-
-
-
-
-                    <div class="col-sm-4">
-                        <div class="card">
-                            <a class="card-text" href={% url "lesson:module_detail" course.name module.module %}>
-                                <img src={% static "img/logo.png" %} class="card-img-top">
-                            </a>
-                            <div class="card-body">
-                                <h5 class="card-title">{{ module.module }}</h5>
-                                <p class="card-text">This is a longer card with supporting text below as a natural
-                                    lead-in to additional content. This content is a little bit longer.</p>
-                                <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-                            </div>
+{#                    <div class="col-sm-4">#}
+{#                        <div class="card">#}
+{#                            <a class="card-text" href={% url "lesson:module_detail" course.name module.module %}>#}
+{#                                <img src={% static "img/logo.png" %} class="card-img-top">#}
+{#                            </a>#}
+{#                            <div class="card-body">#}
+{#                                <h5 class="card-title">{{ module.module }}</h5>#}
+{#                                <p class="card-text">This is a longer card with supporting text below as a natural#}
+{#                                    lead-in to additional content. This content is a little bit longer.</p>#}
+{#                                <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <a>&nbsp;</a>#}
+{#                    </div>#}
+                    <div class="col">
+                    <div class="card">
+                        <a href={% url "lesson:module_detail" course.name module.module %}>
+                        <img src="{% static "img/logo.png" %}" class="card-img-top image" alt="...">
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ module.module }}</h5>
                         </div>
-                        <a>&nbsp;</a>
                     </div>
+                </div>
                 {% endfor %}
             </div>
             <br>
