@@ -5,8 +5,20 @@ from .models import Course, ModulesInCourse, Module, Lesson
 from .forms import RegisterCourseForm, EditProfile
 from .context_processors.bot import send_message
 from .context_processors.decorators import course_required, search_request
-from users.models import RegisterCourse
+from users.models import CancelledLesson, RegisterCourse, Schedule
 import os
+import calendar
+from datetime import datetime
+
+
+def get_weekday(day):
+    year = datetime.today().year
+    month = datetime.today().month
+    date_string = f"{year}-{month:02d}-{day:02d}"
+    date = datetime.strptime(date_string, "%Y-%m-%d")
+    weekday_name = date.strftime("%A")
+
+    return weekday_name
 
 
 def index(request):
@@ -44,15 +56,11 @@ def course_detail(request, course_name):
     course = Course.objects.get(name=course_name)
     modules = ModulesInCourse.objects.filter(course=course)
     form = RegisterCourseForm(request.POST or None)
-
-    if form.is_valid():
-        application = form.save(commit=False)
+    if request.method == 'POST':
         form_data = {
             'user': request.user,
-            'course': course,
-            'start_date': application.start_date
+            'course': course
         }
-        print(form_data)
         RegisterCourse.objects.create(**form_data)
         send_message('861963780', f'Вы отправили заявку на курс {course.name}.')
         return redirect('lesson:profile')
@@ -93,21 +101,61 @@ def module_detail(request, course_name, module_name):
 
 @login_required
 def profile(request):
+    queryset = RegisterCourse.objects.filter(user=request.user)
     user = request.user
+    result = ''
+    if user.is_superuser:
+        result += 'Модератор '
+    if user.is_teacher:
+        result += 'Преподаватель '
+    if user.is_student:
+        result += 'Студент '
     is_teacher = user.is_teacher
     is_student = user.is_student
+    result = result.strip()
+    result = result.replace(' ', ' & ')
     learn_courses = user.courses_learn.all()
     teach_courses = user.courses_teach.all()
+    cancelled_lesson = CancelledLesson.objects.filter(student=request.user)
+    cancelled = [elem.date_cancelled.day for elem in cancelled_lesson]
+
+    lessons_time = Schedule.objects.filter(student=request.user)
+    weekdays = [elem.weekday for elem in lessons_time]
+
+    current_year = datetime.today().year
+    current_month = datetime.today().month
+
+    month_matrix = calendar.monthcalendar(current_year, current_month)
 
     context = {
         'learn_courses': learn_courses,
         'teach_courses': teach_courses,
+        'result': result,
+        'user': user,
         'is_teacher': is_teacher,
         'is_student': is_student,
-        'user': user,
+        'is_tutor_student': user.is_tutor_student,
+        'queryset': queryset,
+        'month_matrix': month_matrix,
+        'current_day': datetime.today().day,
+        'weekdays': weekdays,
+        'cancelled': cancelled,
     }
+
     return render(request, 'lesson/profile.html', context)
 
+
+def schedule_today(request, day):
+    weekday = get_weekday(int(day))
+    print(weekday)
+    lesson = Schedule.objects.get(student=request.user, weekday=weekday)
+    context = {
+        'data': f'{day}.{datetime.today().month}.{datetime.today().year}',
+        'time': lesson.time_start,
+        'hour_amount': lesson.hour_amount
+    }
+
+    return render(request, 'lesson/profile_tutor_student.html', context)
 
 def profile_edit(request):
     if request.method == 'POST':

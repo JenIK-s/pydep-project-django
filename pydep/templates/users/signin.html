@@ -3,21 +3,12 @@
 {% block title %}
     Авторизация
 {% endblock %}
-{% block static %}
 
-{% endblock %}
 {% block content %}
     <style>
-        body {
-            height: 100%;
-        }
 
-        body {
-            align-items: center;
-            padding-top: 240px;
-            padding-bottom: 40px;
-            background-color: #f5f5f5;
-        }
+
+
 
         .form-signin {
             width: 100%;
@@ -44,6 +35,12 @@
         }
 
     </style>
+{% block static %}
+    <link href={% static "css/blog.css" %} rel="stylesheet"/>
+{% endblock %}
+
+    <section class="main">
+     <div class="profile-card">
     <main class="form-signin">
         <div class="text-center">
             <h1 class="h3 mb-3 fw-normal">Авторизация</h1>
@@ -61,6 +58,8 @@
                 <a>Нет аккаунта? </a><a class="" href={% url "users:signup" %}>Зарегестрироваться</a>
             </form>
     </main>
+     </div>
+    </section>
 
 {% endblock %}
 

@@ -52,6 +52,7 @@ class CustomUser(AbstractUser):
     )
     is_teacher = models.BooleanField(default=False)
     is_student = models.BooleanField(default=False)
+    is_tutor_student = models.BooleanField(default=False)
     payment = models.IntegerField(blank=True, null=True)
 
     class Meta:
@@ -68,12 +69,74 @@ class RegisterCourse(models.Model):
         ('rejected', 'Отколнена'),
         ('approved', 'Одобрена')
     )
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    start_date = models.DateField(verbose_name='Дата старта потока')
-    status = models.CharField(max_length=9, default='wait', choices=choises, verbose_name='Статус заявки')
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        verbose_name='Студент',
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        verbose_name='Курс',
+    )
+    status = models.CharField(
+        max_length=9,
+        default='wait',
+        choices=choises,
+        verbose_name='Статус заявки'
+    )
 
     class Meta:
         verbose_name = 'Запись на курс'
         verbose_name_plural = 'Записи на курсы'
         unique_together = ['user', 'course']
+
+
+class CancelledLesson(models.Model):
+    student = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='сancelled',
+        verbose_name='Студент',
+    )
+    date_cancelled = models.DateField(verbose_name='Дата отмены занятия')
+
+    class Meta:
+        verbose_name = 'Отмена занятия'
+        verbose_name_plural = 'Отмена занятий'
+
+
+class Schedule(models.Model):
+    choises = (
+        ('Monday', 'Понедельник'),
+        ('Tuesday', 'Вторник'),
+        ('Wednesday', 'Среда'),
+        ('Thursday', 'Четверг'),
+        ('Friday', 'Пятница'),
+        ('Saturday', 'Суббота'),
+        ('Sunday', 'Воскресенье')
+    )
+    student = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='schedule',
+        verbose_name='Студент',
+    )
+    weekday = models.CharField(
+        max_length=19,
+        choices=choises,
+        verbose_name='День недели'
+    )
+    time_start = models.TimeField(verbose_name='Время начала')
+    hour_amount = models.IntegerField(default=1, verbose_name='Кол-во часов')
+    is_cancelled = models.ManyToManyField(
+        CancelledLesson,
+        blank=True,
+        verbose_name='Отменённые занятия',
+        related_name='schedule',
+    )
+
+    class Meta:
+        verbose_name = 'Расписание занятий'
+        verbose_name_plural = 'Расписание занятий'
+

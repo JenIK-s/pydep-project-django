@@ -1,67 +1,16 @@
 {% load static %}
 <header>
-    <div class="main" id="top">
-        <nav class="navbar navbar-top fixed-top navbar-expand" id="navbarDefault">
-            <div class="collapse navbar-collapse justify-content-between">
-                <div class="navbar-logo">
-                    <button class="btn navbar-toggler navbar-toggler-humburger-icon hover-bg-transparent" type="button"
-                            data-bs-toggle="collapse" data-bs-target="#navbarVerticalCollapse"
-                            aria-controls="navbarVerticalCollapse" aria-expanded="false" aria-label="Toggle Navigation">
-                        <span class="navbar-toggle-icon"><span class="toggle-line"></span></span></button>
-                    <a class="navbar-brand me-1 me-sm-3" href={% url "lesson:index" %}>
-                        <div class="d-flex align-items-center">
-                            <div class="d-flex align-items-center">
-                                <img src={% static "assets/img/icons/logo.png" %} alt="phoenix" width="27"/>
-                                <p class="logo-text ms-2 d-none d-sm-block">PyDep</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="search-box navbar-top-search-box d-none d-lg-block" data-list='{"valueNames":["title"]}'
-                     style="width:25rem;">
-                    <form class="position-relative" data-bs-toggle="search" data-bs-display="static"
-                          action="{% url 'lesson:courses' %}" method="get"
-                          class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
-                        {% csrf_token %}<input type="search"
-                                               class="form-control search-input fuzzy-search rounded-pill form-control-sm"
-                                               placeholder="Поиск курса..." aria-label="Search" name="search"
-                                               autocomplete="off">
-                    </form>
-                    <div class="btn-close position-absolute end-0 top-50 translate-middle cursor-pointer shadow-none"
-                         data-bs-dismiss="search">
-                        <button class="btn btn-link btn-close-falcon p-0" aria-label="Close"></button>
+     <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
+                <div class="container px-5">
+                    <a class="navbar-brand" href={% url "lesson:index" %}><span class="fw-bolder text-primary">PyDep</span></a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 small fw-bolder">
+                            <li class="nav-item"><a class="nav-link" href={% url "lesson:courses" %}>Курсы</a></li>
+                            <li class="nav-item"><a class="nav-link" href={% url "lesson:profile" %}>Профиль</a></li>
+
+                        </ul>
                     </div>
                 </div>
-                <ul class="navbar-nav navbar-nav-icons flex-row">
-                    <li class="nav-item">
-                    </li>
-                    <li class="nav-item dropdown">
-                        <div class="dropdown-menu dropdown-menu-end notification-dropdown-menu py-0 shadow border border-300 navbar-dropdown-caret"
-                             id="navbarDropdownNotfication" aria-labelledby="navbarDropdownNotfication">
-                            <div class="border-300">
-                                <div class="px-2 px-sm-3 py-3 border-300 notification-card position-relative read border-bottom">
-
-
-                                    <li class="nav-item dropdown">
-                                        <a class="nav-link lh-1 pe-0" id="navbarDropdownUser"
-                                           href={% url "lesson:profile" %}>
-                                            <div class="avatar avatar-l">
-                                                {% if  user.image %}
-                                                    <img class="rounded-circle" src={{ user.image.url }} alt=""/>
-                                                {% else %}
-{#                                                    <img class="rounded-circle" src={{ user.image.url }} alt=""/>#}
-                                                    <img class="rounded-circle" src="{% static "img/anonymous_user.png" %}" width="220">
-
-                                                {% endif %}
-                                            </div>
-                                        </a>
-                                    </li>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </div>
+            </nav>
 </header>

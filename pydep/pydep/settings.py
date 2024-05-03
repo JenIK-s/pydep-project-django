@@ -74,11 +74,11 @@ BASE = {
             'USER': os.getenv('POSTGRES_USER', default='postgres'),
             'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='pwdU124@3'),
             'HOST': os.getenv('DB_HOST', default='localhost'),
-            'PORT': os.getenv('DB_PORT', default='5432')
+            'PORT': os.getenv('DB_PORT', default='5555')
         }
     }
 }
-DATABASES = BASE.get('SQLite3')
+DATABASES = BASE.get('PostgreSQL')
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -108,7 +108,7 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'users:signin'
-LOGIN_REDIRECT_URL = 'lesson:index'
+LOGIN_REDIRECT_URL = 'lesson:profile'
 LOGOUT_REDIRECT_URL = 'lesson:index'
 AUTH_USER_MODEL = 'users.CustomUser'
 
