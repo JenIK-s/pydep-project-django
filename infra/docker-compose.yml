@@ -9,9 +9,7 @@ services:
       - .env
 
   web:
-    build:
-      context: ../pydep
-      dockerfile: Dockerfile
+    image: jeniks/pyped_web:latest
     ports:
       - "8000:8000"
     volumes:
