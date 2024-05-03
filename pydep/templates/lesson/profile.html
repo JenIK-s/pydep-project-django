@@ -3,123 +3,132 @@
 {% load thumbnail %}
 {% block title %}
 {% endblock %}
-
+{% block static %}
+    <link href="{% static "css/blog.css" %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+{% endblock %}
 {% block content %}
-    <style>
-        .round {
-            border-radius: 50%;
-        }
+    <div class="main">
+        <div id="section1" class="section">
+            <section class="main">
+                <div class="text-center">
+                    <div class="profile-card">
+                        <div class="image">
+                            <img src={{ user.image.url }} alt="" class="profile-pic">
+                        </div>
+                        <div class="data">
+                            <h2>{{ user.get_full_name }}</h2>
+                            <span>{{ result }}</span>
+                            <hr>
+                        </div>
+                        {% if is_student and learn_courses %}
+                            <h4>Мои курсы:</h4>
+                            {% for course in learn_courses %}
+                                <a>{{ course.name }}</a><br>
+                            {% endfor %}
+                        {% endif %}
+                        {% for elem in queryset %}
+                            {% if elem.status == "wait" %}
+                                <a href="#" class="text-muted">{{ elem.course.name }}</a>
+                            {% endif %}
+                            {% if elem.status == "rejected" %}
+                                <a href="#" class="text-danger">{{ elem.course.name }}</a>
+                            {% endif %}
 
-        .highlighted-text {
-            border: 1px solid black;
-            padding: 5px;
-            border-radius: 5px;
-        }
-
-        .image {
-            object-fit: cover;
-            height: 120px;
-        }
-    </style>
-    <div class="card mb-5">
-        <div class="card-header hover-actions-trigger d-flex justify-content-center align-items-end position-relative mb-7 mb-xxl-0"
-             style="min-height: 214px; ">
-            {% if user.background_image %}
-                <img class="bg-holder rounded-top image" src="{{ user.background_image.url }}" alt="Фон">
-            {% else %}
-                <img class="bg-holder rounded-top image" src="{% static 'assets/img/generic/cover-photo.png' %}"
-                     alt="Фон">
-            {% endif %}
-            <div class="hover-actions end-0 bottom-0 pe-1 pb-2 text-white"><span
-                    class="fa-solid  me-2 overlay-icon"></span></div>
-            <!--/.bg-holder-->
-            <div class="hoverbox feed-profile" style="width: 150px; height: 150px">
-                <div class="hoverbox-content  rounded-circle  flex-center z-index-1"
-                     style="--phoenix-bg-opacity: .56;"><span class="fa-solid  fs-7 text-300 light"></span>
-                </div>
-                <div class="position-relative bg-400 rounded-circle cursor-pointer d-flex flex-center mb-xxl-7">
-                    {% if  user.image %}
-                        <div class="avatar avatar-5xl">
-                            <img class="rounded-circle bg-white img-thumbnail shadow-sm" src={{ user.image.url }}>
+                        {% endfor %}
+                        {% if is_teacher and teach_courses %}
+                            <h3>Преподаю курсы:</h3>
+                            {% for course in teach_courses %}
+                                <a>- {{ course.name }}</a><br>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="buttons">
+                            <a href={% url "lesson:register_course_admin" %} class="btn">Заявки на курсы</a>
+                            <a href={% url "users:logout" %} class="btn">Выход</a>
+                        </div>
+                    {% if is_tutor_student %}
+                        <div class="buttons">
+                            <a id="goToSchedule" class="btn">Расписание занятий</a>
                         </div>
                     {% endif %}
+
+                    </div>
                 </div>
-            </div>
+            </section>
+
+
         </div>
-        <div class="card-body">
-            <div class="row justify-content-xl-between">
-                <div class="col-auto">
-                    <div class="d-flex flex-wrap mb-3 align-items-center">
-                        <h2 class="me-2">{{ user.get_full_name }}</h2>
-                    </div>
-                    <div class="mb-5">
-                        <div class="d-md-flex align-items-center">
-                            {% if user.is_student %}
-                                <div class="d-flex align-items-center">
-                                    <span class="fa-solid fa-user fs--1 text-700 me-2 me-lg-1 me-xl-2"></span>
-                                    <a class="text-1100">
-                                        <span class="fs-1 fw-bold text-600">Студент&nbsp;</span>
-                                    </a>
-                                </div>
-                            {% endif %}
-                            {% if user.is_teacher %}
-                                <div class="d-flex align-items-center">
-                                    <span class="fa-solid fa-user-graduate fs--1 text-700 me-2 me-lg-1 me-xl-2"></span>
-                                    <a class="text-1100">
-                                        <span class="fs-1 fw-bold text-600">Преподаватель&nbsp;</span>
-                                    </a>
-                                </div>
-                            {% endif %}
-                            {% if user.is_superuser %}
-                                <div class="d-flex align-items-center">
-                                    <span class="fa-solid fa-user-shield fs--1 text-700 me-2 me-lg-1 me-xl-2"></span>
-                                    <a class="text-1100">
-                                        <span class="fs-1 fw-bold text-600">Модератор </span>
-                                    </a>
-                                </div>
-                            {% endif %}
+
+        <div id="section2" class="section" style="display: none;">
+            <section class="main">
+                <div class="text-center">
+                    <div class="schedule-card">
+                        <div class="row">
+                            <div class="col day">Пн</div>
+                            <div class="col day">Вт</div>
+                            <div class="col day">Ср</div>
+                            <div class="col day">Чт</div>
+                            <div class="col day">Пт</div>
+                            <div class="col day">Сб</div>
+                            <div class="col day">Вс</div>
                         </div>
-                    </div>
-                    <p class="fs-2 text-800">{{ user.description }}</p>
-                </div>
-                <div class="col-auto">
-                    <div class="row g-2">
-                        <div class="col-auto order-xxl-1">
-                            <a class="btn btn-secondary lh-1" href={% url "lesson:register_course" %}><span
-                                    class="fa-solid fa-user-clock me-2"></span>Запись на курсы</a>
-                        </div>
-                        {% if user.is_staff or user.is_superuser %}
-                            <div class="col-auto order-xxl-1">
-                                <a class="btn btn-primary lh-1"
-                                   href={% url "lesson:register_course_admin" %}><span
-                                        class="fa-solid fa-user-plus me-2"></span>Заявки на курсы</a>
+                        {% for week in month_matrix %}
+                            <div class="row">
+                                {% for day in week %}
+                                    {% if day == 0 %}
+                                        <div class="col day">&nbsp;</div>
+                                    {% else %}
+                                        {% load custom_tags %}
+                                        {% get_weekday day as weekday %}
+
+                                        {% if day == current_day %}
+
+                                            {% if weekday in weekdays %}
+                                                <a href="{% url "lesson:schedule_today" day %}" class="col day today">{{ day }}</a>
+                                                {% else %}
+                                                <div class="col day today">{{ day }}</div>
+                                            {% endif %}
+                                        {% elif weekday in weekdays %}
+                                            {% if day in cancelled %}
+                                                <div class="col day cancelled">{{ day }}</div>
+                                                {% else %}
+                                            <a href="{% url "lesson:schedule_today" day %}" class="col day lesson">{{ day }}</a>
+                                                {% endif %}
+                                        {% else %}
+                                            <div class="col day">{{ day }}</div>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
                             </div>
-                        {% endif %}
-                        <div class="col-auto order-xxl-2">
-                            <a class="btn btn-primary lh-1" href={% url "lesson:profile_edit" %}><span
-                                    class="fa-solid fa-user-cog me-2"></span>Редактировать</a>
-                        </div>
-                        <div class="col-auto order-xxl-1">
-                            <a class="btn btn-secondary lh-1" href={% url "users:logout" %}><span
-                                    class="fa-solid fa-user-times me-2"></span>Выход</a>
-                        </div>
+                        {% endfor %}
+                    <div class="buttons">
+                        <a id="backToProfile" class="btn">Назад</a>
+                    </div>
                     </div>
 
                 </div>
-            </div>
-            <hr>
-            {% if is_student and learn_courses %}
-                <h3>Прохожу курсы:</h3>
-                {% for course in learn_courses %}
-                    <a>- {{ course.name }}</a><br>
-                {% endfor %}
-            {% endif %}
-            {% if is_teacher and teach_courses %}
-                <h3>Преподаю курсы:</h3>
-                {% for course in teach_courses %}
-                    <a>- {{ course.name }}</a><br>
-                {% endfor %}
-            {% endif %}
+            </section>
         </div>
+
     </div>
+
+    <script>
+        document.getElementById('goToSchedule').addEventListener('click', function () {
+            var section1 = document.getElementById('section1');
+            var section2 = document.getElementById('section2');
+
+            section1.style.display = 'none';
+            section2.style.display = 'block';
+        });
+
+        document.getElementById('backToProfile').addEventListener('click', function () {
+            var section1 = document.getElementById('section1');
+            var section2 = document.getElementById('section2');
+
+            section1.style.display = 'block';
+            section2.style.display = 'none';
+
+        });
+    </script>
+
 {% endblock %}

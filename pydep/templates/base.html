@@ -2,64 +2,24 @@
 <html lang="en" class="no-js">
 <head>
     {% load static %}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-          crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-            crossorigin="anonymous">
-
-    </script>
-<link rel="apple-touch-icon" sizes="180x180" href={% static "assets/img/favicons/apple-touch-icon.png" %}>
-    <link rel="icon" type="image/png" sizes="32x32" href={% static "assets/img/favicons/favicon-32x32.png" %}>
-    <link rel="icon" type="image/png" sizes="16x16" href={% static "assets/img/favicons/favicon-16x16.png" %}>
-    <link rel="shortcut icon" type="image/x-icon" href={% static "assets/img/favicons/favicon.ico" %}>
-    <link rel="manifest" href={% static "assets/img/favicons/manifest.json" %}>
-    <meta name="msapplication-TileImage" content="assets/img/favicons/mstile-150x150.png">
-    <meta name="theme-color" content="#ffffff">
-    <script src={% static "vendors/imagesloaded/imagesloaded.pkgd.min.js" %}></script>
-    <script src={% static "vendors/simplebar/simplebar.min.js" %}></script>
-    <script src={% static "assets/js/config.js" %}></script>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content/>
+    <meta name="author" content/>
+    <link rel="icon" type="image/x-icon" href={% static "assets/favicon.ico" %}/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Tac+One&display=swap" rel="stylesheet">
 
 
-    <!-- ===============================================-->
-    <!--    Stylesheets-->
-    <!-- ===============================================-->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
-    <link href="{% static "vendors/simplebar/simplebar.min.css" %}" rel="stylesheet">
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
-    <link href="{% static "assets/css/theme-rtl.min.css" %}" type="text/css" rel="stylesheet" id="style-rtl">
-    <link href="{% static "assets/css/theme.min.css" %}" type="text/css" rel="stylesheet" id="style-default">
-    <link href="{% static "assets/css/user-rtl.min.css" %}" type="text/css" rel="stylesheet" id="user-style-rtl">
-    <link href="{% static "assets/css/user.min.css" %}" type="text/css" rel="stylesheet" id="user-style-default">
-    <script>
-      var phoenixIsRTL = window.config.config.phoenixIsRTL;
-      if (phoenixIsRTL) {
-        var linkDefault = document.getElementById('style-default');
-        var userLinkDefault = document.getElementById('user-style-default');
-        linkDefault.setAttribute('disabled', true);
-        userLinkDefault.setAttribute('disabled', true);
-        document.querySelector('html').setAttribute('dir', 'rtl');
-      } else {
-        var linkRTL = document.getElementById('style-rtl');
-        var userLinkRTL = document.getElementById('user-style-rtl');
-        linkRTL.setAttribute('disabled', true);
-        userLinkRTL.setAttribute('disabled', true);
-      }
-    </script>
-    <link href={% static "vendors/leaflet/leaflet.css" %} rel="stylesheet">
-    <link href={% static "vendors/leaflet.markercluster/MarkerCluster.css" %} rel="stylesheet">
-    <link href={% static "vendors/leaflet.markercluster/MarkerCluster.Default.css" %} rel="stylesheet">
 
-    <meta charset="utf-8">
-{#    <link rel="stylesheet" href={% static "css/bootstrap.css" %}>#}
-{#<link rel="stylesheet" href={% static "css/blog.css" %}>#}
 
-{% block static %}
-{% endblock %}
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet"/>
+    <link href={% static "css/styles.css" %} rel="stylesheet"/>
+
+    {% block static %}
+    {% endblock %}
     <title>
         {% block title %}
         {% endblock %}
@@ -75,11 +35,7 @@
 {% block content %}
 {% endblock %}
 {% include "includes/footer.html" %}
-<script src={% static "vendors/popper/popper.min.js" %}></script>
-    <script src={% static "vendors/bootstrap/bootstrap.min.js" %}></script>
-    <script src={% static "vendors/fontawesome/all.min.js" %}></script>
-    <script src={% static "vendors/lodash/lodash.min.js" %}></script>
-    <script src={% static "vendors/feather-icons/feather.min.js" %}></script>
-    <script src={% static "assets/js/phoenix.js" %}></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src={% static "js/scripts.js" %}></script>
 </body>
 </html>

@@ -7,50 +7,30 @@
 {% endblock %}
 
 {% block content %}
-    <style>
-        .image {
-            object-fit: cover;
-            height: 200px;
-            {#width: 200px;#}
-        }
-    </style>
-        <div class="container py-5">
-    {% if courses %}
-        <div class="row row-cols-1 row-cols-md-4 g-4">
-            {% for course in courses %}
-                {#        <div class="card mb-3" style="max-width: 540px;">#}
-                {#            <div class="row no-gutters">#}
-                {#                <div class="col-md-4">#}
-                {#                    <a href={% url "lesson:course_detail" course.name %}>#}
-                {#                    <img src={% if course.image.url %}{{ course.image.url }} {% else %}{% static 'img/no_img.png' %}{% endif %}class="card-img" alt="...">#}
-                {#                        </a>#}
-                {#                </div>#}
-                {#                <div class="col-md-8">#}
-                {#                    <div class="card-body">#}
-                {#                        <h5 class="card-title">{{ course.name }}</h5>#}
-                {#                        <p class="card-text">{{ course.description }}</p>#}
-                {#                        <p class="card-text"><small class="text-muted">{{ course.price }} руб.</small></p>#}
-                {#                    </div>#}
-                {#                </div>#}
-                {#            </div>#}
-                {#        </div>#}
-
-                <div class="col">
-                    <div class="card">
-                        <a href={% url "lesson:course_detail" course.name %}>
-                        <img src="{{ course.image.url }}" class="card-img-top image" alt="...">
-                        </a>
-                        <div class="card-body">
-                            <h5 class="card-title">{{ course.name }}</h5>
-                            <p class="card-text">{{ course.price }} руб.</p>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <h3 align="center">По Вашему запросу ничего не найдено :(</h3>
-    {% endif %}
-    </div>
+{% block static %}
+    <link href={% static "css/courses_list.css" %} rel="stylesheet"/>
+{% endblock %}
+    <section class="section-products">
+		<div class="container">
+				<div class="row">
+                    {% for course in courses %}
+						<div class="col-md-6 col-lg-4 col-xl-3">
+								<div id="product-1" class="single-product">
+										<div class="part-1">
+                                            <a href={% url "lesson:course_detail" course.name %}>
+                                            <img src={{ course.image.url }}>
+                                            </a>
+										</div>
+										<div class="part-2">
+												<h3 class="product-title">{{ course.name }}</h3>
+												<h4 class="product-old-price">${{ course.price }}</h4>
+												<h4 class="product-price">₽{{ course.price }}</h4>
+										</div>
+								</div>
+						</div>
+                    {% endfor %}
+				</div>
+		</div>
+</section>
 {% endblock %}
 

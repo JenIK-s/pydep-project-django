@@ -3,7 +3,7 @@ from .views import (
     course_detail, courses_list, index,
     lesson_detail, profile, module_detail,
     courses_list_about_languages, profile_edit, register_course_admin,
-    register_course
+    register_course, schedule_today
 )
 
 app_name = 'lesson'
@@ -11,6 +11,7 @@ app_name = 'lesson'
 urlpatterns = [
     path('', index, name='index'),
     path('profile/', profile, name='profile'),
+    path('schedule/<day>', schedule_today, name='schedule_today'),
     path('profile/edit/', profile_edit, name='profile_edit'),
     path('courses/', courses_list, name='courses'),
     path('course/<str:course_name>/', course_detail, name='course_detail'),

@@ -15,7 +15,7 @@ def SignIn(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('lesson:index')
+                return redirect('lesson:profile')
     else:
         form = SignInForm()
     return render(request, 'users/signin.html', {'form': form})
