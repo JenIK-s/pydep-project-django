@@ -74,7 +74,7 @@ BASE = {
             'USER': os.getenv('POSTGRES_USER', default='postgres'),
             'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='pwdU124@3'),
             'HOST': os.getenv('DB_HOST', default='localhost'),
-            'PORT': os.getenv('DB_PORT', default='5555')
+            'PORT': os.getenv('DB_PORT', default='5432')
         }
     }
 }
