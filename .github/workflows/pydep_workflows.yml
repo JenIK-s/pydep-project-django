@@ -38,7 +38,7 @@ jobs:
           uses: docker/build-push-action@v2
           with:
             push: true
-            tags: jeniks/pyped_web:v0.0.3
+            tags: jeniks/pyped_web:v0.0.4
 
   deploy:
    runs-on: ubuntu-latest
