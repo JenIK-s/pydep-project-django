@@ -9,7 +9,7 @@ services:
       - .env
 
   web:
-    image: jeniks/pyped_web:v0.0.2
+    image: jeniks/pyped_web:v0.0.3
     ports:
       - "8000:8000"
     volumes:
