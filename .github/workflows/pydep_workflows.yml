@@ -38,38 +38,6 @@ jobs:
           uses: docker/build-push-action@v2
           with:
             push: true
-            tags: jeniks/pyped_web:v0.0.4
+            tags: jeniks/pyped_web:v0.0.5
 
-  deploy:
-   runs-on: ubuntu-latest
-   needs:
-     - build_and_push_web_to_docker_hub
-   steps:
-     - name: executing remote ssh commands to deploy
-       uses: appleboy/ssh-action@master
-       with:
-         host: ${{ secrets.HOST }}
-         username: ${{ secrets.USER }}
-         key: ${{ secrets.SSH_KEY }}
-         passphrase: ${{ secrets.PASSPHRASE }}
-         script: |
-           sudo docker-compose stop
-           echo "y" | docker container prune
-           echo "y" | docker image prune -a
-           echo "y" | docker volume prune
-           sudo docker pull jeniks/pyped_web:v0.0.1
-           python manage.py makemigrations users
-           python manage.py makemigrations recipes
-           python manage.py makemigrations
-           python manage.py migrate users
-           python manage.py migrate recipes
-           python manage.py migrate
-           touch .env
-           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
-           echo DB_NAME=${{ secrets.DB_NAME }} >> .env
-           echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
-           echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
-           echo DB_HOST=${{ secrets.DB_HOST }} >> .env
-           echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-           sudo docker-compose up -d
 
