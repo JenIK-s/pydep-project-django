@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+    {{ module_name }}
+{% endblock %}
+
+{% block content %}
+    <div class="container py-5">
+        {% for lesson in lessons %}
+            <a href="{% url 'lesson:lesson_detail' course_name=course_name module_name=module_name lesson_name=lesson.title %}">
+                {{ lesson.title }}
+            </a>
+        {% endfor %}
+    </div>
+{% endblock %}
+
