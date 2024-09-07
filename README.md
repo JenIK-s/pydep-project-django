@@ -1,1 +1,1 @@
-# pydep-project-django
+# pydep-project-django v1.0.0
