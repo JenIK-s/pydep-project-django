@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+    {{ course.name }}
+{% endblock %}
+
+{% block content %}
+{#    <style>#}
+{#        .image {#}
+{#            object-fit: cover;#}
+{#            height: 200px;#}
+{#        }#}
+{#    </style>#}
+{#    <div class="container py-5">#}
+{#        <h1>{{ course.name }}</h1>#}
+{#        <a>{{ course.description }}</a>#}
+{#        <br>#}
+{#        <div class="row">#}
+{#        <div class="row row-cols-1 row-cols-md-4 g-4">#}
+{#                {% for module in modules %}#}
+{#                    <div class="col">#}
+{#                    <div class="card">#}
+{#                        <a href={% url "lesson:module_detail" course.name module.module %}>#}
+{#                        <img src="{% static "img/logo.png" %}" class="card-img-top image" alt="...">#}
+{#                        </a>#}
+{#                        <div class="card-body">#}
+{#                            <h5 class="card-title">{{ module.module }}</h5>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#                {% endfor %}#}
+{#            </div>#}
+{#            <br>#}
+{#        </div>#}
+{#        <hr>#}
+
+    <section class="section-products">
+		<div class="container">
+				<div class="row">
+                    {% for module in modules %}
+						<div class="col-md-6 col-lg-4 col-xl-3">
+								<div id="product-1" class="single-product">
+										<div class="part-1">
+                                            <a href={% url "lesson:module_detail" course.name module.module %}>
+                                            <img src="{% static "img/logo.png" %}" class="card-img-top image" alt="...">
+                                            </a>
+										</div>
+										<div class="part-2">
+												<h3 class="product-title">{{ module.module.title }}</h3>
+										</div>
+								</div>
+						</div>
+                    {% endfor %}
+				</div>
+		</div>
+</section>
+
+    <form method="POST">
+    {% csrf_token %}
+    <button class="btn btn-primary" type="submit">Отправить заявку на курс</button>
+    </form>
+{% endblock %}
+

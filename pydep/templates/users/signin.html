@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Авторизация
+{% endblock %}
+
+{% block content %}
+    <style>
+
+
+
+
+        .form-signin {
+            width: 100%;
+            max-width: 330px;
+            padding: 15px;
+            margin: auto;
+        }
+
+        .form-signin .checkbox {
+            font-weight: 400;
+        }
+
+        .form-signin .form-floating:focus-within {
+            z-index: 2;
+        }
+
+        .form-signin input[type="email"] {
+            margin-bottom: -1px;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+        .form-container {
+            margin-bottom: 5px;
+        }
+
+    </style>
+{% block static %}
+    <link href={% static "css/blog.css" %} rel="stylesheet"/>
+{% endblock %}
+
+    <section class="main">
+     <div class="profile-card">
+    <main class="form-signin">
+        <div class="text-center">
+            <h1 class="h3 mb-3 fw-normal">Авторизация</h1>
+        </div>
+            <form method="post" enctype="multipart/form-data" action={% url "users:signin" %}>
+                {% csrf_token %}
+                {% for elem in form %}
+                    <div class="form-floating">
+                        {{ elem }}
+                        <label for="floatingInput">{{ elem.label }}</label>
+                        <a></a>
+                    </div>
+                {% endfor %}
+                <input type="submit" class="w-100 btn btn-lg btn-primary" value="Войти">
+                <a>Нет аккаунта? </a><a class="" href={% url "users:signup" %}>Зарегестрироваться</a>
+            </form>
+    </main>
+     </div>
+    </section>
+
+{% endblock %}
+

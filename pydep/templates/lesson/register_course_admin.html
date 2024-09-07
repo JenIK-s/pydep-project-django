@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+{% endblock %}
+
+{% block content %}
+    {#    <div class="container py-5 text-center">#}
+    {#        {% for elem in queryset %}#}
+    {#            <ul>#}
+    {#            <li>Имя пользователя - {{ elem.user }}</li>#}
+    {#            <li>Имя - {{ elem.user.get_full_name }}</li>#}
+    {#            <li>Курс - {{ elem.course }}</li>#}
+    {#            </ul>#}
+    {#            <a>{{ elem.user }} | {{ elem.course }}</a>#}
+    {#            <input type="submit" class="btn btn-success" value="Принять заявку">#}
+    {#            <input type="submit" class="btn btn-danger" value="Отклонить заявку">#}
+    {#            <hr>#}
+    {#    {% endfor %}#}
+    {#    </div>#}
+    <style>
+        .image {
+            object-fit: cover;
+            height: 200px;
+        }
+    </style>
+    <div class="text-center container py-5">
+        {% for elem in queryset %}
+            <div class="col-md-4">
+                <form method="post" action={% url "lesson:register_course_admin" %}>
+                    {% csrf_token %}
+                    <div class="card" style="width: 18rem;">
+                        <img class="image" src="{{ elem.user.image.url }}" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ elem.user.get_full_name }}</h5>
+                            <p class="card-text">{{ elem.course.name }}</p>
+                            {% if elem.status == "wait" %}
+                                <button type="submit" class="btn btn-success" value="ap_{{ elem.id }}" name="action">Принять заявку</button>
+                            <hr>
+                                <button type="submit" class="btn btn-danger" value="rj_{{ elem.id }}" name="action">Отклонить заявку</button>
+                            {% else %}
+                            <a href="" class="btn btn-secondary">Заявка рассмотрена...</a>
+                                <hr>
+                                <button type="submit" class="btn btn-danger" value="dl_{{ elem.id }}" name="action">Удалить</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+

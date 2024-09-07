@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+    Курсы
+{% endblock %}
+
+{% block content %}
+    <div class="container py-5">
+        {% for course in courses %}
+            <div class="card mb-3" style="max-width: 540px;">
+            <div class="row no-gutters">
+                <div class="col-md-4">
+                    <a href={% url "lesson:course_detail" course.name %}>
+                    <img src={{ course.image.url }} %} class="card-img" alt="...">
+                        </a>
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ course.name }}</h5>
+                        <p class="card-text">{{ course.description }}</p>
+                        <p class="card-text"><small class="text-muted">{{ course.price }} руб.</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+{% endblock %}

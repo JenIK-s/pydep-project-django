@@ -1,0 +1,111 @@
+
+    .profile-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 400px;
+        width: 100%;
+        height: min-content;
+        border-radius: 25px;
+        padding: 30px;
+        border: 1px solid #ffffff40;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .image {
+        position: relative;
+        height: 150px;
+        width: 150px;
+    }
+
+    .image .profile-pic {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+    }
+
+
+
+    .data h2 {
+        font-size: 33px;
+        font-weight: 600;
+    }
+
+    span {
+        font-size: 18px;
+    }
+
+    .row {
+        display: flex;
+        align-items: center;
+        margin-top: 30px;
+    }
+
+    .row .info {
+        text-align: center;
+        padding: 0 20px;
+    }
+
+    .buttons {
+        display: flex;
+        align-items: center;
+        margin-top: 30px;
+    }
+
+    .buttons .btn {
+        color: #fff;
+        text-decoration: none;
+        margin: 0 20px;
+        padding: 8px 25px;
+        border-radius: 25px;
+        font-size: 18px;
+        white-space: nowrap;
+        background: linear-gradient(to left, #3a30db 0%, #c1248a 100%);
+    }
+
+    .buttons .btn:hover {
+        box-shadow: inset 0 5px 20px rgba(0, 0, 0, 0.4);
+    }
+    .main{
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+    .day {
+            font-size: 25px;
+            text-align: center;
+            padding: 20px 0;
+            border-right: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            background: white;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .today {
+            background: #3F888F;
+        }
+
+        .lesson {
+            background: #44944A;
+        }
+
+        .cancelled {
+            background: #A2231D;
+        }
+
+        .day:last-child {
+            border-right: none;
+            background: white;
+        }
+
+        .schedule-card {
+            width: 1000px;
+            border-radius: 25px;
+            padding: 30px;
+            border: 1px solid #ffffff40;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
