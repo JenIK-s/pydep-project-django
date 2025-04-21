@@ -1,18 +1,95 @@
 {% extends 'base.html' %}
-
 {% load static %}
 
 {% block title %}
     {{ module_name }}
 {% endblock %}
 
+{% block static %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .lesson-list {
+        max-width: 700px;
+        margin: 40px auto;
+    }
+
+    .lesson-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transition: background-color 0.3s ease;
+        cursor: pointer;
+        background-color: #ffffff;
+    }
+
+    .lesson-item:hover {
+        background-color: #f0f4f8;
+    }
+
+    .lesson-number {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background-color: #2575fc;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-weight: bold;
+    }
+
+    .lesson-status {
+        margin-left: auto;
+        font-size: 0.9rem;
+    }
+
+    .completed {
+        color: #28a745;
+    }
+
+    .in-progress {
+        color: #ffc107;
+    }
+
+    .locked {
+        color: #dc3545;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-    <div class="container py-5">
+<div class="container">
+    <div class="text-center py-4">
+        <h1 class="fw-bold">{{ module_name }}</h1>
+    </div>
+
+    <div class="lesson-list">
         {% for lesson in lessons %}
             <a href="{% url 'lesson:lesson_detail' course_name=course_name module_name=module_name lesson_name=lesson.title %}">
-                {{ lesson.title }}
+                <div class="lesson-item">
+                    <div class="lesson-number">{{ forloop.counter }}</div>
+                    <div>{{ lesson.title }}</div>
+                    <div class="lesson-status {% if lesson.completed %}completed{% elif lesson.current %}in-progress{% else %}locked{% endif %}">
+                        {% if lesson.completed %}
+                            Пройдено
+                        {% elif lesson.current %}
+                            Текущий
+                        {% else %}
+                            Заблокирован
+                        {% endif %}
+                    </div>
+                </div>
             </a>
         {% endfor %}
     </div>
+</div>
 {% endblock %}
-

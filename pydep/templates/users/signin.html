@@ -1,65 +1,61 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block title %}
     Авторизация
 {% endblock %}
 
-{% block content %}
-    <style>
-
-
-
-
-        .form-signin {
-            width: 100%;
-            max-width: 330px;
-            padding: 15px;
-            margin: auto;
-        }
-
-        .form-signin .checkbox {
-            font-weight: 400;
-        }
-
-        .form-signin .form-floating:focus-within {
-            z-index: 2;
-        }
-
-        .form-signin input[type="email"] {
-            margin-bottom: -1px;
-            border-bottom-right-radius: 0;
-            border-bottom-left-radius: 0;
-        }
-        .form-container {
-            margin-bottom: 5px;
-        }
-
-    </style>
 {% block static %}
-    <link href={% static "css/blog.css" %} rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .auth-container {
+        max-width: 400px;
+        margin: 80px auto;
+        padding: 30px;
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-control {
+        border-radius: 10px;
+    }
+
+    .btn-auth {
+        border-radius: 20px;
+        padding: 10px;
+    }
+
+    .auth-link {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .auth-link:hover {
+        text-decoration: underline;
+    }
+</style>
 {% endblock %}
 
-    <section class="main">
-     <div class="profile-card">
-    <main class="form-signin">
-        <div class="text-center">
-            <h1 class="h3 mb-3 fw-normal">Авторизация</h1>
-        </div>
-            <form method="post" enctype="multipart/form-data" action={% url "users:signin" %}>
-                {% csrf_token %}
-                {% for elem in form %}
-                    <div class="form-floating">
-                        {{ elem }}
-                        <label for="floatingInput">{{ elem.label }}</label>
-                        <a></a>
-                    </div>
-                {% endfor %}
-                <input type="submit" class="w-100 btn btn-lg btn-primary" value="Войти">
-                <a>Нет аккаунта? </a><a class="" href={% url "users:signup" %}>Зарегестрироваться</a>
-            </form>
-    </main>
-     </div>
-    </section>
+{% block content %}
+<div class="container auth-container">
+    <div class="text-center mb-4">
+        <h3 class="fw-bold">Авторизация</h3>
+    </div>
 
+    <form method="post" action="{% url 'users:signin' %}">
+        {% csrf_token %}
+        {% for elem in form %}
+            <div class="form-floating mb-3">
+                {{ elem }}
+                <label for="{{ elem.id_for_label }}">{{ elem.label }}</label>
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary w-100 btn-auth">Войти</button>
+    </form>
+
+    <div class="text-center mt-3">
+        <span>Нет аккаунта? <a class="auth-link" href="{% url 'users:signup' %}">Зарегистрироваться</a></span>
+    </div>
+</div>
 {% endblock %}
-
