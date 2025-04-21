@@ -1,134 +1,183 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load thumbnail %}
+
 {% block title %}
+    Профиль пользователя
 {% endblock %}
+
 {% block static %}
-    <link href="{% static "css/blog.css" %}" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .profile-card {
+            max-width: 700px;
+            margin: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            background-color: #fff;
+        }
+
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #007bff;
+            margin-bottom: 15px;
+        }
+
+        .btn-custom {
+            border-radius: 20px;
+            padding: 8px 20px;
+            margin-top: 10px;
+        }
+
+        .schedule-card {
+            max-width: 700px;
+            margin: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        .day {
+            padding: 10px;
+            border-radius: 10px;
+            margin: 5px;
+        }
+
+        .today {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .lesson {
+            background-color: #dff0d8;
+        }
+
+        .cancelled {
+            background-color: #f8d7da;
+        }
+    </style>
 {% endblock %}
+
 {% block content %}
-    <div class="main">
-        <div id="section1" class="section">
-            <section class="main">
-                <div class="text-center">
-                    <div class="profile-card">
-                        <div class="image">
-                            <img src={{ user.image.url }} alt="" class="profile-pic">
-                        </div>
-                        <div class="data">
-                            <h2>{{ user.get_full_name }}</h2>
-                            <span>{{ result }}</span>
-                            <hr>
-                        </div>
-                        {% if is_student and learn_courses %}
-                            <h4>Мои курсы:</h4>
-                            {% for course in learn_courses %}
-                                <a>{{ course.name }}</a><br>
-                            {% endfor %}
-                        {% endif %}
-                        {% for elem in queryset %}
-                            {% if elem.status == "wait" %}
-                                <a href="#" class="text-muted">{{ elem.course.name }}</a>
-                            {% endif %}
-                            {% if elem.status == "rejected" %}
-                                <a href="#" class="text-danger">{{ elem.course.name }}</a>
-                            {% endif %}
+    <div class="container py-4">
+        <div id="section1">
+            <div class="profile-card text-center">
+                <img src="{{ user.image.url }}" alt="Profile Picture" class="profile-pic">
+                <h2 class="mb-2 d-flex justify-content-center align-items-center gap-2">
+                    {{ user.get_full_name }}
+                    <a href="{% url 'lesson:profile_edit' %}" class="text-decoration-none"
+                       title="Редактировать профиль">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                </h2>
+                <span class="text-muted">{{ result }}</span>
+                <hr>
 
-                        {% endfor %}
-                        {% if is_teacher and teach_courses %}
-                            <h3>Преподаю курсы:</h3>
-                            {% for course in teach_courses %}
-                                <a>- {{ course.name }}</a><br>
-                            {% endfor %}
-                        {% endif %}
-                        <div class="buttons">
-                            <a href={% url "lesson:register_course_admin" %} class="btn">Заявки на курсы</a>
-                            <a href={% url "users:logout" %} class="btn">Выход</a>
-                        </div>
-                    {% if is_tutor_student %}
-                        <div class="buttons">
-                            <a id="goToSchedule" class="btn">Расписание занятий</a>
-                        </div>
-                    {% endif %}
-
-                    </div>
-                </div>
-            </section>
-
-
-        </div>
-
-        <div id="section2" class="section" style="display: none;">
-            <section class="main">
-                <div class="text-center">
-                    <div class="schedule-card">
-                        <div class="row">
-                            <div class="col day">Пн</div>
-                            <div class="col day">Вт</div>
-                            <div class="col day">Ср</div>
-                            <div class="col day">Чт</div>
-                            <div class="col day">Пт</div>
-                            <div class="col day">Сб</div>
-                            <div class="col day">Вс</div>
-                        </div>
-                        {% for week in month_matrix %}
-                            <div class="row">
-                                {% for day in week %}
-                                    {% if day == 0 %}
-                                        <div class="col day">&nbsp;</div>
-                                    {% else %}
-                                        {% load custom_tags %}
-                                        {% get_weekday day as weekday %}
-
-                                        {% if day == current_day %}
-
-                                            {% if weekday in weekdays %}
-                                                <a href="{% url "lesson:schedule_today" day %}" class="col day today">{{ day }}</a>
-                                                {% else %}
-                                                <div class="col day today">{{ day }}</div>
-                                            {% endif %}
-                                        {% elif weekday in weekdays %}
-                                            {% if day in cancelled %}
-                                                <div class="col day cancelled">{{ day }}</div>
-                                                {% else %}
-                                            <a href="{% url "lesson:schedule_today" day %}" class="col day lesson">{{ day }}</a>
-                                                {% endif %}
-                                        {% else %}
-                                            <div class="col day">{{ day }}</div>
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
+                {% if is_student and learn_courses %}
+                    <div class="accordion mb-3" id="coursesAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingCourses">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseCourses" aria-expanded="false"
+                                        aria-controls="collapseCourses">
+                                    Мои курсы
+                                </button>
+                            </h2>
+                            <div id="collapseCourses" class="accordion-collapse collapse"
+                                 aria-labelledby="headingCourses" data-bs-parent="#coursesAccordion">
+                                <div class="accordion-body">
+                                    {% for course in learn_courses %}
+                                        <div><a href="#">{{ course.name }}</a></div>
+                                    {% endfor %}
+                                </div>
                             </div>
-                        {% endfor %}
-                    <div class="buttons">
-                        <a id="backToProfile" class="btn">Назад</a>
+                        </div>
                     </div>
-                    </div>
+                {% endif %}
 
+                {% for elem in queryset %}
+                    {% if elem.status == "wait" %}
+                        <a href="#" class="text-muted">{{ elem.course.name }}</a><br>
+                    {% elif elem.status == "rejected" %}
+                        <a href="#" class="text-danger">{{ elem.course.name }}</a><br>
+                    {% endif %}
+                {% endfor %}
+
+                {% if is_teacher and teach_courses %}
+                    <h4>Преподаю курсы</h4>
+                    <div class="mb-3">
+                        {% for course in teach_courses %}
+                            <a href="#">{{ course.name }}</a><br>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="d-grid gap-2 d-md-block">
+                    <a href="{% url 'lesson:register_course_admin' %}" class="btn btn-outline-primary btn-custom">Заявки
+                        на курсы</a>
+                    <a href="{% url 'users:logout' %}" class="btn btn-outline-danger btn-custom">Выход</a>
+                    {% if is_tutor_student %}
+                        <button id="goToSchedule" class="btn btn-primary btn-custom">Расписание занятий</button>
+                    {% endif %}
                 </div>
-            </section>
+            </div>
         </div>
 
+        <div id="section2" style="display: none;">
+            <div class="schedule-card text-center">
+                <div class="row text-center fw-bold">
+                    <div class="col day">Пн</div>
+                    <div class="col day">Вт</div>
+                    <div class="col day">Ср</div>
+                    <div class="col day">Чт</div>
+                    <div class="col day">Пт</div>
+                    <div class="col day">Сб</div>
+                    <div class="col day">Вс</div>
+                </div>
+                {% for week in month_matrix %}
+                    <div class="row">
+                        {% for day in week %}
+                            {% if day == 0 %}
+                                <div class="col day"></div>
+                            {% else %}
+                                {% load custom_tags %}
+                                {% get_weekday day as weekday %}
+                                {% if day == current_day %}
+                                    <div class="col day today">{{ day }}</div>
+                                {% elif weekday in weekdays %}
+                                    {% if day in cancelled %}
+                                        <div class="col day cancelled">{{ day }}</div>
+                                    {% else %}
+                                        <a href="{% url 'lesson:schedule_today' day %}"
+                                           class="col day lesson">{{ day }}</a>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="col day">{{ day }}</div>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                <button id="backToProfile" class="btn btn-secondary btn-custom mt-3">Назад к профилю</button>
+            </div>
+        </div>
     </div>
 
     <script>
         document.getElementById('goToSchedule').addEventListener('click', function () {
-            var section1 = document.getElementById('section1');
-            var section2 = document.getElementById('section2');
-
-            section1.style.display = 'none';
-            section2.style.display = 'block';
+            document.getElementById('section1').style.display = 'none';
+            document.getElementById('section2').style.display = 'block';
         });
 
         document.getElementById('backToProfile').addEventListener('click', function () {
-            var section1 = document.getElementById('section1');
-            var section2 = document.getElementById('section2');
-
-            section1.style.display = 'block';
-            section2.style.display = 'none';
-
+            document.getElementById('section1').style.display = 'block';
+            document.getElementById('section2').style.display = 'none';
         });
     </script>
-
 {% endblock %}

@@ -21,12 +21,6 @@ class CustomUser(AbstractUser):
         null=True,
         verbose_name='Аватар',
     )
-    background_image = models.ImageField(
-        upload_to='background',
-        blank=True,
-        null=True,
-        verbose_name='Фон профиля',
-    )
     description = models.TextField()
     first_name = models.CharField(
         max_length=50,

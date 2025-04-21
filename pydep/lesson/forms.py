@@ -46,17 +46,6 @@ class EditProfile(UserChangeForm):
         label='Фотография',
         required=False
     )
-    background_image = forms.ImageField(
-        widget=forms.ClearableFileInput(
-            attrs={
-                'class': 'form-control form-container',
-                'placeholder': 'Выберите изображение',
-                'id': "floatingInput"
-            }
-        ),
-        label='Фон профиля',
-        required=False
-    )
     description = forms.CharField(
         widget=forms.TextInput(
             attrs={
@@ -72,4 +61,4 @@ class EditProfile(UserChangeForm):
 
     class Meta(UserChangeForm.Meta):
         model = get_user_model()
-        fields = ('email', 'image', 'background_image', 'description')
+        fields = ('email', 'image', 'description')
