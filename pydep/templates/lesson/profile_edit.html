@@ -5,6 +5,7 @@
 
 {% block static %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css" rel="stylesheet">
 <style>
     .edit-card {
         max-width: 700px;
@@ -13,6 +14,18 @@
         background-color: #ffffff;
         border-radius: 20px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        animation: fadeInZoom 0.4s ease-out both;
+    }
+
+    @keyframes fadeInZoom {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
     }
 
     .avatar-wrapper {
@@ -22,20 +35,21 @@
     }
 
     .profile-pic-preview {
-        width: 150px;
-        height: 150px;
+        width: 200px;
+        height: 200px;
         object-fit: cover;
         border-radius: 50%;
         border: 4px solid #007bff;
         margin-bottom: 10px;
+        transition: transform 0.3s ease;
     }
 
     .overlay {
         position: absolute;
         top: 0;
         left: 0;
-        width: 150px;
-        height: 150px;
+        width: 200px;
+        height: 200px;
         border-radius: 50%;
         background-color: rgba(0, 0, 0, 0.5);
         color: #fff;
@@ -61,6 +75,37 @@
     .btn-edit {
         border-radius: 20px;
         margin-top: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit:hover {
+        transform: scale(1.03);
+    }
+
+    #cropImage {
+        max-height: 80vh;
+        width: auto;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .cropper-view-box,
+    .cropper-face {
+        border-radius: 50% !important;
+    }
+
+    .toolbar {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .zoom-status {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 0.5rem;
     }
 </style>
 {% endblock %}
@@ -76,39 +121,129 @@
 
         <div class="text-center">
             <div class="avatar-wrapper" onclick="document.getElementById('id_image').click()">
-                <img class="profile-pic-preview" src="/media/{{ form.image.value }}" alt="Аватар">
+                <img class="profile-pic-preview" id="avatarPreview" src="/media/{{ form.image.value }}" alt="Аватар">
                 <div class="overlay">Изменить</div>
             </div>
-            <input type="file" name="image" id="id_image" class="avatar-input">
+            <input type="file" name="image" id="id_image" class="avatar-input" accept="image/*">
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Обложка профиля</label>
-            {{ form.background_image }}
-        </div>
+        <div class="form-floating mb-3">
+    <input type="text" name="first_name" id="id_first_name" class="form-control"
+           value="{{ form.first_name.value|default:user.first_name }}">
+    <label for="id_first_name">{{ form.first_name.label }}</label>
+</div>
+
+<div class="form-floating mb-3">
+    <input type="text" name="last_name" id="id_last_name" class="form-control"
+           value="{{ form.last_name.value|default:user.last_name }}">
+    <label for="id_last_name">{{ form.last_name.label }}</label>
+</div>
 
         <div class="form-floating mb-3">
             {{ form.email }}
             <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
         </div>
 
-        <div class="form-floating mb-3">
-            {{ form.description }}
-            <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
-        </div>
+{#        <div class="form-floating mb-3">#}
+{#            {{ form.description }}#}
+{#            <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>#}
+{#        </div>#}
 
         <button type="submit" class="btn btn-primary w-100 btn-edit">Сохранить изменения</button>
     </form>
 </div>
 
+<!-- Модальное окно для обрезки -->
+<div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-body">
+                <img id="cropImage" src="" alt="Изображение для обрезки">
+                <div class="toolbar">
+                    <div>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="zoomIn">Увеличить</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="zoomOut">Уменьшить</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="resetCrop">Сброс</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="cropButton">Обрезать</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
 <script>
-    const imageInput = document.getElementById('id_image');
-    imageInput.addEventListener('change', function () {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            document.querySelector('.profile-pic-preview').src = e.target.result;
-        };
-        reader.readAsDataURL(this.files[0]);
+    const input = document.getElementById('id_image');
+    const preview = document.getElementById('avatarPreview');
+    const modal = new bootstrap.Modal(document.getElementById('cropModal'));
+    const cropImage = document.getElementById('cropImage');
+    const zoomLevelDisplay = document.getElementById('zoomLevel');
+    let cropper;
+
+    function updateZoomLevel() {
+        const zoomRatio = Math.round(cropper.getImageData().scaleX * 100);
+        zoomLevelDisplay.textContent = `Масштаб: ${zoomRatio}%`;
+    }
+
+    input.addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                cropImage.src = e.target.result;
+                modal.show();
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(cropImage, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    background: false,
+                    autoCropArea: 1,
+                    responsive: true,
+                    movable: true,
+                    zoomable: true,
+                    dragMode: 'move',
+                    guides: false,
+                    cropBoxResizable: true,
+                    minCropBoxWidth: 200,
+                    minCropBoxHeight: 200,
+                    ready() {
+                        updateZoomLevel();
+                    },
+                    zoom() {
+                        updateZoomLevel();
+                    }
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('cropButton').addEventListener('click', function () {
+        const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+        canvas.toBlob(function (blob) {
+            const newFile = new File([blob], input.files[0].name, { type: 'image/png' });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(newFile);
+            input.files = dataTransfer.files;
+            preview.src = URL.createObjectURL(newFile);
+            modal.hide();
+        }, 'image/png');
+    });
+
+    document.getElementById('zoomIn').addEventListener('click', () => {
+        cropper.zoom(0.1);
+    });
+    document.getElementById('zoomOut').addEventListener('click', () => {
+        cropper.zoom(-0.1);
+    });
+    document.getElementById('resetCrop').addEventListener('click', () => {
+        cropper.reset();
+        updateZoomLevel();
     });
 </script>
 {% endblock %}

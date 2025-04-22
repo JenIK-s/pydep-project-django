@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Course, ModulesInCourse, Module, Lesson
+from .models import Course, ModulesInCourse, Module, Lesson, Category, UserLessonProgress
 from .forms import RegisterCourseForm, EditProfile
 from .context_processors.bot import send_message
 from .context_processors.decorators import course_required, search_request
@@ -25,13 +25,20 @@ def index(request):
     return render(request, 'lesson/index.html')
 
 
+def category_detail(request, slug):
+    categories = Category.objects.all()
+    category = Category.objects.get(slug=slug)
+    courses = Course.objects.filter(category=category)
+    return render(request, "lesson/courses_list.html", {"courses": courses, "categories": categories, "category": category})
+
+
 @search_request
 def courses_list(request, queryset=None):
+    categories = Category.objects.all()
     if queryset is None:
-        context = {'courses': Course.objects.all()}
+        context = {'courses': Course.objects.all(), "categories": categories}
     else:
-        context = {'courses': queryset}
-
+        context = {'courses': queryset, "categories": categories}
     return render(request, template_name='lesson/courses_list.html',
                   context=context)
 
@@ -55,6 +62,27 @@ def courses_list_about_languages(request, prog_lang, queryset=None):
 def course_detail(request, course_name):
     course = Course.objects.get(name=course_name)
     modules = ModulesInCourse.objects.filter(course=course)
+    modules_user = Module.objects.filter(course=course)
+    user_modules = []
+    for module in modules_user:
+        lessons = module.lessons.all()
+        total_lessons = lessons.count()
+
+        completed_lessons = UserLessonProgress.objects.filter(
+            user=request.user,
+            lesson__in=lessons,
+            completed=True
+        ).count()
+
+        # Рассчёт прогресса
+        progress = int((completed_lessons / total_lessons) * 100) if total_lessons > 0 else 0
+
+        user_modules.append({
+            'module': module,
+            'progress': progress,
+            'completed': progress == 100,
+        })
+
     form = RegisterCourseForm(request.POST or None)
     if request.method == 'POST':
         form_data = {
@@ -64,24 +92,41 @@ def course_detail(request, course_name):
         RegisterCourse.objects.create(**form_data)
         send_message('861963780', f'Вы отправили заявку на курс {course.name}.')
         return redirect('lesson:profile')
-
     context = {
         'course': course,
-        'modules': modules,
+        'modules': user_modules,
         'form': form,
     }
     return render(request, 'lesson/course_detail.html', context)
 
 
-@course_required
+# @course_required
 @login_required
 def lesson_detail(request, course_name, module_name, lesson_name):
+
+    # course = Course.objects.get(name=course_name)
+    # modules_user = Module.objects.filter(course=course)
+    # user_modules = []
+    # for module in modules_user:
+    #     lessons = module.lessons.all()
+    #     total_lessons = lessons.count()
+    #
+        # completed_lessons = UserLessonProgress.objects.filter(
+        #     user=request.user,
+        #     lesson__in=lessons,
+        #     completed=True
+        # )
     lesson = Lesson.objects.get(title=lesson_name)
+    is_completed = UserLessonProgress.objects.get_or_create(
+        user=request.user,
+        lesson=lesson
+    )[0].completed
     context = {
         'course_name': course_name,
         'module_name': module_name,
         'lesson_title': lesson_name,
         'lesson': lesson,
+        "is_completed": is_completed,
     }
     return render(request, 'lesson/lesson_detail.html', context=context)
 
@@ -89,14 +134,78 @@ def lesson_detail(request, course_name, module_name, lesson_name):
 @login_required
 def module_detail(request, course_name, module_name):
     module = Module.objects.get(title=module_name)
-    lessons = module.lessons.all()
+    lessons_module = module.lessons.all()
+    completed_lessons = UserLessonProgress.objects.filter(
+        user=request.user,
+        lesson__in=lessons_module,
+        completed=True
+    ).values_list('lesson', flat=True)
+    print(completed_lessons)
+    lessons = []
+    current_found = False
+    for lesson in lessons_module:
+        is_completed = lesson.id in completed_lessons
+        is_current = False
+
+        if not is_completed and not current_found:
+            is_current = True
+            current_found = True
+
+        lessons.append({
+            'lesson': lesson,
+            'is_completed': is_completed,
+            'is_current': is_current,
+        })
+    print(lessons)
+    # module = Module.objects.get(title=module_name)
+    # lessons = module.lessons.all()
 
     context = {
         'lessons': lessons,
         'course_name': course_name,
-        'module_name': module.title
+        'module_name': module_name
     }
     return render(request, 'lesson/module_detail.html', context)
+
+
+@login_required
+def complete_lesson(request, course_name, module_name, lesson_name):
+    lesson = Lesson.objects.get(title=lesson_name)
+
+    # Отметить текущий как завершённый
+    progress, created = UserLessonProgress.objects.get_or_create(
+        user=request.user,
+        lesson=lesson
+    )
+    progress.completed = True
+    progress.current = False
+    progress.save()
+
+    # Найти следующий урок
+    next_lesson = None
+    module = Module.objects.get(title=module_name)
+    module_lessons = module.lessons.all()
+    for i in range(len(module_lessons)):
+        if module_lessons[i] == lesson and i < len(module_lessons) - 1:
+            next_lesson = module_lessons[i + 1]
+    print(next_lesson)
+
+    # next_lesson = Lesson.objects.filter(
+    #     module=lesson.module,
+    #     order__gt=lesson.order
+    # ).order_by('order').first()
+
+    if next_lesson:
+        # Убедиться, что у следующего урока есть progress-объект
+        next_progress, created = UserLessonProgress.objects.get_or_create(
+            user=request.user,
+            lesson=next_lesson
+        )
+        if not next_progress.completed:
+            next_progress.current = True
+            next_progress.save()
+
+    return redirect('lesson:module_detail', course_name=course_name, module_name=module_name)
 
 
 @login_required
@@ -157,24 +266,19 @@ def schedule_today(request, day):
 
     return render(request, 'lesson/profile_tutor_student.html', context)
 
+@login_required
 def profile_edit(request):
     if request.method == 'POST':
-        form = EditProfile(request.POST, instance=request.user)
+        form = EditProfile(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
-            form.save()
-            if request.FILES.get('image', None):
-                request.user.image = request.FILES['image']
-            if request.FILES.get('email', None):
-                request.user.email = request.FILES['email']
-            if request.FILES.get('background_image', None):
-                request.user.background_image = request.FILES['background_image']
-            if request.FILES.get('description', None):
-                request.user.description = request.FILES['description']
-            request.user.save()
+            user = form.save(commit=False)
+            if request.FILES.get('image'):
+                user.image = request.FILES['image']
+            user.save()
             return redirect('lesson:profile')
     else:
         form = EditProfile(instance=request.user)
-        return render(request, 'lesson/profile_edit.html', {'form': form})
+    return render(request, 'lesson/profile_edit.html', {'form': form})
 
 
 def register_course_admin(request):
@@ -204,3 +308,47 @@ def register_course_admin(request):
 def register_course(request):
     queryset = RegisterCourse.objects.filter(user=request.user)
     return render(request, 'lesson/register_course.html', {'queryset': queryset})
+
+
+def tutor_students(request):
+    queryset = RegisterCourse.objects.filter(user=request.user)
+    user = request.user
+    result = ''
+    if user.is_superuser:
+        result += 'Модератор '
+    if user.is_teacher:
+        result += 'Преподаватель '
+    if user.is_student:
+        result += 'Студент '
+    is_teacher = user.is_teacher
+    is_student = user.is_student
+    result = result.strip()
+    result = result.replace(' ', ' & ')
+    learn_courses = user.courses_learn.all()
+    teach_courses = user.courses_teach.all()
+    cancelled_lesson = CancelledLesson.objects.filter(student=request.user)
+    cancelled = [elem.date_cancelled.day for elem in cancelled_lesson]
+
+    lessons_time = Schedule.objects.filter(student=request.user)
+    weekdays = [elem.weekday for elem in lessons_time]
+
+    current_year = datetime.today().year
+    current_month = datetime.today().month
+
+    month_matrix = calendar.monthcalendar(current_year, current_month)
+
+    context = {
+        'learn_courses': learn_courses,
+        'teach_courses': teach_courses,
+        'result': result,
+        'user': user,
+        'is_teacher': is_teacher,
+        'is_student': is_student,
+        'is_tutor_student': user.is_tutor_student,
+        'queryset': queryset,
+        'month_matrix': month_matrix,
+        'current_day': datetime.today().day,
+        'weekdays': weekdays,
+        'cancelled': cancelled,
+    }
+    return render(request, "lesson/tutor_students.html", context)

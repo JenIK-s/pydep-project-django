@@ -1,8 +1,33 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.db import models
+from django.utils.text import slugify
+from transliterate import translit
+
 
 from django_ckeditor_5.fields import CKEditor5Field
+
+
+# User = get_user_model()
+
+class Category(models.Model):
+    name = models.CharField(max_length=50, unique=True, verbose_name='Название')
+    slug = models.SlugField(unique=True, blank=True)
+
+
+    class Meta:
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            # Транслитерируем с русского → английский, затем слаг
+            transliterated = translit(self.name, 'ru', reversed=True)
+            self.slug = slugify(transliterated)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
 
 class Lesson(models.Model):
@@ -10,17 +35,22 @@ class Lesson(models.Model):
     description = CKEditor5Field('Text', config_name='extends')
 
     class Meta:
-        verbose_name = 'Занятие'
-        verbose_name_plural = 'Занятия'
+        verbose_name = 'Урок'
+        verbose_name_plural = 'Уроки'
 
     def __str__(self):
         return self.title
 
 
 class Module(models.Model):
-    title = models.CharField(max_length=255, unique=True)
+    title = models.CharField(max_length=255, unique=True, verbose_name="Название")
     description = models.TextField(verbose_name='Описание')
-    lessons = models.ManyToManyField(Lesson)
+    image = models.ImageField(upload_to='courses/modules', verbose_name='Логотип модуля')
+    lessons = models.ManyToManyField(
+        Lesson,
+        through="LessonsInModule",
+        verbose_name="Уроки"
+    )
 
     class Meta:
         verbose_name = 'Модуль'
@@ -31,10 +61,20 @@ class Module(models.Model):
 
 
 class Course(models.Model):
-    name = models.CharField(max_length=255, unique=True, verbose_name='Название')
+    level_choices = [
+        ("С нуля", "С нуля"),
+        ("С опытом", "С опытом")
+    ]
+    category_choices = [
+        ("Программирование", "Программирование")
+    ]
+    name = models.CharField(max_length=50, unique=True, verbose_name='Название')
     description = models.TextField(verbose_name='Описание')
     price = models.IntegerField(default=1000, verbose_name='Цена')
     image = models.ImageField(upload_to='courses', verbose_name='Логотип курса')
+    duration = models.IntegerField(default=3, verbose_name="Продолжительность")
+    level = models.CharField(choices=level_choices, max_length=50, default="С нуля", verbose_name="Уровень")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Категория", null=True)
     modules = models.ManyToManyField(
         Module,
         through='ModulesInCourse',
@@ -61,7 +101,63 @@ class ModulesInCourse(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Курс'
     )
+    sequence_number = models.IntegerField(verbose_name="Порядковый номер модуля")
 
     class Meta:
         verbose_name = 'Модули в курсе'
         verbose_name_plural = 'Модули в курсах'
+
+
+class LessonsInModule(models.Model):
+    module = models.ForeignKey(
+        Module,
+        on_delete=models.CASCADE,
+        verbose_name='Модуль'
+    )
+    lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.CASCADE,
+        verbose_name='Урок'
+    )
+    sequence_number = models.IntegerField(verbose_name="Порядковый номер урока")
+
+    class Meta:
+        verbose_name = 'Уроки в модуле'
+        verbose_name_plural = 'Уроки в модулях'
+
+
+class UserLessonProgress(models.Model):
+    user = models.ForeignKey("users.CustomUser", on_delete=models.CASCADE)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    completed = models.BooleanField(default=False)
+    current = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Прогресс прохождения урока"
+        verbose_name_plural = "Прогресс прохождения уроков"
+
+    def __str__(self):
+        return f"{self.user} {self.lesson} {self.completed}"
+
+
+
+# class ProgressInCourse(models.Model):
+#     course = models.ForeignKey(
+#         Course,
+#         on_delete=models.CASCADE,
+#         verbose_name="Курс"
+#     )
+#     student = models.ForeignKey(
+#         User,
+#         on_delete=models.CASCADE,
+#         verbose_name="Студент"
+#     )
+#     lesson_completed = models.ForeignKey(
+#         Lesson,
+#         on_delete=models.CASCADE,
+#         verbose_name="Пройденный урок"
+#     )
+#
+#     class Meta:
+#         verbose_name = "Прогресс прохождения курса"
+#         verbose_name_plural = "Прогресс прохождения курсов"
