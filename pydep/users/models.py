@@ -47,6 +47,7 @@ class CustomUser(AbstractUser):
     is_teacher = models.BooleanField(default=False)
     is_student = models.BooleanField(default=False)
     is_tutor_student = models.BooleanField(default=False)
+    is_tutor_admin = models.BooleanField(default=False)
     payment = models.IntegerField(blank=True, null=True)
 
     class Meta:

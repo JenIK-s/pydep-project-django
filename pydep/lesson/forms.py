@@ -57,8 +57,30 @@ class EditProfile(UserChangeForm):
         label='Статус',
         required=False
     )
+    first_name = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control form-container',
+                'placeholder': 'Выберите изображение',
+                'id': "floatingInput"
+            }
+        ),
+        label='Имя',
+        required=False
+    )
+    last_name = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control form-container',
+                'placeholder': 'Выберите изображение',
+                'id': "floatingInput"
+            }
+        ),
+        label='Фамилия',
+        required=False
+    )
 
 
     class Meta(UserChangeForm.Meta):
         model = get_user_model()
-        fields = ('email', 'image', 'description')
+        fields = ('email', 'image', 'first_name', 'last_name', 'description')

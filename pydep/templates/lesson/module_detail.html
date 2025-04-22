@@ -20,13 +20,39 @@
         margin-bottom: 10px;
         border-radius: 10px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        transition: background-color 0.3s ease;
+        transition: background-color 0.3s ease, transform 0.3s ease;
         cursor: pointer;
         background-color: #ffffff;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.4s ease forwards;
     }
 
     .lesson-item:hover {
         background-color: #f0f4f8;
+        transform: translateY(-2px);
+    }
+
+    .lesson-item:nth-child(1) { animation-delay: 0.05s; }
+    .lesson-item:nth-child(2) { animation-delay: 0.1s; }
+    .lesson-item:nth-child(3) { animation-delay: 0.15s; }
+    .lesson-item:nth-child(4) { animation-delay: 0.2s; }
+    .lesson-item:nth-child(5) { animation-delay: 0.25s; }
+    .lesson-item:nth-child(6) { animation-delay: 0.3s; }
+    .lesson-item:nth-child(7) { animation-delay: 0.35s; }
+    .lesson-item:nth-child(8) { animation-delay: 0.4s; }
+    .lesson-item:nth-child(9) { animation-delay: 0.45s; }
+    .lesson-item:nth-child(10) { animation-delay: 0.5s; }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .lesson-number {
@@ -73,15 +99,15 @@
     </div>
 
     <div class="lesson-list">
-        {% for lesson in lessons %}
-            <a href="{% url 'lesson:lesson_detail' course_name=course_name module_name=module_name lesson_name=lesson.title %}">
+        {% for i in lessons %}
+            <a href="{% url 'lesson:lesson_detail' course_name=course_name module_name=module_name lesson_name=i.lesson.title %}">
                 <div class="lesson-item">
                     <div class="lesson-number">{{ forloop.counter }}</div>
-                    <div>{{ lesson.title }}</div>
-                    <div class="lesson-status {% if lesson.completed %}completed{% elif lesson.current %}in-progress{% else %}locked{% endif %}">
-                        {% if lesson.completed %}
+                    <div>{{ i.lesson.title }}</div>
+                    <div class="lesson-status {% if i.is_completed %}completed{% elif i.is_current %}in-progress{% else %}locked{% endif %}">{##}
+                        {% if i.is_completed %}
                             Пройдено
-                        {% elif lesson.current %}
+                        {% elif i.is_current %}
                             Текущий
                         {% else %}
                             Заблокирован

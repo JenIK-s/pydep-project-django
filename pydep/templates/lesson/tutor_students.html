@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Занятия с репетитором{% endblock %}
+
+{% block static %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .dashboard-card {
+        max-width: 900px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+    .lesson-block {
+        border-left: 5px solid #0d6efd;
+        padding-left: 15px;
+        margin-bottom: 20px;
+    }
+    .lesson-time {
+        font-weight: bold;
+    }
+    .homework-block {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 10px;
+    }
+    .badge-status {
+        font-size: 0.8rem;
+    }
+    .schedule-card {
+        max-width: 800px;
+        margin: 40px auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-radius: 20px;
+        padding: 20px;
+        background-color: #fff;
+    }
+    .day {
+        padding: 10px;
+        border-radius: 10px;
+        margin: 5px;
+    }
+    .today {
+        background-color: #007bff;
+        color: #fff;
+    }
+    .lesson {
+        background-color: #dff0d8;
+        display: block;
+        text-decoration: none;
+        color: inherit;
+    }
+    .cancelled {
+        background-color: #f8d7da;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-card">
+    <h3 class="mb-4 text-center">Мои занятия с репетитором</h3>
+
+    <div class="mb-5">
+        <h5>Ближайшие занятия</h5>
+        {% for lesson in lessons %}
+            <div class="lesson-block">
+                <div class="lesson-time">{{ lesson.date }} в {{ lesson.time }}</div>
+                <div class="text-muted">Тема: {{ lesson.topic }}</div>
+                <span class="badge bg-success badge-status">{{ lesson.status }}</span>
+            </div>
+        {% empty %}
+            <p class="text-muted">Ближайших занятий пока нет.</p>
+        {% endfor %}
+    </div>
+
+    <div class="mb-5">
+        <h5>Домашние задания</h5>
+        {% for task in homeworks %}
+            <div class="homework-block">
+                <div><strong>Тема:</strong> {{ task.title }}</div>
+                <div class="text-muted">Срок сдачи: {{ task.deadline }}</div>
+                <div class="mt-2">
+                    {% if task.status == 'done' %}
+                        <span class="badge bg-success">Сдано</span>
+                    {% elif task.status == 'in_progress' %}
+                        <span class="badge bg-warning text-dark">В процессе</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Не начато</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-muted">Домашние задания отсутствуют.</p>
+        {% endfor %}
+    </div>
+
+    <div id="section2">
+        <div class="schedule-card text-center">
+            <h5 class="mb-4">Календарь занятий</h5>
+            <div class="row text-center fw-bold">
+                <div class="col day">Пн</div>
+                <div class="col day">Вт</div>
+                <div class="col day">Ср</div>
+                <div class="col day">Чт</div>
+                <div class="col day">Пт</div>
+                <div class="col day">Сб</div>
+                <div class="col day">Вс</div>
+            </div>
+            {% for week in month_matrix %}
+                <div class="row">
+                    {% for day in week %}
+                        {% if day == 0 %}
+                            <div class="col day"></div>
+                        {% else %}
+                            {% load custom_tags %}
+                            {% get_weekday day as weekday %}
+                            {% if day == current_day %}
+                                <div class="col day today">{{ day }}</div>
+                            {% elif weekday in weekdays %}
+                                {% if day in cancelled %}
+                                    <div class="col day cancelled">{{ day }}</div>
+                                {% else %}
+                                    <a href="{% url 'lesson:schedule_today' day %}" class="col day lesson">{{ day }}</a>
+                                {% endif %}
+                            {% else %}
+                                <div class="col day">{{ day }}</div>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

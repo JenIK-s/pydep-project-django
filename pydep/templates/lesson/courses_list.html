@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-
+{% load custom_filters %}
 {% block title %}
     Курсы
 {% endblock %}
@@ -15,6 +15,12 @@
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         margin-bottom: 20px;
         background-color: #ffffff;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease forwards;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
     }
 
     .course-card:hover {
@@ -22,31 +28,98 @@
         box-shadow: 0 8px 16px rgba(0,0,0,0.15);
     }
 
-    .course-image img {
-        width: 100%;
-        height: 180px;
-        object-fit: cover;
-    }
-
     .course-content {
-        padding: 15px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
     }
 
     .course-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 10px;
+        font-size: 1.25rem;
+        font-weight: bold;
+        min-height: 3.6em;
+        line-height: 1.2;
     }
 
-    .course-price {
-        font-size: 1rem;
-        font-weight: 500;
-        color: #28a745;
+    .course-meta {
+        font-size: 0.75rem;
+        color: #6c757d;
+        margin-bottom: 8px;
+    }
+
+    .course-image-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 140px;
+        margin-bottom: 20px;
+    }
+
+    .course-image-wrapper img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
     }
 
     .btn-course-detail {
-        margin-top: 10px;
+        border-radius: 15px;
+        margin-top: auto;
+    }
+
+    .empty-message {
+        max-width: 600px;
+        margin: 80px auto;
+        padding: 40px;
+        text-align: center;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
         border-radius: 20px;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+        font-size: 1.3rem;
+        color: #495057;
+        animation: fadeInUp 0.8s ease both;
+    }
+
+    .row.gy-4 > [class*='col-'] {
+        margin-bottom: 1.5rem;
+    }
+
+    .category-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+
+    .category-filters a {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        text-decoration: none;
+        color: #212529;
+        transition: 0.3s;
+    }
+
+    .category-filters a:hover {
+        background-color: #e9ecef;
+    }
+
+    .category-filters .active {
+        background-color: #212529;
+        color: #fff;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 </style>
 {% endblock %}
@@ -54,22 +127,40 @@
 {% block content %}
 <section class="py-5">
     <div class="container">
-        <div class="row">
+
+        {% if categories %}
+        <div class="category-filters">
+            {% for cat in categories %}
+                <a href="{% url "lesson:category" cat.slug %}" class="{% if cat == category %}active{% endif %}">{{ cat.name }}</a>
+            {% endfor %}
+            <a href="{% url "lesson:courses" %}" class="btn btn-light">Сбросить фильтры</a>
+        </div>
+        {% endif %}
+
+        <div class="row gy-4">
             {% for course in courses %}
-                <div class="col-md-6 col-lg-4 col-xl-3">
-                    <div class="course-card">
-                        <div class="course-image">
-                            <a href="{% url 'lesson:course_detail' course.name %}">
-                                <img src="{{ course.image.url }}" alt="{{ course.name }}">
-                            </a>
+            <div class="col-md-6 col-lg-4 col-xl-3 d-flex">
+                <div class="course-card w-100" style="animation-delay: {{ forloop.counter0|add:"0.1" }}s;">
+                    <div class="course-content">
+                        <div class="course-meta">
+                            {{ course.category }} · {{ course.duration|pluralize_months }} · {{ course.level }}
                         </div>
-                        <div class="course-content">
-                            <div class="course-title">{{ course.name }}</div>
-                            <div class="course-price">₽{{ course.price }}</div>
-                            <a href="{% url 'lesson:course_detail' course.name %}" class="btn btn-outline-primary btn-course-detail">Подробнее</a>
+                        <div class="course-title mb-3">{{ course.name }}</div>
+                        <div class="course-image-wrapper">
+                            <img src="{{ course.image.url }}" alt="{{ course.name }}">
                         </div>
+                        <div>
+                            <div class="fw-bold mb-1">от {{ course.monthly_price }} ₽/мес</div>
+                            <div class="text-muted small">или сразу {{ course.price }} ₽</div>
+                        </div>
+                        <a href="{% url 'lesson:course_detail' course.name %}" class="btn btn-outline-primary btn-course-detail">Подробнее</a>
                     </div>
                 </div>
+            </div>
+            {% empty %}
+            <div class="empty-message">
+                <p class="mb-0">Пока что курсы не добавлены.<br>Пожалуйста, загляните позже или свяжитесь с администратором.</p>
+            </div>
             {% endfor %}
         </div>
     </div>
