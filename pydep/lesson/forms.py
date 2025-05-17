@@ -3,7 +3,9 @@ from django.forms import ModelForm, PasswordInput
 from django.contrib.auth.forms import UserChangeForm
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
+from django_ckeditor_5.widgets import CKEditor5Widget
 from users.models import RegisterCourse
+from .models import Lesson
 
 
 class RegisterCourseForm(ModelForm):
@@ -84,3 +86,17 @@ class EditProfile(UserChangeForm):
     class Meta(UserChangeForm.Meta):
         model = get_user_model()
         fields = ('email', 'image', 'first_name', 'last_name', 'description')
+
+
+class CreateLessonForm(forms.ModelForm):
+    class Meta:
+        model = Lesson
+        fields = ("title", "description")
+        widgets = {
+            'description': CKEditor5Widget(config_name='extends')
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Временно убираем обязательность поля
+        self.fields['description'].required = False

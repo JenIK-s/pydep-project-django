@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Course, ModulesInCourse, Module, Lesson, Category, UserLessonProgress
-from .forms import RegisterCourseForm, EditProfile
+from .forms import RegisterCourseForm, EditProfile, CreateLessonForm
 from .context_processors.bot import send_message
 from .context_processors.decorators import course_required, search_request
 from users.models import CancelledLesson, RegisterCourse, Schedule
@@ -64,15 +64,19 @@ def course_detail(request, course_name):
     modules = ModulesInCourse.objects.filter(course=course)
     modules_user = Module.objects.filter(course=course)
     user_modules = []
+    total_lessons_count = 0
+    total_completed_count = 0
     for module in modules_user:
         lessons = module.lessons.all()
         total_lessons = lessons.count()
+        total_lessons_count += total_lessons
 
         completed_lessons = UserLessonProgress.objects.filter(
             user=request.user,
             lesson__in=lessons,
             completed=True
         ).count()
+        total_completed_count += completed_lessons
 
         # Рассчёт прогресса
         progress = int((completed_lessons / total_lessons) * 100) if total_lessons > 0 else 0
@@ -82,7 +86,7 @@ def course_detail(request, course_name):
             'progress': progress,
             'completed': progress == 100,
         })
-
+    total_progress = int((total_completed_count / total_lessons_count) * 100) if total_lessons_count > 0 else 0
     form = RegisterCourseForm(request.POST or None)
     if request.method == 'POST':
         form_data = {
@@ -96,6 +100,8 @@ def course_detail(request, course_name):
         'course': course,
         'modules': user_modules,
         'form': form,
+        "total_progress": total_progress,
+        "circle_clip": 100 - total_progress,
     }
     return render(request, 'lesson/course_detail.html', context)
 
@@ -116,7 +122,17 @@ def lesson_detail(request, course_name, module_name, lesson_name):
         #     lesson__in=lessons,
         #     completed=True
         # )
+
     lesson = Lesson.objects.get(title=lesson_name)
+    try:
+        les = UserLessonProgress.objects.get(user=request.user, lesson=lesson)
+        print("TRY")
+        if not (les.completed or les.current):
+            print("IF")
+            return redirect("lesson:module_detail", course_name, module_name)
+    except:
+        print("EXCEPT")
+        return redirect("lesson:module_detail", course_name, module_name)
     is_completed = UserLessonProgress.objects.get_or_create(
         user=request.user,
         lesson=lesson
@@ -140,6 +156,15 @@ def module_detail(request, course_name, module_name):
         lesson__in=lessons_module,
         completed=True
     ).values_list('lesson', flat=True)
+
+    # Если в модуле не открыт первый урок, назначаем его текущим
+    if module.lessons.all()[0].id not in UserLessonProgress.objects.filter(user=request.user).values_list("lesson_id", flat=True):
+        UserLessonProgress.objects.create(
+            user=request.user,
+            lesson=module.lessons.all()[0],
+            current=True
+        )
+
     print(completed_lessons)
     lessons = []
     current_found = False
@@ -352,3 +377,14 @@ def tutor_students(request):
         'cancelled': cancelled,
     }
     return render(request, "lesson/tutor_students.html", context)
+
+
+def create_lesson(request):
+    if request.method == "POST":
+        print(123)
+        form = CreateLessonForm(request.POST)
+        if form.is_valid():
+            form.save()
+    else:
+        form = CreateLessonForm()
+    return render(request, "lesson/create_lesson.html", {"form": form})

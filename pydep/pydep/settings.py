@@ -24,7 +24,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_ckeditor_5',
+
     'sorl.thumbnail',
+    "widget_tweaks",
 ]
 
 MIDDLEWARE = [

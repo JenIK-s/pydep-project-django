@@ -38,6 +38,13 @@ class Lesson(models.Model):
         verbose_name = 'Урок'
         verbose_name_plural = 'Уроки'
 
+    def save(self, *args, **kwargs):
+        if not self.title:
+            # Транслитерируем с русского → английский, затем слаг
+            transliterated = translit(self.title, 'ru', reversed=True)
+            self.title = transliterated
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.title
 

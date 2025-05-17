@@ -4,7 +4,8 @@ from .views import (
     lesson_detail, profile, module_detail,
     courses_list_about_languages, profile_edit, register_course_admin,
     register_course, schedule_today, tutor_students,
-    category_detail, complete_lesson
+    category_detail, complete_lesson, create_lesson,
+
 )
 
 app_name = 'lesson'
@@ -16,6 +17,7 @@ urlpatterns = [
     path('profile/edit/', profile_edit, name='profile_edit'),
     path('courses/', courses_list, name='courses'),
     path("tutor/", tutor_students, name="tutor"),
+    path("lesson/create/", create_lesson, name="create_lesson"),
     path('course/<str:course_name>/', course_detail, name='course_detail'),
     path("courses/<str:slug>", category_detail, name="category"),
     path(
