@@ -9,3 +9,4 @@ sorl-thumbnail==12.7.0
 requests==2.31.0
 gunicorn==20.0.4
 transliterate
+widget_tweaks

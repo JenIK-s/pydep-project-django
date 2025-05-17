@@ -26,6 +26,7 @@
         opacity: 0;
         transform: translateY(20px);
         animation: fadeInUp 0.4s ease forwards;
+        color: inherit; /* чтобы цвет текста наследовался */
     }
 
     .lesson-item:hover {
@@ -33,6 +34,7 @@
         transform: translateY(-2px);
     }
 
+    /* Анимация задержки - оставил без изменений */
     .lesson-item:nth-child(1) { animation-delay: 0.05s; }
     .lesson-item:nth-child(2) { animation-delay: 0.1s; }
     .lesson-item:nth-child(3) { animation-delay: 0.15s; }
@@ -82,7 +84,15 @@
     }
 
     .locked {
-        color: #dc3545;
+        color: #dc3545; /* красный */
+    }
+
+    /* Новый класс для заблокированных уроков - серый фон, серый текст, курсор не активен */
+    .locked-lesson {
+        background-color: #e9ecef !important; /* светло-серый фон */
+        color: #6c757d !important;
+        cursor: not-allowed !important;
+        box-shadow: none !important;
     }
 
     a {
@@ -100,22 +110,30 @@
 
     <div class="lesson-list">
         {% for i in lessons %}
-            <a href="{% url 'lesson:lesson_detail' course_name=course_name module_name=module_name lesson_name=i.lesson.title %}">
-                <div class="lesson-item">
+            {% if i.is_completed or i.is_current %}
+                <a href="{% url 'lesson:lesson_detail' course_name=course_name module_name=module_name lesson_name=i.lesson.title %}">
+                    <div class="lesson-item">
+                        <div class="lesson-number">{{ forloop.counter }}</div>
+                        <div>{{ i.lesson.title }}</div>
+                        <div class="lesson-status {% if i.is_completed %}completed{% else %}in-progress{% endif %}">
+                            {% if i.is_completed %}
+                                Пройдено
+                            {% else %}
+                                Текущий
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            {% else %}
+                {# Заблокированный урок - без ссылки и с серым стилем #}
+                <div class="lesson-item locked-lesson">
                     <div class="lesson-number">{{ forloop.counter }}</div>
                     <div>{{ i.lesson.title }}</div>
-                    <div class="lesson-status {% if i.is_completed %}completed{% elif i.is_current %}in-progress{% else %}locked{% endif %}">{##}
-                        {% if i.is_completed %}
-                            Пройдено
-                        {% elif i.is_current %}
-                            Текущий
-                        {% else %}
-                            Заблокирован
-                        {% endif %}
-                    </div>
+                    <div class="lesson-status locked">Заблокирован</div>
                 </div>
-            </a>
+            {% endif %}
         {% endfor %}
     </div>
 </div>
 {% endblock %}
+
