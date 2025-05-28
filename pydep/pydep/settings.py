@@ -24,7 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_ckeditor_5',
-
+    "api",
     'sorl.thumbnail',
     "widget_tweaks",
 ]

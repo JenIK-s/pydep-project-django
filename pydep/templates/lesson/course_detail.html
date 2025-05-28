@@ -188,6 +188,7 @@
             </div>
         {% endif %}
 
+{% if course not in user.courses_learn.all %}
         <div class="text-center py-4">
             <form method="POST">
                 {% csrf_token %}
@@ -195,6 +196,7 @@
             </form>
         </div>
     </div>
+    {% endif %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"></script>
 {% endblock %}

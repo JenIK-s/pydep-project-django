@@ -210,10 +210,27 @@ def complete_lesson(request, course_name, module_name, lesson_name):
     next_lesson = None
     module = Module.objects.get(title=module_name)
     module_lessons = module.lessons.all()
+    # Получаем следующий непройденный урок в модуле
     for i in range(len(module_lessons)):
-        if module_lessons[i] == lesson and i < len(module_lessons) - 1:
-            next_lesson = module_lessons[i + 1]
-    print(next_lesson)
+        try:
+            print("TRY")
+
+            if not UserLessonProgress.objects.get(user=request.user, lesson=module_lessons[i]).completed and module_lessons[i] != lesson:
+                print("IF")
+                next_lesson = module_lessons[i]
+                print(next_lesson)
+                break
+        except:
+            print("EXCEPT")
+            next_lesson = module_lessons[i]
+            print(next_lesson)
+            break
+        # if module_lessons[i] == lesson and i < len(module_lessons) - 1:
+        #     next_lesson = module_lessons[i + 1]
+        #     if UserLessonProgress.objects.get(lesson=next_lesson).completed:
+        #         continue
+        #     break
+    print(">>>", next_lesson)
 
     # next_lesson = Lesson.objects.filter(
     #     module=lesson.module,
