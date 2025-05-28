@@ -14,8 +14,8 @@
 
 
                             {% else %}
-                                <li class="nav-item"><a class="nav-link {% if view_name  == 'users:signup' %}active{% endif %}" href={% url "users:signup" %}>Вход</a></li>
-                                <li class="nav-item"><a class="nav-link {% if view_name  == 'users:signin' %}active{% endif %}" href={% url "users:signin" %}>Регистрация</a></li>
+                                <li class="nav-item"><a class="nav-link {% if view_name  == 'users:signup' %}active{% endif %}" href={% url "users:signin" %}>Вход</a></li>
+                                <li class="nav-item"><a class="nav-link {% if view_name  == 'users:signin' %}active{% endif %}" href={% url "users:signup" %}>Регистрация</a></li>
                             {% endif %}
 
                         </ul>
