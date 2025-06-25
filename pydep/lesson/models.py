@@ -150,7 +150,7 @@ class UserLessonProgress(models.Model):
 class ProjectDocument(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    file = models.FileField()
+    file = models.FileField(upload_to="projects/")
 
     class Meta:
         verbose_name = "Техническое задание"
