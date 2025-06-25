@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Course, ModulesInCourse, Module, Lesson, Category, UserLessonProgress
+from .models import Course, ModulesInCourse, Module, Lesson, Category, UserLessonProgress, ProjectDocument
 from .forms import RegisterCourseForm, EditProfile, CreateLessonForm
 from .context_processors.bot import send_message
 from .context_processors.decorators import course_required, search_request
@@ -405,3 +405,14 @@ def create_lesson(request):
     else:
         form = CreateLessonForm()
     return render(request, "lesson/create_lesson.html", {"form": form})
+
+
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from .models import ProjectDocument
+
+def projects(request, name):
+    project = get_object_or_404(ProjectDocument, name=name)
+    with project.file.open('r') as f:
+        html_content = f.read()
+    return HttpResponse(html_content)
