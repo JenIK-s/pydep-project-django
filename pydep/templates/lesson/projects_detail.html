@@ -8,7 +8,5 @@
 {% endblock %}
 
 {% block content %}
-{% for project in projects %}
-    <a href="{% url "lesson:projects_detail" project.name %}">{{ project.name }}</a>
-    {% endfor %}
+{{ html_code|safe }}
 {% endblock %}

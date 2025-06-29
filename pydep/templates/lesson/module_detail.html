@@ -118,7 +118,7 @@
                         <div class="lesson-status {% if i.is_completed %}completed{% else %}in-progress{% endif %}">
                             {% if i.is_completed %}
                                 Пройдено
-                            {% else %}
+                            {% elif i.is_current %}
                                 Текущий
                             {% endif %}
                         </div>

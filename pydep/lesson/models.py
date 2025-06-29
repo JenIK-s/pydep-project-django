@@ -135,6 +135,8 @@ class LessonsInModule(models.Model):
 
 class UserLessonProgress(models.Model):
     user = models.ForeignKey("users.CustomUser", on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    module = models.ForeignKey(Module, on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
     current = models.BooleanField(default=False)

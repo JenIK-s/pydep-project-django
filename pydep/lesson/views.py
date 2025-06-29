@@ -149,13 +149,9 @@ def lesson_detail(request, course_name, module_name, lesson_name):
 
 @login_required
 def module_detail(request, course_name, module_name):
+    course = Course.objects.get(name=course_name)
     module = Module.objects.get(title=module_name)
     lessons_module = module.lessons.all()
-    completed_lessons = UserLessonProgress.objects.filter(
-        user=request.user,
-        lesson__in=lessons_module,
-        completed=True
-    ).values_list('lesson', flat=True)
 
     # Если в модуле не открыт первый урок, назначаем его текущим
     if module.lessons.all()[0].id not in UserLessonProgress.objects.filter(user=request.user).values_list("lesson_id", flat=True):
@@ -165,25 +161,25 @@ def module_detail(request, course_name, module_name):
             current=True
         )
 
-    print(completed_lessons)
+    # Получаем список уроков в модуле + пройден, текущий или закрыт (Закрыт если записи нет)
     lessons = []
-    current_found = False
     for lesson in lessons_module:
-        is_completed = lesson.id in completed_lessons
-        is_current = False
-
-        if not is_completed and not current_found:
-            is_current = True
-            current_found = True
+        try:
+            print(1)
+            current_lesson = UserLessonProgress.objects.get(course=course, module=module, lesson=lesson)
+            is_completed = current_lesson.completed
+            is_current = current_lesson.current
+            print(current_lesson, is_completed, is_current)
+        except:
+            is_completed = False
+            is_current = False
 
         lessons.append({
             'lesson': lesson,
             'is_completed': is_completed,
             'is_current': is_current,
         })
-    print(lessons)
-    # module = Module.objects.get(title=module_name)
-    # lessons = module.lessons.all()
+
 
     context = {
         'lessons': lessons,
@@ -195,12 +191,17 @@ def module_detail(request, course_name, module_name):
 
 @login_required
 def complete_lesson(request, course_name, module_name, lesson_name):
+    course = Course.objects.get(name=course_name)
+    module = Module.objects.get(title=module_name)
     lesson = Lesson.objects.get(title=lesson_name)
 
     # Отметить текущий как завершённый
     progress, created = UserLessonProgress.objects.get_or_create(
         user=request.user,
-        lesson=lesson
+        course=course,
+        module=module,
+        lesson=lesson,
+
     )
     progress.completed = True
     progress.current = False
@@ -210,42 +211,19 @@ def complete_lesson(request, course_name, module_name, lesson_name):
     next_lesson = None
     module = Module.objects.get(title=module_name)
     module_lessons = module.lessons.all()
-    # Получаем следующий непройденный урок в модуле
-    for i in range(len(module_lessons)):
-        try:
-            print("TRY")
+    for i in range(len(module_lessons) - 1):
+        # Если текущий урок пройден, а следующего не тв таблице прогресса, то открываем следующий, а тек
+        if UserLessonProgress.objects.get(course=course, module=module, lesson=lesson).completed and UserLessonProgress.objects.filter(course=course, module=module, lesson=module_lessons[i + 1]).first() is None:
 
-            if not UserLessonProgress.objects.get(user=request.user, lesson=module_lessons[i]).completed and module_lessons[i] != lesson:
-                print("IF")
-                next_lesson = module_lessons[i]
-                print(next_lesson)
-                break
-        except:
-            print("EXCEPT")
-            next_lesson = module_lessons[i]
-            print(next_lesson)
-            break
-        # if module_lessons[i] == lesson and i < len(module_lessons) - 1:
-        #     next_lesson = module_lessons[i + 1]
-        #     if UserLessonProgress.objects.get(lesson=next_lesson).completed:
-        #         continue
-        #     break
-    print(">>>", next_lesson)
-
-    # next_lesson = Lesson.objects.filter(
-    #     module=lesson.module,
-    #     order__gt=lesson.order
-    # ).order_by('order').first()
-
-    if next_lesson:
-        # Убедиться, что у следующего урока есть progress-объект
-        next_progress, created = UserLessonProgress.objects.get_or_create(
-            user=request.user,
-            lesson=next_lesson
-        )
-        if not next_progress.completed:
+            next_progress, created = UserLessonProgress.objects.get_or_create(
+                user=request.user,
+                course=course,
+                module=module,
+                lesson=module_lessons[i + 1]
+            )
             next_progress.current = True
             next_progress.save()
+            break
 
     return redirect('lesson:module_detail', course_name=course_name, module_name=module_name)
 
@@ -411,7 +389,11 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from .models import ProjectDocument
 
-def projects(request, name):
+def projects(request):
+    projects = ProjectDocument.objects.all()
+    return render(request, "lesson/projects.html", {"projects": projects})
+
+def projects_detail(request, name):
     project = get_object_or_404(ProjectDocument, name=name)
     with project.file.open('r') as f:
         html_content = f.read()
