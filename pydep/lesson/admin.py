@@ -59,7 +59,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(UserLessonProgress)
 class UserLessonProgressAdmin(admin.ModelAdmin):
-    list_display = ("user", "lesson", "completed")
+    list_display = ("user", "course", "module", "lesson", "completed")
 
 
 @admin.register(ProjectDocument)
