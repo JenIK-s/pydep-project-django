@@ -4,9 +4,13 @@ from .forms import SignUpForm
 from django.shortcuts import render, redirect
 from .forms import SignInForm
 from django.contrib.auth import authenticate, login
+from .mixins import AnonymousRequiredMixin
+
 
 
 def SignIn(request):
+    if request.user.is_authenticated:
+        return redirect('lesson:profile')
     if request.method == 'POST':
         form = SignInForm(data=request.POST)
         if form.is_valid():
@@ -21,7 +25,8 @@ def SignIn(request):
     return render(request, 'users/signin.html', {'form': form})
 
 
-class SignUp(CreateView):
+class SignUp(AnonymousRequiredMixin, CreateView):
+
     form_class = SignUpForm
     success_url = reverse_lazy('users:signin')
     template_name = 'users/signup.html'

@@ -13,3 +13,4 @@ widget_tweaks
 djoser
 djangorestframework
 djangorestframework-simplejwt
+pytest

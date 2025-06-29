@@ -1,8 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from lesson.models import Course
-
 
 class CustomUser(AbstractUser):
     username = models.CharField(
@@ -34,13 +32,13 @@ class CustomUser(AbstractUser):
         auto_now_add=True,
     )
     courses_learn = models.ManyToManyField(
-        Course,
+        'lesson.Course',
         blank=True,
         verbose_name='Прохожу курсы',
         related_name='user_course',
     )
     courses_teach = models.ManyToManyField(
-        Course,
+        'lesson.Course',
         blank=True,
         verbose_name='Преподаю курсы'
     )
@@ -70,7 +68,7 @@ class RegisterCourse(models.Model):
         verbose_name='Студент',
     )
     course = models.ForeignKey(
-        Course,
+        'lesson.Course',
         on_delete=models.CASCADE,
         verbose_name='Курс',
     )
@@ -135,3 +133,18 @@ class Schedule(models.Model):
         verbose_name = 'Расписание занятий'
         verbose_name_plural = 'Расписание занятий'
 
+
+class UserLessonProgress(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    course = models.ForeignKey("lesson.Course", on_delete=models.CASCADE)
+    module = models.ForeignKey("lesson.Module", on_delete=models.CASCADE)
+    lesson = models.ForeignKey("lesson.Lesson", on_delete=models.CASCADE)
+    completed = models.BooleanField(default=False)
+    current = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Прогресс прохождения урока"
+        verbose_name_plural = "Прогресс прохождения уроков"
+
+    def __str__(self):
+        return f"{self.user} {self.lesson} {self.completed}"

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import CancelledLesson, CustomUser, RegisterCourse, Schedule
+from .models import CancelledLesson, CustomUser, RegisterCourse, Schedule, UserLessonProgress
 
 
 @admin.register(CustomUser)
@@ -21,3 +21,8 @@ class ScheduleAdmin(admin.ModelAdmin):
 @admin.register(CancelledLesson)
 class CancelledLessonAdmin(admin.ModelAdmin):
     list_display = ('student', 'date_cancelled')
+
+
+@admin.register(UserLessonProgress)
+class UserLessonProgressAdmin(admin.ModelAdmin):
+    list_display = ("user", "course", "module", "lesson", "completed")
