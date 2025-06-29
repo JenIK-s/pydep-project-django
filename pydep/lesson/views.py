@@ -22,6 +22,9 @@ def get_weekday(day):
 
 
 def index(request):
+    """
+    Отображение главной страницы
+    """
     return render(request, 'lesson/index.html')
 
 
@@ -34,6 +37,9 @@ def category_detail(request, slug):
 
 @search_request
 def courses_list(request, queryset=None):
+    """
+    Получение списка всех курсов или курсов по категориям
+    """
     categories = Category.objects.all()
     if queryset is None:
         context = {'courses': Course.objects.all(), "categories": categories}
@@ -60,6 +66,9 @@ def courses_list_about_languages(request, prog_lang, queryset=None):
 
 @login_required
 def course_detail(request, course_name):
+    """
+    Получение модулей в курсе и прогресса прохождения курса
+    """
     course = Course.objects.get(name=course_name)
     modules = ModulesInCourse.objects.filter(course=course)
     modules_user = Module.objects.filter(course=course)
@@ -109,19 +118,9 @@ def course_detail(request, course_name):
 # @course_required
 @login_required
 def lesson_detail(request, course_name, module_name, lesson_name):
-
-    # course = Course.objects.get(name=course_name)
-    # modules_user = Module.objects.filter(course=course)
-    # user_modules = []
-    # for module in modules_user:
-    #     lessons = module.lessons.all()
-    #     total_lessons = lessons.count()
-    #
-        # completed_lessons = UserLessonProgress.objects.filter(
-        #     user=request.user,
-        #     lesson__in=lessons,
-        #     completed=True
-        # )
+    """
+    Просмотр материалов урока
+    """
 
     lesson = Lesson.objects.get(title=lesson_name)
     try:
@@ -149,6 +148,9 @@ def lesson_detail(request, course_name, module_name, lesson_name):
 
 @login_required
 def module_detail(request, course_name, module_name):
+    """
+    Получение уроков в модуле. Открытие первого урока если модуль новый
+    """
     course = Course.objects.get(name=course_name)
     module = Module.objects.get(title=module_name)
     lessons_module = module.lessons.all()
@@ -191,6 +193,9 @@ def module_detail(request, course_name, module_name):
 
 @login_required
 def complete_lesson(request, course_name, module_name, lesson_name):
+    """
+    Отметка урока как пройденного и открытие следующего не пройденного урока
+    """
     course = Course.objects.get(name=course_name)
     module = Module.objects.get(title=module_name)
     lesson = Lesson.objects.get(title=lesson_name)
@@ -212,7 +217,7 @@ def complete_lesson(request, course_name, module_name, lesson_name):
     module = Module.objects.get(title=module_name)
     module_lessons = module.lessons.all()
     for i in range(len(module_lessons) - 1):
-        # Если текущий урок пройден, а следующего не тв таблице прогресса, то открываем следующий, а тек
+        # Если текущий урок пройден, а следующего нет в таблице прогресса, то открываем следующий
         if UserLessonProgress.objects.get(course=course, module=module, lesson=lesson).completed and UserLessonProgress.objects.filter(course=course, module=module, lesson=module_lessons[i + 1]).first() is None:
 
             next_progress, created = UserLessonProgress.objects.get_or_create(
@@ -230,6 +235,9 @@ def complete_lesson(request, course_name, module_name, lesson_name):
 
 @login_required
 def profile(request):
+    """
+    Профиль пользователя. Отображение роли, проходимый и преподаваемых курсов
+    """
     queryset = RegisterCourse.objects.filter(user=request.user)
     user = request.user
     result = ''
@@ -288,6 +296,9 @@ def schedule_today(request, day):
 
 @login_required
 def profile_edit(request):
+    """
+    Редактирование профайла
+    """
     if request.method == 'POST':
         form = EditProfile(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
@@ -302,6 +313,9 @@ def profile_edit(request):
 
 
 def register_course_admin(request):
+    """
+    Обработка заявок на курсы
+    """
     queryset = RegisterCourse.objects.all()
     if request.method == 'POST':
         result = request.POST.get('action').split('_')
