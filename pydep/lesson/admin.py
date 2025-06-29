@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Course, ModulesInCourse, Lesson, Module, LessonsInModule, Category, UserLessonProgress, ProjectDocument
+from .models import Course, ModulesInCourse, Lesson, Module, LessonsInModule, Category, ProjectDocument
 
 
 class ModulesInCourseInline(admin.TabularInline):
@@ -57,9 +57,7 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ("name",)
 
 
-@admin.register(UserLessonProgress)
-class UserLessonProgressAdmin(admin.ModelAdmin):
-    list_display = ("user", "course", "module", "lesson", "completed")
+
 
 
 @admin.register(ProjectDocument)

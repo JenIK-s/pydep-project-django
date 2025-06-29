@@ -4,6 +4,8 @@ from django.db import models
 from django.utils.text import slugify
 from transliterate import translit
 
+from django.conf import settings
+
 
 from django_ckeditor_5.fields import CKEditor5Field
 
@@ -13,7 +15,6 @@ from django_ckeditor_5.fields import CKEditor5Field
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name='Название')
     slug = models.SlugField(unique=True, blank=True)
-
 
     class Meta:
         verbose_name = "Категория"
@@ -76,6 +77,7 @@ class Course(models.Model):
         ("Программирование", "Программирование")
     ]
     name = models.CharField(max_length=50, unique=True, verbose_name='Название')
+    # slug = models.SlugField( blank=True)
     description = models.TextField(verbose_name='Описание')
     price = models.IntegerField(default=1000, verbose_name='Цена')
     image = models.ImageField(upload_to='courses', verbose_name='Логотип курса')
@@ -92,6 +94,13 @@ class Course(models.Model):
     class Meta:
         verbose_name = 'Курс'
         verbose_name_plural = 'Курсы'
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            # Транслитерируем с русского → английский, затем слаг
+            transliterated = translit(self.name, 'ru', reversed=True)
+            self.slug = slugify(transliterated)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -133,20 +142,7 @@ class LessonsInModule(models.Model):
         verbose_name_plural = 'Уроки в модулях'
 
 
-class UserLessonProgress(models.Model):
-    user = models.ForeignKey("users.CustomUser", on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    module = models.ForeignKey(Module, on_delete=models.CASCADE)
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
-    completed = models.BooleanField(default=False)
-    current = models.BooleanField(default=False)
 
-    class Meta:
-        verbose_name = "Прогресс прохождения урока"
-        verbose_name_plural = "Прогресс прохождения уроков"
-
-    def __str__(self):
-        return f"{self.user} {self.lesson} {self.completed}"
 
 
 class ProjectDocument(models.Model):
