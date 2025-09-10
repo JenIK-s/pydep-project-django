@@ -6,8 +6,7 @@ from .models import Lesson
 from .models import Module
 from .models import LessonsInModule
 from .models import Category
-from .models import ProjectDocument
-
+from .models import UserLessonProgress
 
 class ModulesInCourseInline(admin.TabularInline):
     model = ModulesInCourse
@@ -63,6 +62,6 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ("name",)
 
 
-@admin.register(ProjectDocument)
-class ProjectDocumentAdmin(admin.ModelAdmin):
-    list_display = ("name",)
+@admin.register(UserLessonProgress)
+class UserLessonProgressAdmin(admin.ModelAdmin):
+    list_display = ("user", "course", "module", "lesson",)
