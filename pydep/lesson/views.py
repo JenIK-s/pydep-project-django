@@ -1,14 +1,24 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from .models import Course, ModulesInCourse, Module, Lesson, Category, ProjectDocument
-from .forms import RegisterCourseForm, EditProfile, CreateLessonForm
-from .context_processors.bot import send_message
-from .context_processors.decorators import course_required, search_request
-from users.models import CancelledLesson, RegisterCourse, Schedule
-import os
 import calendar
 from datetime import datetime
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.shortcuts import redirect
+
+from .context_processors.bot import send_message
+from .context_processors.decorators import search_request
+from .forms import RegisterCourseForm
+from .forms import EditProfile
+from .forms import CreateLessonForm
+from .models import Course
+from .models import ModulesInCourse
+from .models import Module
+from .models import Lesson
+from .models import Category
+from users.models import CancelledLesson
+from users.models import RegisterCourse
+from users.models import Schedule
+
 
 
 def get_weekday(day):
