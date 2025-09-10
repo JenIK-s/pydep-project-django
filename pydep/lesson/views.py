@@ -1,11 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Course, ModulesInCourse, Module, Lesson, Category, ProjectDocument
+from .models import Course, ModulesInCourse, Module, Lesson, Category, UserLessonProgress, ProjectDocument
 from .forms import RegisterCourseForm, EditProfile, CreateLessonForm
 from .context_processors.bot import send_message
 from .context_processors.decorators import course_required, search_request
-from users.models import CancelledLesson, RegisterCourse, Schedule, UserLessonProgress
+from users.models import CancelledLesson, RegisterCourse, Schedule
 import os
 import calendar
 from datetime import datetime
@@ -25,24 +25,6 @@ def index(request):
     """
     Отображение главной страницы
     """
- 
-
-
-        # IP-адрес
-    ip = request.META.get('HTTP_X_FORWARDED_FOR')
-    if ip:
-        ip = ip.split(',')[0]  # если через прокси
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-
-    # User-Agent
-    user_agent = request.META.get('HTTP_USER_AGENT', 'Неизвестно')
-
-    data = {
-        "ip": ip,
-        "user_agent": user_agent,
-    }
-    print(data)
     return render(request, 'lesson/index.html')
 
 
