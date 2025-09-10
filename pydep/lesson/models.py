@@ -205,16 +205,3 @@ class UserLessonProgress(models.Model):
 
     def __str__(self):
         return f"{self.user} {self.lesson} {self.completed}"
-
-
-class ProjectDocument(models.Model):
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
-    file = models.FileField(upload_to="projects/")
-
-    class Meta:
-        verbose_name = "Техническое задание"
-        verbose_name_plural = "Технические задания"
-
-    def __str__(self):
-        return f"ТЗ - {self.name}"
