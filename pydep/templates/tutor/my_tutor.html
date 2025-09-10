@@ -1,0 +1,110 @@
+{% extends 'tutor/base.html' %}
+{% load static %}
+
+{% block title %}ProjectBox{% endblock %}
+
+{% block static %}
+    <style>
+    .hero {
+        min-height: 90vh;
+        {#background: linear-gradient(120deg, #f0f4ff, #e6eaff);#}
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        text-align: center;
+    }
+    .hero h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        line-height: 1.2;
+        background: linear-gradient(90deg, #ff3b30, #601c14);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 20px;
+        animation: fadeInDown 1s ease both;
+    }
+    .hero p {
+        font-size: 1.25rem;
+        color: #555;
+        max-width: 700px;
+        margin: 0 auto 30px;
+        animation: fadeInUp 1.2s ease both;
+    }
+    .hero-buttons a {
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 12px;
+        font-size: 1rem;
+        margin: 0 10px;
+        transition: 0.3s ease;
+    }
+    .hero-buttons .btn-primary {
+        background: #ff3b30;
+        color: white;
+    }
+    .hero-buttons .btn-outline-dark {
+        border: 2px solid #333;
+        color: #333;
+    }
+    .hero-buttons .btn-primary:hover {
+        background: #c83127;
+    }
+    .hero-buttons .btn-outline-dark:hover {
+        background: #333;
+        color: #fff;
+    }
+    .features {
+        background: #fff;
+        padding: 60px 20px;
+    }
+    .feature-icon {
+        font-size: 3rem;
+        color: #ff3b30;
+        margin-bottom: 15px;
+    }
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <h1>Управляй своими занятиями.</h1>
+        <p>Составляй расписание, смотри домашку и переписывайся с преподавателями.</p>
+        <div class="hero-buttons">
+            <a href="{% url 'lesson:courses' %}" class="btn btn-primary" style="border-color: #601C14FF;">К занятиям</a>
+            <a href="{% url 'lesson:profile' %}" class="btn btn-outline-dark">Мой профиль</a>
+        </div>
+    </div>
+</section>
+
+<section class="features text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-icon"><i class="bi bi-code-slash"></i></div>
+                <h5 class="fw-bold">Актуальные курсы</h5>
+                <p>Только то, что действительно нужно работодателю — от Python до SQL и Django.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-icon"><i class="bi bi-person-video3"></i></div>
+                <h5 class="fw-bold">Поддержка наставников</h5>
+                <p>Каждое задание проверяется экспертом, а на вопросы ты получаешь быстрые ответы.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-icon"><i class="bi bi-award"></i></div>
+                <h5 class="fw-bold">Сертификаты и кейсы</h5>
+                <p>Портфолио с настоящими проектами и документами, которые ценят компании.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

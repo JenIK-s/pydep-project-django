@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Course, ModulesInCourse, Module, Lesson, Category, UserLessonProgress, ProjectDocument
+from .models import Course, ModulesInCourse, Module, Lesson, Category, ProjectDocument
 from .forms import RegisterCourseForm, EditProfile, CreateLessonForm
 from .context_processors.bot import send_message
 from .context_processors.decorators import course_required, search_request
