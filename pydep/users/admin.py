@@ -1,6 +1,10 @@
 from django.contrib import admin
 
-from .models import CancelledLesson, CustomUser, RegisterCourse, Schedule, UserLessonProgress
+from .models import CancelledLesson
+from .models import CustomUser
+from .models import RegisterCourse
+from .models import Schedule
+from .models import UserLessonProgress
 
 
 @admin.register(CustomUser)

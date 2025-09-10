@@ -1,19 +1,18 @@
+from django.contrib.postgres.search import TrigramSimilarity
+from django.shortcuts import render
 from functools import wraps
 
-from django.shortcuts import render
-
 from ..models import Course
-from django.contrib.postgres.search import TrigramSimilarity
 
 
 def course_required(func):
     def check_course_in_user(*args, **kwargs):
         try:
-            learn_course = args[0].user.courses_learn.get(
+            args[0].user.courses_learn.get(
                 name=kwargs.get('course_name'))
             result = func(*args, **kwargs)
             return result
-        except:
+        except Exception:
             print("QWEQWEQWE")
             return render(args[0], 'lesson/permission_denied.html')
 
