@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('lesson.urls', namespace='lesson')),
     path('', include('users.urls', namespace='users')),
+    path('tutor/', include('tutor.urls', namespace='tutor')),
     path("api/", include("api.urls", namespace="api")),
 ]
 
