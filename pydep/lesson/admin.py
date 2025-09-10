@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from .models import Course, ModulesInCourse, Lesson, Module, LessonsInModule, Category, ProjectDocument
+from .models import Course
+from .models import ModulesInCourse
+from .models import Lesson
+from .models import Module
+from .models import LessonsInModule
+from .models import Category
+from .models import ProjectDocument
 
 
 class ModulesInCourseInline(admin.TabularInline):
@@ -55,9 +61,6 @@ class LessonAdmin(admin.ModelAdmin):
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("name",)
-
-
-
 
 
 @admin.register(ProjectDocument)
