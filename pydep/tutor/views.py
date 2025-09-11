@@ -41,3 +41,7 @@ def profile(request):
     }
 
     return render(request, 'tutor/profile.html', context)
+
+
+def schedule(request):
+    return render(request, 'tutor/schedule.html')

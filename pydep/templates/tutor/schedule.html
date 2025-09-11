@@ -1,0 +1,70 @@
+{% extends 'tutor/base.html' %}
+{% load static %}
+
+{% block title %}Расписание{% endblock %}
+
+{% block static %}
+{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container px-5">
+    <div class="mb-4">
+      <h1 class="fw-bold mb-1"><span class="text-danger">Расписание</span> занятий</h1>
+      <p class="text-muted mb-0">Планируйте уроки по дням недели и времени.</p>
+    </div>
+
+    <div class="d-flex gap-2 mb-3">
+      <a href="#" class="btn btn-outline-danger btn-sm"><i class="bi bi-plus-lg"></i> Добавить занятие</a>
+      <a href="#" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-repeat"></i> Обновить</a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">День</th>
+            <th scope="col">Время</th>
+            <th scope="col">Ученик</th>
+            <th scope="col">Предмет</th>
+            <th scope="col">Формат</th>
+            <th scope="col">Комментарий</th>
+            <th scope="col" class="text-end">Статус</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Понедельник</td>
+            <td>10:00–11:00</td>
+            <td>Иван П.</td>
+            <td>Python (базовый)</td>
+            <td>Онлайн</td>
+            <td>Повторение циклов</td>
+            <td class="text-end"><span class="badge text-bg-success">Подтверждено</span></td>
+          </tr>
+          <tr>
+            <td>Среда</td>
+            <td>14:30–15:30</td>
+            <td>Мария С.</td>
+            <td>Алгоритмы</td>
+            <td>Офлайн</td>
+            <td>Разбор ДЗ</td>
+            <td class="text-end"><span class="badge text-bg-warning">Ожидает</span></td>
+          </tr>
+          <tr>
+            <td>Пятница</td>
+            <td>18:00–19:00</td>
+            <td>Артем К.</td>
+            <td>Подготовка к экзамену</td>
+            <td>Онлайн</td>
+            <td>Тест 1–2</td>
+            <td class="text-end"><span class="badge text-bg-secondary">Перенос</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-muted small mt-2 mb-0">Подсказка: используйте кнопки сверху для управления расписанием.</p>
+  </div>
+  </section>
+{% endblock %}
