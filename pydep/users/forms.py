@@ -85,6 +85,7 @@ class SignUpForm(UserCreationForm):
                 'id': "floatingInput"
             }
         ),
+        required=False,
         label='Фотография'
     )
     password1 = forms.CharField(
@@ -95,7 +96,7 @@ class SignUpForm(UserCreationForm):
                 'class': 'form-control form-container',
                 'placeholder': 'Введите пароль',
                 'autocomplete': 'new-password'}),
-        help_text='Your password must contain at least 8 characters.'
+        help_text='Пароль должен содержать не менее 8 символов.'
     )
     password2 = forms.CharField(
         label='Подтверждение пароля',
@@ -105,7 +106,7 @@ class SignUpForm(UserCreationForm):
                 'class': 'form-control form-container',
                 'placeholder': 'Введите пароль',
                 'autocomplete': 'new-password'}),
-        help_text='Your password must contain at least 8 characters.'
+        help_text='Повторите пароль. Должен совпадать и быть не короче 8 символов.'
     )
 
     class Meta(UserCreationForm.Meta):

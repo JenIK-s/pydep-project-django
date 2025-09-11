@@ -19,7 +19,7 @@ class CustomUser(AbstractUser):
         null=True,
         verbose_name='Аватар',
     )
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     first_name = models.CharField(
         max_length=50,
         verbose_name='Ваше имя',
