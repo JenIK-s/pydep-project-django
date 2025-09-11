@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import FilesProject
+
+
+@admin.register(FilesProject)
+class FilesProjectAdmin(admin.ModelAdmin):
+    list_display = ("name",)
