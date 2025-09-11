@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'tutor/base.html' %}
 {% load static %}
 {% load thumbnail %}
 
@@ -24,7 +24,7 @@
             height: 150px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid #007bff;
+            border: 4px solid #ff3b30;
             margin-bottom: 15px;
             animation: zoomIn 0.6s ease-out both;
         }
@@ -58,7 +58,7 @@
         }
 
         .today {
-            background-color: #007bff;
+            background-color: #ff3b30;
             color: #fff;
         }
 
@@ -106,7 +106,7 @@
                     {{ user.get_full_name }}
                     <a href="{% url 'lesson:profile_edit' %}" class="text-decoration-none"
                        title="Редактировать профиль">
-                        <i class="bi bi-pencil-square"></i>
+                        <i class="bi bi-pencil-square" style="color: #FF3B30FF;"></i>
                     </a>
                 </h2>
                 <span class="text-muted">{{ result }}</span>
@@ -134,27 +134,9 @@
                     </div>
                 {% endif %}
 
-                {% for elem in queryset %}
-                    {% if elem.status == "wait" %}
-                        <a href="#" class="text-muted">{{ elem.course.name }}</a><br>
-                    {% elif elem.status == "rejected" %}
-                        <a href="#" class="text-danger">{{ elem.course.name }}</a><br>
-                    {% endif %}
-                {% endfor %}
-
-                {% if is_teacher and teach_courses %}
-                    <h4>Преподаю курсы</h4>
-                    <div class="mb-3">
-                        {% for course in teach_courses %}
-                            <a href="#">{{ course.name }}</a><br>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+               
 
                 <div class="d-grid gap-2 d-md-block">
-               
-                    <a href="{% url 'lesson:register_course_admin' %}" class="btn btn-outline-primary btn-custom">Заявки
-                        на курсы</a>
                     <a href="{% url 'users:logout' %}" class="btn btn-outline-danger btn-custom">Выход</a>
                     {% if is_tutor_student %}
                         <button id="goToSchedule" class="btn btn-primary btn-custom">Расписание занятий</button>
