@@ -127,12 +127,12 @@ class Course(models.Model):
         verbose_name = 'Курс'
         verbose_name_plural = 'Курсы'
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            # Транслитерируем с русского → английский, затем слаг
-            transliterated = translit(self.name, 'ru', reversed=True)
-            self.slug = slugify(transliterated)
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if not self.slug:
+    #         # Транслитерируем с русского → английский, затем слаг
+    #         transliterated = translit(self.name, 'ru', reversed=True)
+    #         self.slug = slugify(transliterated)
+    #     super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -149,9 +149,9 @@ class ModulesInCourse(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Курс'
     )
-    sequence_number = models.IntegerField(
-        verbose_name="Порядковый номер модуля"
-    )
+    # sequence_number = models.IntegerField(
+    #     verbose_name="Порядковый номер модуля"
+    # )
 
     class Meta:
         verbose_name = 'Модули в курсе'

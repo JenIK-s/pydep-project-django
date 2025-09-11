@@ -73,6 +73,16 @@
     }
     .file-list-item { border-radius: 12px; }
     .preview-area { min-height: 320px; }
+
+    /* Акцент выбранного файла — красный в палитре tutor */
+    .list-group-item.active {
+        background-color: #ff3b30;
+        border-color: #ff3b30;
+        color: #fff;
+    }
+    .list-group-item.active .text-muted { color: rgba(255,255,255,.85) !important; }
+    .file-list-item { transition: background-color .2s ease, border-color .2s ease; }
+    {#.file-list-item:hover { background-color: #fff5f4; border-color: #ffd0cc; }#}
     </style>
 {% endblock %}
 
@@ -84,9 +94,9 @@
         <form id="uploadForm" method="post" action="" enctype="multipart/form-data" class="m-0">
             {% csrf_token %}
             <input type="file" id="fileInput" name="files" class="d-none" multiple>
-            <button type="button" id="uploadBtn" class="btn btn-primary">
-                <i class="bi bi-upload"></i>
-                Загрузить файлы
+            <button type="button" id="uploadBtn" class="btn btn-primary" hidden="hidden">
+{#                <i class="bi bi-upload"></i>#}
+{#                Загрузить файлы#}
             </button>
         </form>
     </div>

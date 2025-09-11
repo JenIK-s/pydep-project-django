@@ -464,6 +464,7 @@ def tutor_students(request):
     return render(request, "lesson/tutor_students.html", context)
 
 
+@login_required
 def create_lesson(request):
     if request.method == "POST":
         print(123)
