@@ -1,0 +1,27 @@
+{% extends 'tutor/base.html' %}
+{% load static %}
+
+{% block title %}Оплата занятия{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container px-5">
+    <h1 class="fw-bold mb-4">Отметить оплату: <span class="text-danger">{{ lesson.subject }}</span></h1>
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <p class="mb-3 text-muted">{{ lesson.date|date:"d.m.Y" }}, {{ lesson.start_time|time:"H:i" }}–{{ lesson.end_time|time:"H:i" }}</p>
+        <form method="post" class="d-flex align-items-center gap-3">
+          {% csrf_token %}
+          <div>
+            {{ form.is_paid.label_tag }}
+            {{ form.is_paid }}
+          </div>
+          <button type="submit" class="btn btn-danger">Сохранить</button>
+          <a href="{% url 'tutor:schedule' %}" class="btn btn-outline-secondary">Отмена</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
