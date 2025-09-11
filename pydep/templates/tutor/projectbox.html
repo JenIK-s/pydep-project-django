@@ -1,0 +1,230 @@
+{% extends 'tutor/base.html' %}
+{% load static %}
+
+{% block title %}ProjectBox{% endblock %}
+
+{% block static %}
+    <style>
+    .hero {
+        min-height: 90vh;
+        {#background: linear-gradient(120deg, #f0f4ff, #e6eaff);#}
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        text-align: center;
+    }
+    .hero h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        line-height: 1.2;
+        background: linear-gradient(90deg, #ff3b30, #601c14);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 20px;
+        animation: fadeInDown 1s ease both;
+    }
+    .hero p {
+        font-size: 1.25rem;
+        color: #555;
+        max-width: 700px;
+        margin: 0 auto 30px;
+        animation: fadeInUp 1.2s ease both;
+    }
+    .hero-buttons a {
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 12px;
+        font-size: 1rem;
+        margin: 0 10px;
+        transition: 0.3s ease;
+    }
+    .hero-buttons .btn-primary {
+        background: #ff3b30;
+        color: white;
+    }
+    .hero-buttons .btn-outline-dark {
+        border: 2px solid #333;
+        color: #333;
+    }
+    .hero-buttons .btn-primary:hover {
+        background: #c83127;
+    }
+    .hero-buttons .btn-outline-dark:hover {
+        background: #333;
+        color: #fff;
+    }
+    .features {
+        background: #fff;
+        padding: 60px 20px;
+    }
+    .feature-icon {
+        font-size: 3rem;
+        color: #ff3b30;
+        margin-bottom: 15px;
+    }
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .file-list-item { border-radius: 12px; }
+    .preview-area { min-height: 320px; }
+
+    /* Акцент выбранного файла — красный в палитре tutor */
+    .list-group-item.active {
+        background-color: #ff3b30;
+        border-color: #ff3b30;
+        color: #fff;
+    }
+    .list-group-item.active .text-muted { color: rgba(255,255,255,.85) !important; }
+    .file-list-item { transition: background-color .2s ease, border-color .2s ease; }
+    {#.file-list-item:hover { background-color: #fff5f4; border-color: #ffd0cc; }#}
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container py-5">
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Файлы</h2>
+        <form id="uploadForm" method="post" action="" enctype="multipart/form-data" class="m-0">
+            {% csrf_token %}
+            <input type="file" id="fileInput" name="files" class="d-none" multiple>
+            <button type="button" id="uploadBtn" class="btn btn-primary" hidden="hidden">
+{#                <i class="bi bi-upload"></i>#}
+{#                Загрузить файлы#}
+            </button>
+        </form>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-md-4">
+            <div class="list-group" id="fileList">
+                {% if files and files|length %}
+                    {% for f in files %}
+                        <a href="{{ f.file.url }}" class="list-group-item list-group-item-action file-list-item mb-2 file-item"
+                           data-name="{{ f.name|default:f.file.name }}"
+                           data-extname="{{ f.file.name }}"
+                           {% if f.file.size %}data-size="{{ f.file.size }}"{% endif %}
+                           data-url="{{ f.file.url }}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <span class="text-truncate" style="max-width: 75%">{{ f.name|default:f.file.name }}</span>
+                                {% if f.file.size %}<small class="text-muted">{{ f.file.size|filesizeformat }}</small>{% endif %}
+                            </div>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-muted">Файлов пока нет</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-12 col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body preview-area" id="preview">
+                    <div class="text-muted">Выберите файл слева для предпросмотра</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+ <script>
+ (function() {
+     const uploadForm = document.getElementById('uploadForm');
+     const fileInput = document.getElementById('fileInput');
+     const uploadBtn = document.getElementById('uploadBtn');
+     const preview = document.getElementById('preview');
+ 
+     uploadBtn.addEventListener('click', function() { fileInput.click(); });
+     fileInput.addEventListener('change', function() {
+         if (fileInput.files && fileInput.files.length) {
+             uploadForm.submit();
+         }
+     });
+ 
+     function clearPreview() {
+         preview.innerHTML = '<div class="text-muted">Выберите файл слева для предпросмотра</div>';
+     }
+ 
+     function guessTypeByName(name) {
+         const lower = (name || '').toLowerCase();
+         if (/\.(txt|md)$/.test(lower)) return 'text';
+         return 'other';
+     }
+ 
+     function renderActions(url, displayName) {
+         const actions = document.createElement('div');
+         actions.className = 'mb-3';
+         const download = document.createElement('a');
+         download.href = url;
+         download.download = displayName || '';
+         download.className = 'btn btn-sm btn-outline-primary me-2';
+         download.textContent = 'Скачать';
+         actions.appendChild(download);
+         return actions;
+     }
+ 
+     function showPreviewUrl(url, displayName, typeName) {
+         const type = guessTypeByName(typeName || displayName || url);
+         preview.innerHTML = '';
+ 
+         const header = document.createElement('div');
+         header.className = 'mb-2';
+         header.innerHTML = `<strong>${displayName || 'Файл'}</strong>`;
+         preview.appendChild(header);
+         preview.appendChild(renderActions(url, displayName));
+ 
+         if (type === 'text') {
+             fetch(url, { credentials: 'same-origin' })
+                 .then(r => r.ok ? r.text() : Promise.reject(new Error('HTTP ' + r.status)))
+                 .then(text => {
+                     const pre = document.createElement('pre');
+                     pre.className = 'bg-light p-3 rounded border';
+                     pre.style.whiteSpace = 'pre-wrap';
+                     pre.textContent = text;
+                     preview.appendChild(pre);
+                 })
+                 .catch(() => {
+                     const info = document.createElement('div');
+                     info.className = 'text-muted';
+                     info.textContent = 'Не удалось отобразить как текст. Откройте или скачайте файл.';
+                     preview.appendChild(info);
+                 });
+             return;
+         }
+ 
+         const info = document.createElement('div');
+         info.className = 'text-muted';
+         info.textContent = 'Предпросмотр недоступен. Откройте или скачайте файл.';
+         const open = document.createElement('a');
+         open.href = url; open.target = '_blank';
+         open.className = 'btn btn-sm btn-outline-secondary ms-2';
+         open.textContent = 'Открыть в новой вкладке';
+         const actionsLast = preview.querySelector('div.mb-3');
+         actionsLast && actionsLast.appendChild(open);
+         preview.appendChild(info);
+     }
+ 
+     document.querySelectorAll('.file-item').forEach(function(link, index) {
+         link.addEventListener('click', function(e) {
+             e.preventDefault();
+             document.querySelectorAll('#fileList .list-group-item').forEach(el => el.classList.remove('active'));
+             link.classList.add('active');
+             const url = link.getAttribute('data-url') || link.getAttribute('href');
+             const displayName = link.getAttribute('data-name') || '';
+             const typeName = link.getAttribute('data-extname') || displayName;
+             showPreviewUrl(url, displayName, typeName);
+         });
+         if (index === 0) {
+             setTimeout(() => link.click(), 0);
+         }
+     });
+ 
+     if (!document.querySelector('.file-item')) { clearPreview(); }
+ })();
+ </script>
+ {% endblock %}

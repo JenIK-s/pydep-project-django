@@ -1,20 +1,19 @@
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
+from django_ckeditor_5.fields import CKEditor5Field
 from django.db import models
 from django.utils.text import slugify
 from transliterate import translit
 
-from django.conf import settings
-
-
-from django_ckeditor_5.fields import CKEditor5Field
-
-
-# User = get_user_model()
 
 class Category(models.Model):
-    name = models.CharField(max_length=50, unique=True, verbose_name='Название')
-    slug = models.SlugField(unique=True, blank=True)
+    name = models.CharField(
+        max_length=50,
+        unique=True,
+        verbose_name='Название'
+    )
+    slug = models.SlugField(
+        unique=True,
+        blank=True
+    )
 
     class Meta:
         verbose_name = "Категория"
@@ -51,9 +50,18 @@ class Lesson(models.Model):
 
 
 class Module(models.Model):
-    title = models.CharField(max_length=255, unique=True, verbose_name="Название")
-    description = models.TextField(verbose_name='Описание')
-    image = models.ImageField(upload_to='courses/modules', verbose_name='Логотип модуля')
+    title = models.CharField(
+        max_length=255,
+        unique=True,
+        verbose_name="Название"
+    )
+    description = models.TextField(
+        verbose_name='Описание'
+    )
+    image = models.ImageField(
+        upload_to='courses/modules',
+        verbose_name='Логотип модуля'
+    )
     lessons = models.ManyToManyField(
         Lesson,
         through="LessonsInModule",
@@ -76,14 +84,38 @@ class Course(models.Model):
     category_choices = [
         ("Программирование", "Программирование")
     ]
-    name = models.CharField(max_length=50, unique=True, verbose_name='Название')
-    # slug = models.SlugField( blank=True)
-    description = models.TextField(verbose_name='Описание')
-    price = models.IntegerField(default=1000, verbose_name='Цена')
-    image = models.ImageField(upload_to='courses', verbose_name='Логотип курса')
-    duration = models.IntegerField(default=3, verbose_name="Продолжительность")
-    level = models.CharField(choices=level_choices, max_length=50, default="С нуля", verbose_name="Уровень")
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Категория", null=True)
+    name = models.CharField(
+        max_length=50,
+        unique=True,
+        verbose_name='Название'
+    )
+    description = models.TextField(
+        verbose_name='Описание'
+    )
+    price = models.IntegerField(
+        default=1000,
+        verbose_name='Цена'
+    )
+    image = models.ImageField(
+        upload_to='courses',
+        verbose_name='Логотип курса'
+    )
+    duration = models.IntegerField(
+        default=3,
+        verbose_name="Продолжительность"
+    )
+    level = models.CharField(
+        choices=level_choices,
+        max_length=50,
+        default="С нуля",
+        verbose_name="Уровень"
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.CASCADE,
+        verbose_name="Категория",
+        null=True
+    )
     modules = models.ManyToManyField(
         Module,
         through='ModulesInCourse',
@@ -95,12 +127,12 @@ class Course(models.Model):
         verbose_name = 'Курс'
         verbose_name_plural = 'Курсы'
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            # Транслитерируем с русского → английский, затем слаг
-            transliterated = translit(self.name, 'ru', reversed=True)
-            self.slug = slugify(transliterated)
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if not self.slug:
+    #         # Транслитерируем с русского → английский, затем слаг
+    #         transliterated = translit(self.name, 'ru', reversed=True)
+    #         self.slug = slugify(transliterated)
+    #     super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -117,7 +149,9 @@ class ModulesInCourse(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Курс'
     )
-    sequence_number = models.IntegerField(verbose_name="Порядковый номер модуля")
+    # sequence_number = models.IntegerField(
+    #     verbose_name="Порядковый номер модуля"
+    # )
 
     class Meta:
         verbose_name = 'Модули в курсе'
@@ -135,46 +169,39 @@ class LessonsInModule(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Урок'
     )
-    # sequence_number = models.IntegerField(verbose_name="Порядковый номер урока")
 
     class Meta:
         verbose_name = 'Уроки в модуле'
         verbose_name_plural = 'Уроки в модулях'
 
 
-
-
-
-class ProjectDocument(models.Model):
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
-    file = models.FileField(upload_to="projects/")
+class UserLessonProgress(models.Model):
+    user = models.ForeignKey(
+        "users.CustomUser",
+        on_delete=models.CASCADE,
+        related_name="lesson_progress"
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name="lesson_progress"
+    )
+    module = models.ForeignKey(
+        Module,
+        on_delete=models.CASCADE,
+        related_name="lesson_progress"
+    )
+    lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.CASCADE,
+        related_name="lesson_progress"
+    )
+    completed = models.BooleanField(default=False)
+    current = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name = "Техническое задание"
-        verbose_name_plural = "Технические задания"
+        verbose_name = "Прогресс прохождения урока"
+        verbose_name_plural = "Прогресс прохождения уроков"
 
     def __str__(self):
-        return f"ТЗ - {self.name}"
-
-
-# class ProgressInCourse(models.Model):
-#     course = models.ForeignKey(
-#         Course,
-#         on_delete=models.CASCADE,
-#         verbose_name="Курс"
-#     )
-#     student = models.ForeignKey(
-#         User,
-#         on_delete=models.CASCADE,
-#         verbose_name="Студент"
-#     )
-#     lesson_completed = models.ForeignKey(
-#         Lesson,
-#         on_delete=models.CASCADE,
-#         verbose_name="Пройденный урок"
-#     )
-#
-#     class Meta:
-#         verbose_name = "Прогресс прохождения курса"
-#         verbose_name_plural = "Прогресс прохождения курсов"
+        return f"{self.user} {self.lesson} {self.completed}"

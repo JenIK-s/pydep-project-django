@@ -1,8 +1,9 @@
-from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser
-from django.forms.widgets import PasswordInput
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import AuthenticationForm
+from django.forms.widgets import PasswordInput
+
+from .models import CustomUser
 
 
 class SignInForm(AuthenticationForm):
@@ -90,17 +91,31 @@ class SignUpForm(UserCreationForm):
         label='Пароль',
         strip=False,
         widget=PasswordInput(
-            attrs={'class': 'form-control form-container', 'placeholder': 'Введите пароль', 'autocomplete': 'new-password'}),
+            attrs={
+                'class': 'form-control form-container',
+                'placeholder': 'Введите пароль',
+                'autocomplete': 'new-password'}),
         help_text='Your password must contain at least 8 characters.'
     )
     password2 = forms.CharField(
         label='Подтверждение пароля',
         strip=False,
         widget=PasswordInput(
-            attrs={'class': 'form-control form-container', 'placeholder': 'Введите пароль', 'autocomplete': 'new-password'}),
+            attrs={
+                'class': 'form-control form-container',
+                'placeholder': 'Введите пароль',
+                'autocomplete': 'new-password'}),
         help_text='Your password must contain at least 8 characters.'
     )
 
     class Meta(UserCreationForm.Meta):
         model = CustomUser
-        fields = ('first_name', 'last_name', 'username', 'email', 'image', 'password1', 'password2')
+        fields = (
+            'first_name',
+            'last_name',
+            'username',
+            'email',
+            'image',
+            'password1',
+            'password2'
+        )

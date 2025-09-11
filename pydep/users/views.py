@@ -1,11 +1,13 @@
+from django.contrib.auth import authenticate
+from django.contrib.auth import login
+from django.shortcuts import render
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
-from .forms import SignUpForm
-from django.shortcuts import render, redirect
-from .forms import SignInForm
-from django.contrib.auth import authenticate, login
-from .mixins import AnonymousRequiredMixin
 
+from .forms import SignInForm
+from .forms import SignUpForm
+from .mixins import AnonymousRequiredMixin
 
 
 def SignIn(request):
@@ -26,7 +28,6 @@ def SignIn(request):
 
 
 class SignUp(AnonymousRequiredMixin, CreateView):
-
     form_class = SignUpForm
     success_url = reverse_lazy('users:signin')
     template_name = 'users/signup.html'
