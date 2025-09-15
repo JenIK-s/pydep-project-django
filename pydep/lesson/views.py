@@ -6,8 +6,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.shortcuts import redirect
 
-from .context_processors.bot import send_message
-from .context_processors.decorators import search_request
+# from .context_processors.decorators import search_request
 from .forms import RegisterCourseForm
 from .forms import EditProfile
 from .forms import CreateLessonForm
@@ -49,7 +48,7 @@ def category_detail(request, slug):
     )
 
 
-@search_request
+# @search_request
 def courses_list(request, queryset=None):
     """
     Получение списка всех курсов или курсов по категориям
@@ -61,21 +60,6 @@ def courses_list(request, queryset=None):
         context = {'courses': queryset, "categories": categories}
     return render(request, template_name='lesson/courses_list.html',
                   context=context)
-
-
-@search_request
-@login_required
-def courses_list_about_languages(request, prog_lang, queryset=None):
-    if queryset is None:
-        context = {
-            'courses': Course.objects.filter(programming_language=prog_lang)
-        }
-    else:
-        context = {'courses': queryset}
-    return render(
-        request, template_name='lesson/courses_list_about_languages.html',
-        context=context
-    )
 
 
 @login_required
@@ -395,12 +379,10 @@ def register_course_admin(request):
                     course_object = course.first().course
                     course.first().user.courses_learn.add(course_object)
                     course.update(status="approved")
-                    send_message('861963780', 'Ваша заявка ОДОБРЕНА')
                 except Exception:
                     return HttpResponse(404)
             case 'rj':
                 course.update(status="rejected")
-                send_message('861963780', 'Ваша заявка ОТКОЛНЕНА')
             case 'dl':
                 course.delete()
         return redirect('lesson:register_course_admin')
@@ -420,54 +402,9 @@ def register_course(request):
     )
 
 
-def tutor_students(request):
-    queryset = RegisterCourse.objects.filter(user=request.user)
-    user = request.user
-    result = ''
-    if user.is_superuser:
-        result += 'Модератор '
-    if user.is_teacher:
-        result += 'Преподаватель '
-    if user.is_student:
-        result += 'Студент '
-    is_teacher = user.is_teacher
-    is_student = user.is_student
-    result = result.strip()
-    result = result.replace(' ', ' & ')
-    learn_courses = user.courses_learn.all()
-    teach_courses = user.courses_teach.all()
-    cancelled_lesson = CancelledLesson.objects.filter(student=request.user)
-    cancelled = [elem.date_cancelled.day for elem in cancelled_lesson]
-
-    lessons_time = Schedule.objects.filter(student=request.user)
-    weekdays = [elem.weekday for elem in lessons_time]
-
-    current_year = datetime.today().year
-    current_month = datetime.today().month
-
-    month_matrix = calendar.monthcalendar(current_year, current_month)
-
-    context = {
-        'learn_courses': learn_courses,
-        'teach_courses': teach_courses,
-        'result': result,
-        'user': user,
-        'is_teacher': is_teacher,
-        'is_student': is_student,
-        'is_tutor_student': user.is_tutor_student,
-        'queryset': queryset,
-        'month_matrix': month_matrix,
-        'current_day': datetime.today().day,
-        'weekdays': weekdays,
-        'cancelled': cancelled,
-    }
-    return render(request, "lesson/tutor_students.html", context)
-
-
 @login_required
 def create_lesson(request):
     if request.method == "POST":
-        print(123)
         form = CreateLessonForm(request.POST)
         if form.is_valid():
             form.save()
