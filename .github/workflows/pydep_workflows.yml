@@ -5,23 +5,24 @@ on: [push]
 jobs:
   tests:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.10"
+      - name: Checkout
+        uses: actions/checkout@v3
 
-    - name: Install dependencies
-      run: | 
-        pip install flake8
-        pip install -r requirements.txt
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
 
-    - name: Tests
-      run: |
-        python -m flake8
-        pytest -c pytest.ini
+      - name: Install dependencies
+        run: | 
+          pip install flake8
+          pip install -r requirements.txt
+
+      - name: Tests
+        run: |
+          python -m flake8
+          pytest -c pytest.ini
 
 
 #  build_and_push_web_to_docker_hub:
