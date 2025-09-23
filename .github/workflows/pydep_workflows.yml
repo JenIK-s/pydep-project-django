@@ -21,7 +21,7 @@ jobs:
     - name: Tests
       run: |
         python -m flake8
-        pytest
+        pytest -c pytest.ini
 
 
 #  build_and_push_web_to_docker_hub:
