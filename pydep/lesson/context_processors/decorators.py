@@ -1,10 +1,10 @@
-from django.contrib.postgres.search import TrigramSimilarity
-from django.shortcuts import render
-from functools import wraps
-
-from ..models import Course
-
-
+# from django.contrib.postgres.search import TrigramSimilarity
+# from django.shortcuts import render
+# from functools import wraps
+#
+# from ..models import Course
+#
+#
 # def course_required(func):
 #     def check_course_in_user(*args, **kwargs):
 #         try:

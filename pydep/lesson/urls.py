@@ -7,12 +7,11 @@ from .views import lesson_detail
 from .views import profile
 from .views import module_detail
 from .views import profile_edit
-from .views import register_course_admin
-from .views import register_course
-from .views import schedule_today
+# from .views import register_course_admin
+# from .views import register_course
+
 from .views import category_detail
 from .views import complete_lesson
-from .views import create_lesson
 
 app_name = 'lesson'
 urlpatterns = [
@@ -27,11 +26,6 @@ urlpatterns = [
         name='profile'
     ),
     path(
-        'schedule/<day>',
-        schedule_today,
-        name='schedule_today'
-    ),
-    path(
         'profile/edit/',
         profile_edit,
         name='profile_edit'
@@ -43,11 +37,6 @@ urlpatterns = [
     ),
     # pat
     # h("tutor/", tutor_students, name="tutor"),
-    path(
-        "lesson/create/",
-        create_lesson,
-        name="create_lesson"
-    ),
     path(
         'course/<str:course_name>/',
         course_detail,
@@ -68,16 +57,16 @@ urlpatterns = [
         name='lesson_detail'
     ),
 
-    path(
-        'courses/register_course_admin/',
-        register_course_admin,
-        name='register_course_admin'
-    ),
-    path(
-        'courses/register_course/',
-        register_course,
-        name='register_course'
-    ),
+    # path(
+    #     'courses/register_course_admin/',
+    #     register_course_admin,
+    #     name='register_course_admin'
+    # ),
+    # path(
+    #     'courses/register_course/',
+    #     register_course,
+    #     name='register_course'
+    # ),
     path(
         '<str:course_name>/<str:module_name>/<str:lesson_name>/complete/',
         complete_lesson,

@@ -1,12 +1,11 @@
 [run]
-source =
-    pydep/lesson
-    pydep/users
+source = .
 omit =
     */migrations/*
+    /migrations/
+    /__init__.py
     */venv/*
     */.venv/*
-    */vevne/*
     */env/*
     */tests/*
     manage.py
@@ -16,6 +15,7 @@ omit =
     */media/*
     */__pycache__/*
     */__init__.py
+    */settings.py
     */asgi.py
     */wsgi.py
     */apps.py

@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 
 # from .context_processors.decorators import search_request
-from .forms import RegisterCourseForm
+# from .forms import RegisterCourseForm
 from .forms import EditProfile
 from .forms import CreateLessonForm
 from .models import Course
@@ -16,18 +16,8 @@ from .models import Lesson
 from .models import Category
 from .models import UserLessonProgress
 from users.models import CancelledLesson
-from users.models import RegisterCourse
+# from users.models import RegisterCourse
 from users.models import Schedule
-
-
-def get_weekday(day):
-    year = datetime.today().year
-    month = datetime.today().month
-    date_string = f"{year}-{month:02d}-{day:02d}"
-    date = datetime.strptime(date_string, "%Y-%m-%d")
-    weekday_name = date.strftime("%A")
-
-    return weekday_name
 
 
 def index(request):
@@ -48,7 +38,6 @@ def category_detail(request, slug):
     )
 
 
-# @search_request
 def courses_list(request, queryset=None):
     """
     Получение списка всех курсов или курсов по категориям
@@ -110,18 +99,18 @@ def course_detail(request, course_name):
     total_progress = int(
         (total_completed_count / total_lessons_count) * 100
     ) if total_lessons_count > 0 else 0
-    form = RegisterCourseForm(request.POST or None)
-    if request.method == 'POST':
-        form_data = {
-            'user': request.user,
-            'course': course
-        }
-        RegisterCourse.objects.create(**form_data)
-        return redirect('lesson:profile')
+    # form = RegisterCourseForm(request.POST or None)
+    # if request.method == 'POST':
+    #     form_data = {
+    #         'user': request.user,
+    #         'course': course
+    #     }
+    #     RegisterCourse.objects.create(**form_data)
+    #     return redirect('lesson:profile')
     context = {
         'course': course,
         'modules': user_modules,
-        'form': form,
+        # 'form': form,
         "total_progress": total_progress,
         "circle_clip": 100 - total_progress,
     }
@@ -289,7 +278,7 @@ def profile(request):
     """
     Профиль пользователя. Отображение роли, проходимый и преподаваемых курсов
     """
-    queryset = RegisterCourse.objects.filter(user=request.user)
+    # queryset = RegisterCourse.objects.filter(user=request.user)
     user = request.user
     result = ''
     if user.is_superuser:
@@ -323,7 +312,7 @@ def profile(request):
         'is_teacher': is_teacher,
         'is_student': is_student,
         'is_tutor_student': user.is_tutor_student,
-        'queryset': queryset,
+        # 'queryset': queryset,
         'month_matrix': month_matrix,
         'current_day': datetime.today().day,
         'weekdays': weekdays,
@@ -331,19 +320,6 @@ def profile(request):
     }
 
     return render(request, 'lesson/profile.html', context)
-
-
-def schedule_today(request, day):
-    weekday = get_weekday(int(day))
-    print(weekday)
-    lesson = Schedule.objects.get(student=request.user, weekday=weekday)
-    context = {
-        'data': f'{day}.{datetime.today().month}.{datetime.today().year}',
-        'time': lesson.time_start,
-        'hour_amount': lesson.hour_amount
-    }
-
-    return render(request, 'lesson/profile_tutor_student.html', context)
 
 
 @login_required
@@ -364,50 +340,39 @@ def profile_edit(request):
     return render(request, 'lesson/profile_edit.html', {'form': form})
 
 
-def register_course_admin(request):
-    """
-    Обработка заявок на курсы
-    """
-    queryset = RegisterCourse.objects.all()
-    if request.method == 'POST':
-        result = request.POST.get('action').split('_')
-        operation, register_id = result
-        course = RegisterCourse.objects.filter(pk=register_id)
-        match operation:
-            case 'ap':
-                try:
-                    course_object = course.first().course
-                    course.first().user.courses_learn.add(course_object)
-                    course.update(status="approved")
-                except Exception:
-                    return HttpResponse(404)
-            case 'rj':
-                course.update(status="rejected")
-            case 'dl':
-                course.delete()
-        return redirect('lesson:register_course_admin')
-    return render(
-        request,
-        'lesson/register_course_admin.html',
-        {'queryset': queryset}
-    )
-
-
-def register_course(request):
-    queryset = RegisterCourse.objects.filter(user=request.user)
-    return render(
-        request,
-        'lesson/register_course.html',
-        {'queryset': queryset}
-    )
-
-
-@login_required
-def create_lesson(request):
-    if request.method == "POST":
-        form = CreateLessonForm(request.POST)
-        if form.is_valid():
-            form.save()
-    else:
-        form = CreateLessonForm()
-    return render(request, "lesson/create_lesson.html", {"form": form})
+# def register_course_admin(request):
+#     """
+#     Обработка заявок на курсы
+#     """
+#     queryset = RegisterCourse.objects.all()
+#     if request.method == 'POST':
+#         result = request.POST.get('action').split('_')
+#         operation, register_id = result
+#         course = RegisterCourse.objects.filter(pk=register_id)
+#         match operation:
+#             case 'ap':
+#                 try:
+#                     course_object = course.first().course
+#                     course.first().user.courses_learn.add(course_object)
+#                     course.update(status="approved")
+#                 except Exception:
+#                     return HttpResponse(404)
+#             case 'rj':
+#                 course.update(status="rejected")
+#             case 'dl':
+#                 course.delete()
+#         return redirect('lesson:register_course_admin')
+#     return render(
+#         request,
+#         'lesson/register_course_admin.html',
+#         {'queryset': queryset}
+#     )
+#
+#
+# def register_course(request):
+#     queryset = RegisterCourse.objects.filter(user=request.user)
+#     return render(
+#         request,
+#         'lesson/register_course.html',
+#         {'queryset': queryset}
+#     )

@@ -56,33 +56,33 @@ class CustomUser(AbstractUser):
         return self.username
 
 
-class RegisterCourse(models.Model):
-    choises = (
-        ('wait', 'Ожидание'),
-        ('rejected', 'Отколнена'),
-        ('approved', 'Одобрена')
-    )
-    user = models.ForeignKey(
-        CustomUser,
-        on_delete=models.CASCADE,
-        verbose_name='Студент',
-    )
-    course = models.ForeignKey(
-        'lesson.Course',
-        on_delete=models.CASCADE,
-        verbose_name='Курс',
-    )
-    status = models.CharField(
-        max_length=9,
-        default='wait',
-        choices=choises,
-        verbose_name='Статус заявки'
-    )
-
-    class Meta:
-        verbose_name = 'Запись на курс'
-        verbose_name_plural = 'Записи на курсы'
-        unique_together = ['user', 'course']
+# class RegisterCourse(models.Model):
+#     choises = (
+#         ('wait', 'Ожидание'),
+#         ('rejected', 'Отколнена'),
+#         ('approved', 'Одобрена')
+#     )
+#     user = models.ForeignKey(
+#         CustomUser,
+#         on_delete=models.CASCADE,
+#         verbose_name='Студент',
+#     )
+#     course = models.ForeignKey(
+#         'lesson.Course',
+#         on_delete=models.CASCADE,
+#         verbose_name='Курс',
+#     )
+#     status = models.CharField(
+#         max_length=9,
+#         default='wait',
+#         choices=choises,
+#         verbose_name='Статус заявки'
+#     )
+#
+#     class Meta:
+#         verbose_name = 'Запись на курс'
+#         verbose_name_plural = 'Записи на курсы'
+#         unique_together = ['user', 'course']
 
 
 class CancelledLesson(models.Model):
@@ -134,17 +134,17 @@ class Schedule(models.Model):
         verbose_name_plural = 'Расписание занятий'
 
 
-class UserLessonProgress(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    course = models.ForeignKey("lesson.Course", on_delete=models.CASCADE)
-    module = models.ForeignKey("lesson.Module", on_delete=models.CASCADE)
-    lesson = models.ForeignKey("lesson.Lesson", on_delete=models.CASCADE)
-    completed = models.BooleanField(default=False)
-    current = models.BooleanField(default=False)
-
-    class Meta:
-        verbose_name = "Прогресс прохождения урока"
-        verbose_name_plural = "Прогресс прохождения уроков"
-
-    def __str__(self):
-        return f"{self.user} {self.lesson} {self.completed}"
+# class UserLessonProgress(models.Model):
+#     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+#     course = models.ForeignKey("lesson.Course", on_delete=models.CASCADE)
+#     module = models.ForeignKey("lesson.Module", on_delete=models.CASCADE)
+#     lesson = models.ForeignKey("lesson.Lesson", on_delete=models.CASCADE)
+#     completed = models.BooleanField(default=False)
+#     current = models.BooleanField(default=False)
+#
+#     class Meta:
+#         verbose_name = "Прогресс прохождения урока"
+#         verbose_name_plural = "Прогресс прохождения уроков"
+#
+#     def __str__(self):
+#         return f"{self.user} {self.lesson} {self.completed}"

@@ -60,20 +60,20 @@
                         <h5 class="card-title">{{ elem.user.get_full_name }}</h5>
                         <p class="card-text">Курс: <strong>{{ elem.course.name }}</strong></p>
 
-                        {% if elem.status == "wait" %}
-                            <span class="badge bg-warning text-dark badge-status">Ожидает рассмотрения</span>
-                            <form method="post" action="{% url 'lesson:register_course_admin' %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-success btn-rounded" name="action" value="ap_{{ elem.id }}">Принять</button>
-                                <button type="submit" class="btn btn-danger btn-rounded" name="action" value="rj_{{ elem.id }}">Отклонить</button>
-                            </form>
-                        {% else %}
-                            <span class="badge bg-secondary badge-status">Заявка рассмотрена</span>
-                            <form method="post" action="{% url 'lesson:register_course_admin' %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-danger btn-rounded" name="action" value="dl_{{ elem.id }}">Удалить</button>
-                            </form>
-                        {% endif %}
+{#                        {% if elem.status == "wait" %}#}
+{#                            <span class="badge bg-warning text-dark badge-status">Ожидает рассмотрения</span>#}
+{#                            <form method="post" action="{% url 'lesson:register_course_admin' %}">#}
+{#                                {% csrf_token %}#}
+{#                                <button type="submit" class="btn btn-success btn-rounded" name="action" value="ap_{{ elem.id }}">Принять</button>#}
+{#                                <button type="submit" class="btn btn-danger btn-rounded" name="action" value="rj_{{ elem.id }}">Отклонить</button>#}
+{#                            </form>#}
+{#                        {% else %}#}
+{#                            <span class="badge bg-secondary badge-status">Заявка рассмотрена</span>#}
+{#                            <form method="post" action="{% url 'lesson:register_course_admin' %}">#}
+{#                                {% csrf_token %}#}
+{#                                <button type="submit" class="btn btn-outline-danger btn-rounded" name="action" value="dl_{{ elem.id }}">Удалить</button>#}
+{#                            </form>#}
+{#                        {% endif %}#}
                     </div>
                 </div>
             </div>

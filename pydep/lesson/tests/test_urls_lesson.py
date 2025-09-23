@@ -9,7 +9,7 @@ from users.models import CustomUser
 
 
 @pytest.fixture
-def course(db):
+def course():
     lesson = Lesson.objects.create(title="Test", description="Test")
     module = Module.objects.create(title="Test", description="Test", image="test/test.jpg")
     category = Category.objects.create(name="Programming")
@@ -38,7 +38,6 @@ class TestUrls:
         reverse("lesson:profile"): (302, 200),
         reverse("lesson:profile_edit"): (302, 200),
         reverse("lesson:courses"): (200, 200),
-        reverse("lesson:create_lesson"): (302, 200),
     }
 
 
