@@ -15,4 +15,4 @@ djangorestframework
 djangorestframework-simplejwt
 pytest
 pytest-django
-dateutil
+python-dateutil
