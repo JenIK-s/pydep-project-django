@@ -25,6 +25,7 @@ jobs:
           python -m flake8
 
       - name: Test with pytest
+        run: |
           pytest -c pytest.ini
 
 
