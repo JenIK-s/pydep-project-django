@@ -47,6 +47,7 @@ class TestUrls:
         reverse("lesson:courses"): (200, 200),
     }
 
+    @pytest.mark.django_db
     def test_urls_none_auth(self, client, course):
         for url in self.urls_status:
             response = client.get(url)
@@ -64,7 +65,7 @@ class TestUrls:
             assert response.status_code == self.urls_status.get(url)[1]
 
     @pytest.mark.django_db
-    def test_param_urls_none_auth(self, db, client, course):
+    def test_param_urls_none_auth(self, client, course):
         url = reverse(
             "lesson:course_detail",
             kwargs={"course_name": course.name}
