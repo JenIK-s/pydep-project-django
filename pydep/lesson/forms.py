@@ -2,11 +2,8 @@ from django import forms
 from django_ckeditor_5.widgets import CKEditor5Widget
 from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth import get_user_model
-from django.forms import ModelForm
-from django.utils.translation import gettext_lazy as _
 
 from .models import Lesson
-# from users.models import RegisterCourse
 
 
 # class RegisterCourseForm(ModelForm):

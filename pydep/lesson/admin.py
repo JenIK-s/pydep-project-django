@@ -8,6 +8,7 @@ from .models import LessonsInModule
 from .models import Category
 from .models import UserLessonProgress
 
+
 class ModulesInCourseInline(admin.TabularInline):
     model = ModulesInCourse
     extra = 1

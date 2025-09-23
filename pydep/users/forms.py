@@ -106,7 +106,9 @@ class SignUpForm(UserCreationForm):
                 'class': 'form-control form-container',
                 'placeholder': 'Введите пароль',
                 'autocomplete': 'new-password'}),
-        help_text='Повторите пароль. Должен совпадать и быть не короче 8 символов.'
+        help_text=(
+            'Повторите пароль. Должен совпадать и быть не короче 8 символов.'
+        )
     )
 
     class Meta(UserCreationForm.Meta):

@@ -15,8 +15,12 @@ class LessonForm(forms.ModelForm):
         label="Повтор",
         choices=REPEAT_CHOICES,
         required=False,
-        help_text="Автоматически создать такие же занятия по неделям до выбранного периода",
+        help_text=(
+            "Автоматически создать такие же занятия "
+            "по неделям до выбранного периода"
+        ),
     )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for name, field in self.fields.items():
@@ -67,4 +71,3 @@ class PaymentUpdateForm(forms.ModelForm):
     class Meta:
         model = Lesson
         fields = ["is_paid"]
-

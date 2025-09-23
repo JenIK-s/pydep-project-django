@@ -68,7 +68,17 @@ class Lesson(models.Model):
     def __str__(self) -> str:
         student_name = getattr(self.student, "get_full_name", None)
         if callable(student_name):
-            student_name = self.student.get_full_name() or (self.student and self.student.username)
+            full_name = self.student.get_full_name()
+            another_full_name = self.student and self.student.username
+            student_name = full_name or another_full_name
         else:
-            student_name = self.student and getattr(self.student, "username", str(self.student))
-        return f"{self.subject} — {self.date} {self.start_time}-{self.end_time} ({student_name or 'без ученика'})"
+            student_name = self.student and getattr(
+                self.student,
+                "username",
+                str(self.student)
+            )
+        return (
+            f"{self.subject} — {self.date} "
+            f"{self.start_time}-{self.end_time} "
+            f"({student_name or 'без ученика'})"
+        )

@@ -119,12 +119,20 @@ def test_lesson_in_module(lesson, module):
 
 @pytest.mark.django_db
 def test_user_lesson_progress(lesson, module, course):
-    user = CustomUser.objects.create_user(username="test_case", password="jer214TFG2")
+    user = CustomUser.objects.create_user(
+        username="test_case",
+        password="jer214TFG2"
+    )
 
     module.lessons.add(lesson)
     course.modules.add(module)
 
-    UserLessonProgress.objects.create(user=user, lesson=lesson, module=module, course=course)
+    UserLessonProgress.objects.create(
+        user=user,
+        lesson=lesson,
+        module=module,
+        course=course
+    )
 
     progress = UserLessonProgress.objects.all().first()
     assert UserLessonProgress.objects.count() == 1
@@ -132,7 +140,7 @@ def test_user_lesson_progress(lesson, module, course):
     assert progress.lesson == lesson
     assert progress.module == module
     assert progress.course == course
-    assert progress.current == False
-    assert progress.completed == False
+    assert progress.current is False
+    assert progress.completed is False
 
     assert str(progress) == f"{user} {lesson} {False}"

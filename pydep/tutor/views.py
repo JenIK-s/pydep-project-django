@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from datetime import timedelta, date
+from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
 from .models import FilesProject, Lesson
@@ -34,7 +34,6 @@ def profile(request):
     is_student = user.is_student
     result = result.strip()
     result = result.replace(' ', ' & ')
-
 
     context = {
         'result': result,
@@ -90,7 +89,11 @@ def lesson_create(request):
         if request.user.is_authenticated:
             initial['teacher'] = request.user
         form = LessonForm(initial=initial)
-    return render(request, 'tutor/lesson_form.html', {'form': form, 'title': 'Новое занятие'})
+    return render(
+        request,
+        'tutor/lesson_form.html',
+        {'form': form, 'title': 'Новое занятие'}
+    )
 
 
 def lesson_update(request, pk: int):
@@ -102,7 +105,11 @@ def lesson_update(request, pk: int):
             return redirect(reverse('tutor:schedule'))
     else:
         form = LessonForm(instance=lesson)
-    return render(request, 'tutor/lesson_form.html', {'form': form, 'title': 'Редактировать занятие'})
+    return render(
+        request,
+        'tutor/lesson_form.html',
+        {'form': form, 'title': 'Редактировать занятие'}
+    )
 
 
 def lesson_payment_toggle(request, pk: int):
@@ -114,4 +121,8 @@ def lesson_payment_toggle(request, pk: int):
             return redirect(reverse('tutor:schedule'))
     else:
         form = PaymentUpdateForm(instance=lesson)
-    return render(request, 'tutor/lesson_payment.html', {'form': form, 'lesson': lesson})
+    return render(
+        request,
+        'tutor/lesson_payment.html',
+        {'form': form, 'lesson': lesson}
+    )

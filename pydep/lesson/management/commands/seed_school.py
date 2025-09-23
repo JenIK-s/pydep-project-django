@@ -1,16 +1,28 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from lesson.models import Category, Course, Module, Lesson, ModulesInCourse, LessonsInModule
+from lesson.models import Category
+from lesson.models import Course
+from lesson.models import Module
+from lesson.models import Lesson
+from lesson.models import ModulesInCourse
+from lesson.models import LessonsInModule
 from users.models import CustomUser
 
 
 class Command(BaseCommand):
-    help = "Наполняет БД демонстрационными данными: пользователи, курсы, модули, уроки"
+    help = (
+        "Наполняет БД демонстрационными данными: "
+        "пользователи, курсы, модули, уроки"
+    )
 
     @transaction.atomic
     def handle(self, *args, **options):
-        self.stdout.write(self.style.MIGRATE_HEADING("Создание демонстрационных данных онлайн-школы"))
+        self.stdout.write(
+            self.style.MIGRATE_HEADING(
+                "Создание демонстрационных данных онлайн-школы"
+            )
+        )
 
         # 1) Категория
         category, _ = Category.objects.get_or_create(name="Программирование")
@@ -40,7 +52,8 @@ class Command(BaseCommand):
                     "first_name": first_name,
                     "last_name": last_name,
                     "description": (
-                        "Увлечённый обучающийся в области ИТ. Люблю практические проекты, "
+                        "Увлечённый обучающийся в области ИТ. "
+                        "Люблю практические проекты, "
                         "чёткие объяснения и задачи с реальными примерами."
                     ),
                     "is_teacher": is_teacher,
@@ -62,22 +75,126 @@ class Command(BaseCommand):
 
         # 3) Курсы (10+) со смыслами
         courses_spec = [
-            ("Основы Python", "Первые шаги в Python: синтаксис, типы данных, условия и циклы.", "Python", 4900, "courses/cover-photo.png"),
-            ("Продвинутый Python", "ООП, итераторы/генераторы, контекстные менеджеры, typing и best practices.", "Python", 6900, "courses/galaxy-cosmic-5376x3584-14974.jpg"),
-            ("Веб‑разработка на Django", "Создание полноценных веб‑приложений на Django: модели, формы, ORM, админка.", "Python", 7900, "courses/maxresdefault.png"),
-            ("JavaScript с нуля", "Базовый JS для фронтенда: основы языка, DOM, события, асинхронность.", "JavaScript", 5200, "courses/javascript-2048x1080.jpg"),
-            ("Современный Frontend", "ES6+, модули, сборка, основы React и экосистема инструментария.", "JavaScript", 8400, "courses/image.png"),
-            ("Git и командная работа", "Ветки, rebase, pull request‑ы, code review. Настоящий рабочий процесс.", "DevOps", 3500, "courses/scale_1200.png"),
-            ("Алгоритмы и структуры данных", "Базовые алгоритмы, сложность, практические задачи для собеседований.", "CS", 6100, "courses/max-2614.jpg"),
-            ("SQL и базы данных", "Проектирование схем, запросы, индексы, транзакции. SQLite и PostgreSQL.", "SQL", 5700, "courses/shutterstock_152245562_thumb-min.jpg"),
-            ("Docker для разработчика", "Контейнеризация, Dockerfile, образы, docker‑compose. Деплой мини‑сервисов.", "DevOps", 4900, "courses/cover-photo.png"),
-            ("Основы сетей для разработчика", "TCP/IP, HTTP, DNS, безопасность. Инструменты диагностики.", "Networks", 4500, "courses/photo_2023-09-10_13.38.07.jpeg"),
-            ("Основы GitHub Actions", "CI/CD на GitHub Actions: сборка, тесты, деплой.", "DevOps", 4200, "courses/galaxy-cosmic-5376x3584-14974_XtpodOE.jpg"),
-            ("ООП на примерах", "Объектно‑ориентированное проектирование на реальных мини‑проектах.", "CS", 5600, "courses/shutterstock_152245562_thumb-min_K6tTHwJ.jpg"),
+            (
+                "Основы Python",
+                (
+                    "Первые шаги в Python: синтаксис, "
+                    + "типы данных, условия и циклы."
+                ),
+                "Python",
+                4900,
+                "courses/cover-photo.png"
+            ),
+            (
+                "Продвинутый Python",
+                (
+                    "ООП, итераторы/генераторы, "
+                    + "контекстные менеджеры, typing и best practices."
+                ),
+                "Python",
+                6900,
+                "courses/galaxy-cosmic-5376x3584-14974.jpg"
+            ),
+            (
+                "Веб‑разработка на Django",
+                (
+                    "Создание полноценных веб‑приложений на Django: "
+                    + "модели, формы, ORM, админка."
+                ),
+                "Python",
+                7900,
+                "courses/maxresdefault.png"
+            ),
+            (
+                "JavaScript с нуля",
+                (
+                    "Базовый JS для фронтенда: "
+                    + "основы языка, DOM, события, асинхронность."
+                ),
+                "JavaScript",
+                5200,
+                "courses/javascript-2048x1080.jpg"
+            ),
+            (
+                "Современный Frontend",
+                (
+                    "ES6+, модули, сборка, основы React "
+                    + "и экосистема инструментария."
+                ),
+                "JavaScript",
+                8400,
+                "courses/image.png"
+            ),
+            (
+                "Git и командная работа",
+                (
+                    "Ветки, rebase, pull request‑ы, code review. "
+                    + "Настоящий рабочий процесс."
+                ),
+                "DevOps",
+                3500,
+                "courses/scale_1200.png"
+            ),
+            (
+                "Алгоритмы и структуры данных",
+                (
+                    "Базовые алгоритмы, сложность, практические "
+                    + "задачи для собеседований."
+                ),
+                "CS",
+                6100,
+                "courses/max-2614.jpg"
+            ),
+            (
+                "SQL и базы данных",
+                (
+                    "Проектирование схем, запросы, индексы, "
+                    + "транзакции. SQLite и PostgreSQL."
+                ),
+                "SQL",
+                5700,
+                "courses/shutterstock_152245562_thumb-min.jpg"
+            ),
+            (
+                "Docker для разработчика",
+                (
+                    "Контейнеризация, Dockerfile, образы, "
+                    + "docker‑compose. Деплой мини‑сервисов."
+                ),
+                "DevOps",
+                4900,
+                "courses/cover-photo.png"
+            ),
+            (
+                "Основы сетей для разработчика",
+                "TCP/IP, HTTP, DNS, безопасность. Инструменты диагностики.",
+                "Networks",
+                4500,
+                "courses/photo_2023-09-10_13.38.07.jpeg"
+            ),
+            (
+                "Основы GitHub Actions",
+                "CI/CD на GitHub Actions: сборка, тесты, деплой.",
+                "DevOps",
+                4200,
+                "courses/galaxy-cosmic-5376x3584-14974_XtpodOE.jpg"
+            ),
+            (
+                "ООП на примерах",
+                (
+                    "Объектно‑ориентированное "
+                    + "проектирование на реальных мини‑проектах."
+                ),
+                "CS",
+                5600,
+                "courses/shutterstock_152245562_thumb-min_K6tTHwJ.jpg"
+            ),
         ]
 
         created_courses = []
-        for idx, (name, description, language, price, image_path) in enumerate(courses_spec, start=1):
+        for idx, (
+                name, description, language, price, image_path
+        ) in enumerate(courses_spec, start=1):
             course = Course(
                 name=name,
                 description=description,
@@ -88,7 +205,8 @@ class Command(BaseCommand):
                 category=category,
                 programming_language=language,
             )
-            # Обход бага: в модели используется self.slug без поля — выставляем атрибут, чтобы save() не упал
+            # Обход бага: в модели используется self.slug
+            # без поля — выставляем атрибут, чтобы save() не упал
             course.slug = name
             # Идемпотентность по уникальному name
             existing = Course.objects.filter(name=name).first()
@@ -124,9 +242,12 @@ class Command(BaseCommand):
         def rich_text(paragraph: str) -> str:
             return (
                 f"<h3>{paragraph}</h3>"
-                "<p>Материал подаётся через короткие объяснения, диаграммы и небольшие практики."
-                " В конце — мини‑проект, который закрепляет навыки и создаёт портфолио‑результат.</p>"
-                "<ul><li>Реальные кейсы из практики</li><li>Чек‑листы и памятки</li>"
+                "<p>Материал подаётся через короткие объяснения,"
+                "диаграммы и небольшие практики."
+                " В конце — мини‑проект, который закрепляет навыки"
+                "и создаёт портфолио‑результат.</p>"
+                "<ul><li>Реальные кейсы из практики</li>"
+                "<li>Чек‑листы и памятки</li>"
                 "<li>Пошаговые инструкции</li></ul>"
             )
 
@@ -142,8 +263,10 @@ class Command(BaseCommand):
                     title=title,
                     defaults={
                         "description": (
-                            f"Модуль посвящён теме: '{module_titles[i]}' в контексте курса '{course.name}'. "
-                            "Вы разберёте теорию на примерах и выполните практические задания."
+                            f"Модуль посвящён теме: '{module_titles[i]}' "
+                            f"в контексте курса '{course.name}'. "
+                            "Вы разберёте теорию на примерах"
+                            " и выполните практические задания."
                         ),
                         "image": module_image,
                     },
@@ -164,7 +287,8 @@ class Command(BaseCommand):
                         title=f"{course.name}: {ltitle}",
                         defaults={
                             "description": rich_text(
-                                f"{ltitle} в модуле '{module_titles[i]}' курса '{course.name}'"
+                                f"{ltitle} в модуле '{module_titles[i]}' "
+                                f"курса '{course.name}'"
                             )
                         },
                     )
@@ -179,9 +303,14 @@ class Command(BaseCommand):
 
             # Несколько студентов «обучаются» на курсе
             for student in created_users:
-                if not student.is_teacher and (hash(student.username + course.name) % 3 == 0):
+                if not student.is_teacher and (
+                        hash(
+                            student.username + course.name
+                        ) % 3 == 0):
                     student.courses_learn.add(course)
 
-        self.stdout.write(self.style.SUCCESS("Готово: созданы пользователи, курсы, модули и уроки."))
-
-
+        self.stdout.write(
+            self.style.SUCCESS(
+                "Готово: созданы пользователи, курсы, модули и уроки."
+            )
+        )

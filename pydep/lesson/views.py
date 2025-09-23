@@ -2,14 +2,14 @@ import calendar
 from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+# from django.http import HttpResponse
 from django.shortcuts import render
 from django.shortcuts import redirect
 
 # from .context_processors.decorators import search_request
 # from .forms import RegisterCourseForm
 from .forms import EditProfile
-from .forms import CreateLessonForm
+# from .forms import CreateLessonForm
 from .models import Course
 from .models import Module
 from .models import Lesson
@@ -61,9 +61,12 @@ def course_detail(request, course_name):
     user_modules = []
 
     # Если в курсе не открыт первый урок, то открываем
-    if course.modules.all()[0].lessons.all()[0].id not in UserLessonProgress.objects.filter(
-            user=request.user, course=course
-    ).values_list("lesson_id", flat=True):
+    first_lesson_id = course.modules.all()[0].lessons.all()[0].id
+    user_progress_value_list = UserLessonProgress.objects.filter(
+        user=request.user,
+        course=course
+    ).values_list("lesson_id", flat=True)
+    if first_lesson_id not in user_progress_value_list:
         UserLessonProgress.objects.create(
             user=request.user,
             course=course,
@@ -127,11 +130,22 @@ def lesson_detail(request, course_name, module_name, lesson_name):
     module = Module.objects.get(title=module_name)
     lesson = Lesson.objects.get(title=lesson_name)
     try:
-        les = UserLessonProgress.objects.get(user=request.user, course=course, module=module, lesson=lesson)
+        les = UserLessonProgress.objects.get(
+            user=request.user,
+            course=course,
+            module=module,
+            lesson=lesson
+        )
         if not (les.completed or les.current):
-            return redirect("lesson:module_detail", course_name, module_name)
+            return redirect(
+                "lesson:module_detail",
+                course_name, module_name
+            )
     except Exception:
-        return redirect("lesson:module_detail", course_name, module_name)
+        return redirect(
+            "lesson:module_detail",
+            course_name, module_name
+        )
     is_completed = UserLessonProgress.objects.get_or_create(
         user=request.user,
         course=course,
@@ -145,7 +159,11 @@ def lesson_detail(request, course_name, module_name, lesson_name):
         'lesson': lesson,
         "is_completed": is_completed,
     }
-    return render(request, 'lesson/lesson_detail.html', context=context)
+    return render(
+        request,
+        'lesson/lesson_detail.html',
+        context=context
+    )
 
 
 @login_required
@@ -224,17 +242,17 @@ def complete_lesson(request, course_name, module_name, lesson_name):
     module_lessons = module.lessons.all()
     course_modules = course.modules.all()
     if module.lessons.all().last() == lesson:
-        print("LAST")
         for i in range(len(course_modules)):
             if module == course_modules[i] and i + 1 < len(course_modules):
                 next_module = course.modules.all()[i + 1]
-                next_progress, created = UserLessonProgress.objects.get_or_create(
-                    user=request.user,
-                    course=course,
-                    module=next_module,
-                    lesson=next_module.lessons.all()[0]
+                next_progress, created = (
+                    UserLessonProgress.objects.get_or_create(
+                        user=request.user,
+                        course=course,
+                        module=next_module,
+                        lesson=next_module.lessons.all()[0]
+                    )
                 )
-                print("NEXT", next_module.lessons.all()[0], created)
                 next_progress.current = True
                 next_progress.save()
                 return redirect(

@@ -15,5 +15,9 @@ urlpatterns = [
     path('schedule/', schedule, name='schedule'),
     path('lessons/new/', lesson_create, name='lesson_create'),
     path('lessons/<int:pk>/edit/', lesson_update, name='lesson_update'),
-    path('lessons/<int:pk>/payment/', lesson_payment_toggle, name='lesson_payment'),
+    path(
+        'lessons/<int:pk>/payment/',
+        lesson_payment_toggle,
+        name='lesson_payment'
+    ),
 ]

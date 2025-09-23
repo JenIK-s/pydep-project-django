@@ -6,7 +6,10 @@ from users.models import CustomUser
 
 @pytest.fixture
 def user():
-    return CustomUser.objects.create_user(username="test_case", password="jer214TFG2")
+    return CustomUser.objects.create_user(
+        username="test_case",
+        password="jer214TFG2"
+    )
 
 
 class TestSignIn:
@@ -17,15 +20,16 @@ class TestSignIn:
 
         assert response.status_code == 200
 
-
     @pytest.mark.django_db
     def test_signin_post_success(self, client, user):
         url = reverse("users:signin")
-        response = client.post(url, data={"username": "test_case", "password": "jer214TFG2"}, )
+        response = client.post(
+            url,
+            data={"username": "test_case", "password": "jer214TFG2"}
+        )
 
         assert response.status_code in (301, 302)
         assert reverse("lesson:profile") in response.url
-
 
     @pytest.mark.django_db
     def test_signin_redirect_if_already_authenticated(self, client, user):
@@ -39,7 +43,10 @@ class TestSignIn:
     @pytest.mark.django_db
     def test_signin_post_none_valid(self, client):
         url = reverse("users:signin")
-        response = client.post(url, data={"username": "test_case", "password": "123"})
+        response = client.post(
+            url,
+            data={"username": "test_case", "password": "123"}
+        )
 
         assert response.status_code == 200
 
@@ -67,4 +74,3 @@ class SignUp:
 
         assert response.status_code in (301, 302)
         assert reverse("users:signin") in response.url
-
