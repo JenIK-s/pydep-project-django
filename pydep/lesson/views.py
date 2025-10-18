@@ -1,23 +1,60 @@
 import calendar
 from datetime import datetime
+from urllib.parse import urlencode
+from urllib.parse import unquote
 
 from django.contrib.auth.decorators import login_required
-# from django.http import HttpResponse
+from django.db.models.query import QuerySet
 from django.shortcuts import render
 from django.shortcuts import redirect
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
-# from .context_processors.decorators import search_request
-# from .forms import RegisterCourseForm
 from .forms import EditProfile
-# from .forms import CreateLessonForm
 from .models import Course
 from .models import Module
 from .models import Lesson
 from .models import Category
 from .models import UserLessonProgress
 from users.models import CancelledLesson
-# from users.models import RegisterCourse
 from users.models import Schedule
+
+
+def query_params_in_dict(query_params: str) -> dict:
+    query_params = query_params.replace("&", " ").replace("=", " ").split()
+    return {
+        query_params[i]: query_params[i + 1]
+        for i in range(0, len(query_params) - 1, 2)
+    } if query_params else {}
+
+
+def search_course_with_name(
+        name: str,
+        base_queryset: QuerySet = None
+) -> QuerySet:
+    """
+    Поиск курса по имени (регистронезависимо) с использованием Python.
+    Работает с существующим QuerySet.
+    """
+    name = unquote(name).strip()
+    if not name:
+        return base_queryset or Course.objects.all()
+
+    if base_queryset is None:
+        base_queryset = Course.objects.all()
+
+    # Перебираем только объекты из базового QuerySet
+    result = [
+        course for course in base_queryset if name.lower(
+        ) in course.name.lower()
+    ]
+
+    # Создаём новый QuerySet с результатом, сохраняя тип
+    queryset = base_queryset.none()  # пустой QuerySet того же типа
+    queryset |= base_queryset.filter(
+        id__in=[c.id for c in result]
+    )  # добавляем найденные
+    return queryset
 
 
 def index(request):
@@ -42,13 +79,47 @@ def courses_list(request, queryset=None):
     """
     Получение списка всех курсов или курсов по категориям
     """
+    query_params = request.GET.urlencode()
+    query_params_dict = query_params_in_dict(query_params)
+    print("query_params_dict".upper(), query_params_dict)
     categories = Category.objects.all()
-    if queryset is None:
-        context = {'courses': Course.objects.all(), "categories": categories}
+    if request.method == "POST":
+        params = {}
+        category = request.POST.getlist("category")
+
+        if category:
+            if len(category) > 1:
+                params["category"] = ",".join(category)
+                print(2, params)
+            else:
+                params["category"] = "".join(category)
+        q = request.POST.get("q")
+        if q:
+            params["q"] = q
+        url = f"{reverse('lesson:courses')}?{urlencode(params)}"
+        return HttpResponseRedirect(url)
+
+    if not query_params_dict:
+        courses = Course.objects.prefetch_related()
     else:
-        context = {'courses': queryset, "categories": categories}
-    return render(request, template_name='lesson/courses_list.html',
-                  context=context)
+        courses = Course.objects.prefetch_related()
+        q = query_params_dict.get("q")
+        category_param = query_params_dict.get("category")
+        if q:
+            courses = search_course_with_name(q, courses)
+        if category_param:
+            slugs = unquote(category_param).split(",")
+            category_qs = Category.objects.filter(slug__in=slugs)
+
+            courses = courses.filter(category__in=category_qs)
+
+    context = {'courses': courses, "categories": categories}
+
+    return render(
+        request,
+        template_name='lesson/courses_list.html',
+        context=context
+    )
 
 
 @login_required
