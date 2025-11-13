@@ -33,6 +33,10 @@
             overflow: hidden;
         }
 
+        .module-card[data-delay] {
+            animation-delay: calc(var(--delay-index) * 0.1s);
+        }
+
         .module-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
@@ -57,15 +61,124 @@
             color: #6c757d;
         }
 
+        .module-progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        .module-progress-percent {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .module-completed-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .module-in-progress-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #fff3cd;
+            color: #856404;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .module-locked-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #e9ecef;
+            color: #6c757d;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .module-card.locked-module {
+            background-color: #f8f9fa !important;
+            opacity: 0.7;
+            cursor: not-allowed !important;
+            pointer-events: none;
+        }
+
+        .module-card.locked-module:hover {
+            transform: none !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .module-card.locked-module img {
+            filter: grayscale(100%);
+            opacity: 0.5;
+        }
+
+        .module-card.locked-module h5 {
+            color: #6c757d !important;
+        }
+
+        .module-card.locked-module .progress-bar {
+            background: #dee2e6 !important;
+        }
+
         .progress {
-            height: 6px;
-            border-radius: 4px;
+            height: 8px;
+            border-radius: 10px;
             background-color: #e9ecef;
-            margin-top: 4px;
+            margin-top: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .progress-bar {
-            background-color: #000 !important;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
         }
 
         .module-hover-info {
@@ -101,32 +214,77 @@
             animation: fadeInUp 0.6s ease both;
         }
 
-        .circle-progress {
+        .course-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 20px;
+            padding: 40px 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .circle-progress-wrapper {
             display: inline-flex;
             align-items: center;
-            font-weight: 500;
-            font-size: 1.2rem;
-            gap: 8px;
-            color: #333;
+            gap: 15px;
+            margin-left: 20px;
+            padding: 12px 20px;
+            background: #ffffff;
+            border-radius: 50px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .circle-ring {
-            width: 24px;
-            height: 24px;
-            border: 2px solid #000;
-            border-radius: 50%;
+        .circle-progress {
             position: relative;
+            width: 60px;
+            height: 60px;
         }
 
-        .circle-fill {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .circle-progress svg {
+            transform: rotate(-90deg);
             width: 100%;
             height: 100%;
-            clip-path: inset(0 0 calc({{ circle_clip }}%) 0);
-            background-color: #000;
-            border-radius: 50%;
+        }
+
+        .circle-progress-bg {
+            fill: none;
+            stroke: #e9ecef;
+            stroke-width: 6;
+        }
+
+        .circle-progress-fill {
+            fill: none;
+            stroke: url(#progressGradient);
+            stroke-width: 6;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .circle-progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 700;
+            font-size: 1rem;
+            color: #667eea;
+        }
+
+        .progress-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .progress-stats-label {
+            font-size: 0.75rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .progress-stats-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #212529;
         }
 
         @keyframes fadeInUp {
@@ -144,42 +302,103 @@
 
 {% block content %}
     <div class="container">
-        <div class="text-center py-4">
-            <h1 class="fw-bold">
+        <div class="course-header text-center">
+            <h1 class="fw-bold mb-3">
                 {{ course.name }}
-                <span class="circle-progress">
-                    <span class="circle-ring">
-                        <span class="circle-fill"></span>
-                    </span>
-                    {{ total_progress }}%
-                </span>
             </h1>
-            <p class="text-muted">{{ course.description }}</p>
+            <div class="d-flex justify-content-center align-items-center flex-wrap gap-3">
+                <div class="circle-progress-wrapper">
+                    <div class="circle-progress">
+                        <svg viewBox="0 0 36 36">
+                            <defs>
+                                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <circle class="circle-progress-bg" cx="18" cy="18" r="15"></circle>
+                            <circle class="circle-progress-fill" cx="18" cy="18" r="15"
+                                    stroke-dasharray="{{ circle_dasharray|floatformat:1 }} {{ circle_circumference }}"
+                                    stroke-dashoffset="0"></circle>
+                        </svg>
+                        <div class="circle-progress-text">{{ total_progress }}%</div>
+                    </div>
+                    <div class="progress-stats">
+                        <div class="progress-stats-label">Прогресс</div>
+                        <div class="progress-stats-value">{{ total_completed_count }}/{{ total_lessons_count }}</div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-muted mt-4 mb-0">{{ course.description }}</p>
         </div>
 
         {% if modules %}
             <div class="module-grid">
                 {% for module in modules %}
-                    {% with total=module.module.lessons.count completed=module.module.completed_lessons.count %}
+                    {% if module.is_available %}
                         <a href="{% url 'lesson:module_detail' course.name module.module %}"
                            style="text-decoration: none; color: inherit;">
-                            <div class="module-card" style="animation-delay: {{ forloop.counter0|add:"0.1" }}s;">
+                            <div class="module-card" data-delay style="--delay-index: {{ forloop.counter0 }};">
                                 <img src="{{ module.module.image.url|default:'/static/images/placeholder.svg' }}"
                                      alt="{{ module.module.title }}">
                                 <h5>{{ module.module.title }}</h5>
                                 <div class="module-status">
-                                    {% if module.completed %}Пройден{% else %}В процессе{% endif %}
+                                    <div class="module-progress-info">
+                                        <span>
+                                            {{ module.completed_lessons }}/{{ module.total_lessons }}
+                                            {{ module.total_lessons|pluralize_lessons }}
+                                        </span>
+                                        <span class="module-progress-percent">{{ module.progress }}%</span>
+                                    </div>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: {{ module.progress }}%"></div>
                                     </div>
+                                    {% if module.completed %}
+                                        <div class="module-completed-badge">
+                                            <span>✓</span>
+                                            <span>Пройден</span>
+                                        </div>
+                                    {% else %}
+                                        <div class="module-in-progress-badge">
+                                            <span>⟳</span>
+                                            <span>В процессе</span>
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 <div class="module-hover-info">
-                                    {{ module.module.lessons.count|pluralize_lessons }}
+                                    {{ module.total_lessons|pluralize_lessons }}
                                     · {{ module.progress }}%
                                 </div>
                             </div>
                         </a>
-                    {% endwith %}
+                    {% else %}
+                        {# Заблокированный модуль - без ссылки и с серым стилем #}
+                        <div class="module-card locked-module" data-delay style="--delay-index: {{ forloop.counter0 }};">
+                            <img src="{{ module.module.image.url|default:'/static/images/placeholder.svg' }}"
+                                 alt="{{ module.module.title }}">
+                            <h5>{{ module.module.title }}</h5>
+                            <div class="module-status">
+                                <div class="module-progress-info">
+                                    <span>
+                                        {{ module.completed_lessons }}/{{ module.total_lessons }}
+                                        {{ module.total_lessons|pluralize_lessons }}
+                                    </span>
+                                    <span class="module-progress-percent">{{ module.progress }}%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: {{ module.progress }}%"></div>
+                                </div>
+                                <div class="module-locked-badge">
+                                    <span>🔒</span>
+                                    <span>Заблокирован</span>
+                                </div>
+                            </div>
+                            <div class="module-hover-info">
+                                {{ module.total_lessons|pluralize_lessons }}
+                                · {{ module.progress }}%
+                            </div>
+                        </div>
+                    {% endif %}
                 {% endfor %}
             </div>
         {% else %}

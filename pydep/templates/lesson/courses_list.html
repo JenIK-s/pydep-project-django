@@ -23,6 +23,10 @@
             height: 100%;
         }
 
+        .course-card[data-delay] {
+            animation-delay: calc(var(--delay-index) * 0.1s);
+        }
+
         .course-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
@@ -85,30 +89,164 @@
             margin-bottom: 1.5rem;
         }
 
+        .filters-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
         .category-filters {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 30px;
+            gap: 12px;
+            margin-bottom: 25px;
         }
 
-        .category-filters a {
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-size: 0.9rem;
+        .category-filter-item {
+            position: relative;
+        }
+
+        .category-filter-item input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .category-filter-label {
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #495057;
+            background: #ffffff;
+            border: 2px solid #e9ecef;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .category-filter-label:hover {
+            border-color: #6c757d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-filter-item input[type="checkbox"]:checked + .category-filter-label {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .category-filter-item input[type="checkbox"]:checked + .category-filter-label:hover {
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+            transform: translateY(-3px);
+        }
+
+        .reset-filters-btn {
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #6c757d;
+            background: #ffffff;
+            border: 2px solid #e9ecef;
+            border-radius: 50px;
             text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .reset-filters-btn:hover {
+            background: #f8f9fa;
+            border-color: #dee2e6;
+            color: #495057;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 0;
+        }
+
+        .search-input {
+            padding: 16px 20px;
+            padding-left: 50px;
+            font-size: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 50px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50px;
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-btn:hover {
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-50%) translateY(-2px);
+        }
+
+        .search-btn:active {
+            transform: translateY(-50%) translateY(0);
+        }
+
+        .filters-title {
+            font-size: 1.3rem;
+            font-weight: 600;
             color: #212529;
-            transition: 0.3s;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .category-filters a:hover {
-            background-color: #e9ecef;
-        }
+        .filters-title::before {
 
-        .category-filters .active {
-            background-color: #212529;
-            color: #fff;
+            font-size: 1.2rem;
         }
 
         @keyframes fadeInUp {
@@ -139,33 +277,48 @@
 
             <form method="POST">
                 {% csrf_token %}
+                <div class="filters-section">
+                    <div class="filters-title">Фильтры и поиск</div>
 
-                {% if categories %}
+                    {% if categories %}
+                        <div class="category-filters">
+                            {% for cat in categories %}
+                                {% if cat.slug in selected_category_slugs %}
+                                    <div class="category-filter-item">
+                                        <input type="checkbox" id="cat_{{ cat.slug }}" name="category"
+                                               value="{{ cat.slug }}" checked>
+                                        <label for="cat_{{ cat.slug }}" class="category-filter-label">{{ cat.name }}</label>
+                                    </div>
+                                {% else %}
+                                    <div class="category-filter-item">
+                                        <input type="checkbox" id="cat_{{ cat.slug }}" name="category"
+                                               value="{{ cat.slug }}">
+                                        <label for="cat_{{ cat.slug }}" class="category-filter-label">{{ cat.name }}</label>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                            <a href="{% url "lesson:courses" %}" class="reset-filters-btn">
+                                <span>↻</span>
+                                <span>Сбросить</span>
+                            </a>
+                        </div>
+                    {% endif %}
 
-                    <div class="category-filters">
-                        {% for cat in categories %}
-                            <input type="checkbox" class="{% if cat == category %}active{% endif %}" name="category"
-                                   value="{{ cat.slug }}">{{ cat }}
-                        {% endfor %}
-                        <a href="{% url "lesson:courses" %}" class="btn btn-light">Сбросить фильтры</a>
+                    <div class="search-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input type="search" name="q" class="form-control search-input" 
+                               placeholder="Поиск по названию курса..." 
+                               aria-label="Search"
+                               value="{{ request.GET.q|default:'' }}">
+                        <button type="submit" class="search-btn">Найти</button>
                     </div>
-
-                {% endif %}
-
-                <div class="input-group">
-                    <input type="search" name="q" class="form-control rounded" placeholder="Поиск..." aria-label="Search"
-
-                           aria-describedby="search-addon"/>
-{#                    <button type="button" class="btn btn-outline-primary" data-mdb-ripple-init>search</button>#}
-                    <input type="submit" class="btn btn-outline-primary" value="Найти">
                 </div>
-
             </form>
 
             <div class="row gy-4">
                 {% for course in courses %}
                     <div class="col-md-6 col-lg-4 col-xl-3 d-flex">
-                        <div class="course-card w-100" style="animation-delay: {{ forloop.counter0|add:"0.1" }}s;">
+                        <div class="course-card w-100" data-delay style="--delay-index: {{ forloop.counter0 }};">
                             <div class="course-content">
                                 <div class="course-meta">
                                     {{ course.category }} · {{ course.duration|pluralize_months }} · {{ course.level }}

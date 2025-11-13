@@ -99,6 +99,7 @@ def courses_list(request, queryset=None):
         url = f"{reverse('lesson:courses')}?{urlencode(params)}"
         return HttpResponseRedirect(url)
 
+    selected_category_slugs = []
     if not query_params_dict:
         courses = Course.objects.prefetch_related()
     else:
@@ -109,11 +110,16 @@ def courses_list(request, queryset=None):
             courses = search_course_with_name(q, courses)
         if category_param:
             slugs = unquote(category_param).split(",")
+            selected_category_slugs = slugs
             category_qs = Category.objects.filter(slug__in=slugs)
 
             courses = courses.filter(category__in=category_qs)
 
-    context = {'courses': courses, "categories": categories}
+    context = {
+        'courses': courses,
+        "categories": categories,
+        "selected_category_slugs": selected_category_slugs
+    }
 
     return render(
         request,
@@ -132,44 +138,108 @@ def course_detail(request, course_name):
     user_modules = []
 
     # Если в курсе не открыт первый урок, то открываем
-    first_lesson_id = course.modules.all()[0].lessons.all()[0].id
-    user_progress_value_list = UserLessonProgress.objects.filter(
-        user=request.user,
-        course=course
-    ).values_list("lesson_id", flat=True)
-    if first_lesson_id not in user_progress_value_list:
-        UserLessonProgress.objects.create(
-            user=request.user,
-            course=course,
-            module=course.modules.all()[0],
-            lesson=course.modules.all()[0].lessons.all()[0],
-            current=True
-        )
+    course_modules = list(course.modules.all())
+    if course_modules:
+        first_module = course_modules[0]
+        first_module_lessons = list(first_module.lessons.all())
+        if first_module_lessons:
+            first_lesson = first_module_lessons[0]
+            # Проверяем, есть ли уже прогресс по первому уроку
+            first_lesson_exists = UserLessonProgress.objects.filter(
+                user=request.user,
+                course=course,
+                module=first_module,
+                lesson=first_lesson
+            ).exists()
+            
+            if not first_lesson_exists:
+                # Убираем флаг current у всех уроков этого курса
+                UserLessonProgress.objects.filter(
+                    user=request.user,
+                    course=course
+                ).update(current=False)
+                
+                # Создаем первый урок как текущий
+                UserLessonProgress.objects.create(
+                    user=request.user,
+                    course=course,
+                    module=first_module,
+                    lesson=first_lesson,
+                    current=True
+                )
 
     total_lessons_count = 0
     total_completed_count = 0
-    for module in modules_user:
+    course_modules_list = list(course.modules.all())
+    
+    # Используем course_modules_list для правильного порядка модулей
+    for module_index, module in enumerate(course_modules_list):
         lessons = module.lessons.all()
         total_lessons = lessons.count()
         total_lessons_count += total_lessons
 
+        # Фильтруем прогресс по пользователю, курсу, модулю и уроку
         completed_lessons = UserLessonProgress.objects.filter(
             user=request.user,
+            course=course,
+            module=module,
             lesson__in=lessons,
             completed=True
         ).count()
         total_completed_count += completed_lessons
 
-        # Рассчёт прогресса
+        # Рассчёт прогресса модуля
         progress = int(
             (completed_lessons / total_lessons) * 100
         ) if total_lessons > 0 else 0
+
+        # Проверка доступности модуля
+        is_available = False
+        
+        # Первый модуль всегда доступен
+        if module_index == 0:
+            is_available = True
+        else:
+            # Проверяем, пройден ли предыдущий модуль полностью
+            try:
+                prev_module = course_modules_list[module_index - 1]
+                prev_module_lessons = prev_module.lessons.all()
+                prev_completed_lessons = UserLessonProgress.objects.filter(
+                    user=request.user,
+                    course=course,
+                    module=prev_module,
+                    lesson__in=prev_module_lessons,
+                    completed=True
+                ).count()
+                prev_total_lessons = prev_module_lessons.count()
+                
+                # Модуль доступен, если предыдущий модуль полностью пройден
+                if prev_total_lessons > 0 and prev_completed_lessons == prev_total_lessons:
+                    is_available = True
+            except (IndexError, AttributeError):
+                pass
+        
+        # Также модуль доступен, если в нем есть текущий урок
+        if not is_available:
+            has_current_lesson = UserLessonProgress.objects.filter(
+                user=request.user,
+                course=course,
+                module=module,
+                current=True
+            ).exists()
+            if has_current_lesson:
+                is_available = True
 
         user_modules.append({
             'module': module,
             'progress': progress,
             'completed': progress == 100,
+            'completed_lessons': completed_lessons,
+            'total_lessons': total_lessons,
+            'is_available': is_available,
         })
+    
+    # Общий прогресс курса - считаем только уроки этого курса у этого пользователя
     total_progress = int(
         (total_completed_count / total_lessons_count) * 100
     ) if total_lessons_count > 0 else 0
@@ -181,12 +251,19 @@ def course_detail(request, course_name):
     #     }
     #     RegisterCourse.objects.create(**form_data)
     #     return redirect('lesson:profile')
+    # Расчет для SVG кругового прогресса (длина окружности = 2 * π * 15 ≈ 94.25)
+    circle_circumference = 94.25
+    circle_dasharray = (circle_circumference * total_progress / 100) if total_progress > 0 else 0
+    
     context = {
         'course': course,
         'modules': user_modules,
         # 'form': form,
         "total_progress": total_progress,
-        "circle_clip": 100 - total_progress,
+        "total_lessons_count": total_lessons_count,
+        "total_completed_count": total_completed_count,
+        "circle_dasharray": circle_dasharray,
+        "circle_circumference": circle_circumference,
     }
     return render(request, 'lesson/course_detail.html', context)
 
@@ -244,6 +321,42 @@ def module_detail(request, course_name, module_name):
     """
     course = Course.objects.get(name=course_name)
     module = Module.objects.get(title=module_name)
+    
+    # Проверка доступности модуля
+    course_modules_list = list(course.modules.all())
+    try:
+        module_index = course_modules_list.index(module)
+    except ValueError:
+        # Модуль не найден в курсе - редирект на курс
+        return redirect('lesson:course_detail', course_name=course_name)
+    
+    # Первый модуль всегда доступен
+    if module_index > 0:
+        # Проверяем, пройден ли предыдущий модуль полностью
+        prev_module = course_modules_list[module_index - 1]
+        prev_module_lessons = prev_module.lessons.all()
+        prev_completed_lessons = UserLessonProgress.objects.filter(
+            user=request.user,
+            course=course,
+            module=prev_module,
+            lesson__in=prev_module_lessons,
+            completed=True
+        ).count()
+        prev_total_lessons = prev_module_lessons.count()
+        
+        # Если предыдущий модуль не пройден полностью и в текущем модуле нет текущего урока
+        if prev_total_lessons > 0 and prev_completed_lessons != prev_total_lessons:
+            has_current_lesson = UserLessonProgress.objects.filter(
+                user=request.user,
+                course=course,
+                module=module,
+                current=True
+            ).exists()
+            
+            if not has_current_lesson:
+                # Модуль заблокирован - редирект на курс
+                return redirect('lesson:course_detail', course_name=course_name)
+    
     lessons_module = module.lessons.all()
 
     # Если в модуле не открыт первый урок, назначаем его текущим
@@ -265,6 +378,7 @@ def module_detail(request, course_name, module_name):
     for lesson in lessons_module:
         try:
             current_lesson = UserLessonProgress.objects.get(
+                user=request.user,
                 course=course,
                 module=module,
                 lesson=lesson
@@ -292,69 +406,91 @@ def module_detail(request, course_name, module_name):
 @login_required
 def complete_lesson(request, course_name, module_name, lesson_name):
     """
-    Отметка урока как пройденного и открытие следующего не пройденного урока
+    Отметка урока как пройденного и открытие следующего урока.
+    Логика:
+    1. Отмечаем текущий урок как завершенный
+    2. Убираем флаг current у всех уроков этого пользователя в этом курсе
+    3. Открываем следующий урок:
+       - Если есть следующий урок в модуле - открываем его
+       - Если это последний урок в модуле - открываем первый урок следующего модуля
+       - Если это последний урок в последнем модуле - курс завершен
     """
     course = Course.objects.get(name=course_name)
     module = Module.objects.get(title=module_name)
     lesson = Lesson.objects.get(title=lesson_name)
-    # Отметить текущий как завершённый
+    
+    # 1. Отметить текущий урок как завершённый
     progress, created = UserLessonProgress.objects.get_or_create(
         user=request.user,
         course=course,
         module=module,
         lesson=lesson,
-
     )
     progress.completed = True
     progress.current = False
     progress.save()
-    # Найти следующий урок
-    module = Module.objects.get(title=module_name)
-    module_lessons = module.lessons.all()
-    course_modules = course.modules.all()
-    if module.lessons.all().last() == lesson:
-        for i in range(len(course_modules)):
-            if module == course_modules[i] and i + 1 < len(course_modules):
-                next_module = course.modules.all()[i + 1]
-                next_progress, created = (
-                    UserLessonProgress.objects.get_or_create(
-                        user=request.user,
-                        course=course,
-                        module=next_module,
-                        lesson=next_module.lessons.all()[0]
-                    )
-                )
-                next_progress.current = True
-                next_progress.save()
-                return redirect(
-                    'lesson:module_detail',
-                    course_name=course_name,
-                    module_name=module_name
-                )
-
-    for i in range(len(module_lessons) - 1):
-        # Если текущий урок пройден,
-        # а следующего нет в таблице прогресса, то открываем следующий
-        if UserLessonProgress.objects.get(
-                course=course,
-                module=module,
-                lesson=lesson
-        ).completed and UserLessonProgress.objects.filter(
+    
+    # 2. Убрать флаг current у всех уроков этого пользователя в этом курсе
+    UserLessonProgress.objects.filter(
+        user=request.user,
+        course=course
+    ).update(current=False)
+    
+    # 3. Найти следующий урок
+    module_lessons = list(module.lessons.all())
+    course_modules = list(course.modules.all())
+    
+    # Получаем индекс текущего урока в модуле
+    try:
+        current_lesson_index = module_lessons.index(lesson)
+    except ValueError:
+        # Если урока нет в списке, редиректим на модуль
+        return redirect(
+            'lesson:module_detail',
+            course_name=course_name,
+            module_name=module_name
+        )
+    
+    next_module = None
+    next_lesson = None
+    
+    # Проверяем, есть ли следующий урок в текущем модуле
+    if current_lesson_index + 1 < len(module_lessons):
+        # Есть следующий урок в том же модуле
+        next_lesson = module_lessons[current_lesson_index + 1]
+        next_module = module
+    else:
+        # Это последний урок в модуле - ищем следующий модуль
+        try:
+            current_module_index = course_modules.index(module)
+            if current_module_index + 1 < len(course_modules):
+                # Есть следующий модуль
+                next_module = course_modules[current_module_index + 1]
+                next_module_lessons = list(next_module.lessons.all())
+                if next_module_lessons:
+                    next_lesson = next_module_lessons[0]
+        except ValueError:
+            pass
+    
+    # 4. Открыть следующий урок, если он найден
+    if next_lesson and next_module:
+        next_progress, created = UserLessonProgress.objects.get_or_create(
+            user=request.user,
             course=course,
-            module=module,
-            lesson=module_lessons[i + 1]
-        ).first() is None:
-
-            next_progress, created = UserLessonProgress.objects.get_or_create(
-                user=request.user,
-                course=course,
-                module=module,
-                lesson=module_lessons[i + 1]
-            )
-            next_progress.current = True
-            next_progress.save()
-            break
-
+            module=next_module,
+            lesson=next_lesson,
+        )
+        next_progress.current = True
+        next_progress.save()
+        
+        # Редирект на модуль следующего урока
+        return redirect(
+            'lesson:module_detail',
+            course_name=course_name,
+            module_name=next_module.title
+        )
+    
+    # Курс завершен или следующий урок не найден - остаемся в текущем модуле
     return redirect(
         'lesson:module_detail',
         course_name=course_name,
@@ -380,8 +516,8 @@ def profile(request):
     is_student = user.is_student
     result = result.strip()
     result = result.replace(' ', ' & ')
-    learn_courses = user.courses_learn.all()
-    teach_courses = user.courses_teach.all()
+    # learn_courses = user.courses_learn.all()
+    # teach_courses = user.courses_teach.all()
     cancelled_lesson = CancelledLesson.objects.filter(student=request.user)
     cancelled = [elem.date_cancelled.day for elem in cancelled_lesson]
 
@@ -394,8 +530,8 @@ def profile(request):
     month_matrix = calendar.monthcalendar(current_year, current_month)
 
     context = {
-        'learn_courses': learn_courses,
-        'teach_courses': teach_courses,
+        # 'learn_courses': learn_courses,
+        # 'teach_courses': teach_courses,
         'result': result,
         'user': user,
         'is_teacher': is_teacher,

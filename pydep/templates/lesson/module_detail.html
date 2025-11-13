@@ -114,7 +114,7 @@
                 <a href="{% url 'lesson:lesson_detail' course_name=course_name module_name=module_name lesson_name=i.lesson.title %}">
                     <div class="lesson-item">
                         <div class="lesson-number">{{ forloop.counter }}</div>
-                        <div>{{ i.lesson.title }}</div>
+                        <div>{{ i.lesson.title }} {{ i.is_completed }} {{ i.is_current }}</div>
                         <div class="lesson-status {% if i.is_completed %}completed{% else %}in-progress{% endif %}">
                             {% if i.is_completed %}
                                 Пройдено
@@ -128,7 +128,7 @@
                 {# Заблокированный урок - без ссылки и с серым стилем #}
                 <div class="lesson-item locked-lesson">
                     <div class="lesson-number">{{ forloop.counter }}</div>
-                    <div>{{ i.lesson.title }}</div>
+                    <div>{{ i.lesson.title }} {{ i.is_completed }} {{ i.is_current }} </div>
                     <div class="lesson-status locked">Заблокирован</div>
                 </div>
             {% endif %}
