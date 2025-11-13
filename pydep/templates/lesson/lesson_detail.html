@@ -6,13 +6,120 @@
     {{ lesson.title }}
 {% endblock %}
 
+{% block static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        margin-bottom: 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #ffffff !important;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        border: none;
+    }
+    
+    .back-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+    
+    .back-button:active {
+        transform: translateY(0);
+    }
+    
+    .back-button-icon {
+        font-size: 1.1rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .back-button:hover .back-button-icon {
+        transform: translateX(-3px);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-    <div class="container py-5">
+    <div class="container py-4">
+        <a href="{% url "lesson:module_detail" course_name module_name %}" class="back-button">
+            <span class="back-button-icon">←</span>
+            <span>Назад к модулю</span>
+        </a>
         <h2 class="fw-bold mb-4">{{ lesson.title }}</h2>
 
-        <div class="mb-4">
-            {{ lesson.description | safe }}
-        </div>
+        {% if lesson.has_blocks %}
+            {# Отображение блочного контента #}
+            <div id="lesson-blocks" class="mb-4">
+                {% for block in lesson.content_blocks %}
+                    {% if block.type == 'header' %}
+                        <h{{ block.data.level }} class="mb-3">{{ block.data.text }}</h{{ block.data.level }}>
+                    {% elif block.type == 'paragraph' %}
+                        <p class="mb-3">{{ block.data.text }}</p>
+                    {% elif block.type == 'list' %}
+                        <{{ block.data.style }} class="mb-3">
+                            {% for item in block.data.items %}
+                                <li>{{ item }}</li>
+                            {% endfor %}
+                        </{{ block.data.style }}>
+                    {% elif block.type == 'image' %}
+                        <div class="mb-4 text-center">
+                            {% if block.data.file.url %}
+                                <img src="{{ block.data.file.url }}" alt="{{ block.data.caption|default:'' }}" class="img-fluid rounded shadow-sm" style="max-width: 100%; height: auto;">
+                            {% elif block.data.url %}
+                                <img src="{{ block.data.url }}" alt="{{ block.data.caption|default:'' }}" class="img-fluid rounded shadow-sm" style="max-width: 100%; height: auto;">
+                            {% endif %}
+                            {% if block.data.caption %}
+                                <p class="text-muted mt-2"><small>{{ block.data.caption }}</small></p>
+                            {% endif %}
+                        </div>
+                    {% elif block.type == 'code' %}
+                        <pre class="bg-light p-3 rounded mb-3"><code>{{ block.data.code }}</code></pre>
+                    {% elif block.type == 'quote' %}
+                        <blockquote class="blockquote mb-3">
+                            <p>{{ block.data.text }}</p>
+                            {% if block.data.caption %}
+                                <footer class="blockquote-footer">{{ block.data.caption }}</footer>
+                            {% endif %}
+                        </blockquote>
+                    {% elif block.type == 'delimiter' %}
+                        <hr class="my-4">
+                    {% elif block.type == 'table' %}
+                        <table class="table table-bordered mb-3">
+                            {% for row in block.data.content %}
+                                <tr>
+                                    {% for cell in row %}
+                                        <td>{{ cell }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    {% elif block.type == 'checklist' %}
+                        <ul class="list-unstyled mb-3">
+                            {% for item in block.data.items %}
+                                <li>
+                                    <input type="checkbox" {% if item.checked %}checked{% endif %} disabled>
+                                    {{ item.text }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            {# Старый формат с CKEditor #}
+            <div class="mb-4">
+                {{ lesson.description | safe }}
+            </div>
+        {% endif %}
 
         {% if not is_completed %}
         <div class="text-center mt-5">

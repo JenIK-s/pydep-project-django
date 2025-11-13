@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if lesson %}Редактирование урока: {{ lesson.title }}{% else %}Создание нового урока{% endif %}
+{% endblock %}
+
+{% block static %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Editor.js CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest/dist/editor.css">
+<style>
+    .editor-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+    
+    .editor-header {
+        margin-bottom: 30px;
+    }
+    
+    #editorjs {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        min-height: 500px;
+    }
+    
+    .editor-toolbar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-tool {
+        padding: 8px 16px;
+        border: 1px solid #ddd;
+        background: #fff;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .btn-tool:hover {
+        background: #f5f5f5;
+        border-color: #999;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="editor-container">
+        <div class="editor-header">
+            <h1>{% if lesson %}Редактирование урока: {{ lesson.title }}{% else %}Создание нового урока{% endif %}</h1>
+        </div>
+        
+        <form method="POST" id="lesson-form">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="{{ form.title.id_for_label }}" class="form-label">Название урока</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div class="text-danger">{{ form.title.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Контент урока (блочный редактор)</label>
+                <div id="editorjs"></div>
+                <input type="hidden" name="content_blocks_json" id="content-blocks-json" value="{{ form.content_blocks_json.value|default:'' }}">
+            </div>
+            
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">{% if lesson %}Сохранить{% else %}Создать{% endif %}</button>
+                <a href="{% url 'lesson:courses' %}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Editor.js и плагины - используем unpkg CDN для лучшей совместимости -->
+<script src="https://unpkg.com/@editorjs/editorjs@latest"></script>
+<script src="https://unpkg.com/@editorjs/header@latest"></script>
+<script src="https://unpkg.com/@editorjs/list@latest"></script>
+<script src="https://unpkg.com/@editorjs/image@latest"></script>
+<script src="https://unpkg.com/@editorjs/code@latest"></script>
+<script src="https://unpkg.com/@editorjs/quote@latest"></script>
+<script src="https://unpkg.com/@editorjs/delimiter@latest"></script>
+<script src="https://unpkg.com/@editorjs/table@latest"></script>
+<script src="https://unpkg.com/@editorjs/checklist@latest"></script>
+
+<script>
+// Ждем загрузки всех скриптов
+window.addEventListener('load', function() {
+    // Проверка загрузки EditorJS
+    if (typeof EditorJS === 'undefined') {
+        console.error('EditorJS не загружен');
+        document.getElementById('editorjs').innerHTML = '<div class="alert alert-danger">Ошибка загрузки редактора. Проверьте интернет-соединение и обновите страницу.</div>';
+        return;
+    }
+    
+    // Проверка плагинов - они могут быть в window или экспортироваться по-другому
+    // Плагины через unpkg обычно доступны как глобальные переменные
+    let HeaderTool, ListTool, ImageTool, CodeTool, QuoteTool, DelimiterTool, TableTool, ChecklistTool;
+    
+    // Пробуем разные способы доступа к плагинам
+    try {
+        HeaderTool = window.Header || Header;
+        ListTool = window.List || List;
+        ImageTool = window.Image || Image;
+        CodeTool = window.CodeTool || CodeTool;
+        QuoteTool = window.Quote || Quote;
+        DelimiterTool = window.Delimiter || Delimiter;
+        TableTool = window.Table || Table;
+        ChecklistTool = window.Checklist || Checklist;
+    } catch(e) {
+        console.error('Ошибка при получении плагинов:', e);
+    }
+    
+    // Проверяем наличие основных плагинов
+    if (!HeaderTool || !ListTool) {
+        console.error('Плагины Editor.js не загружены', {
+            Header: !!HeaderTool,
+            List: !!ListTool,
+            Image: !!ImageTool,
+            EditorJS: typeof EditorJS,
+            windowKeys: Object.keys(window).filter(k => 
+                k.includes('Editor') || k.includes('Header') || k.includes('List') || 
+                k.includes('Image') || k.includes('Code') || k.includes('Quote')
+            )
+        });
+        document.getElementById('editorjs').innerHTML = '<div class="alert alert-danger">Ошибка загрузки плагинов редактора. Проверьте интернет-соединение и обновите страницу. Откройте консоль браузера (F12) для подробностей.</div>';
+        return;
+    }
+    
+    // Инициализация данных редактора
+    let editorData = [];
+    
+    {% if form.content_blocks_json.value and form.content_blocks_json.value != 'None' %}
+    try {
+        const jsonData = '{{ form.content_blocks_json.value|escapejs }}';
+        if (jsonData && jsonData.trim() !== '') {
+            editorData = JSON.parse(jsonData);
+        }
+    } catch(e) {
+        console.error('Ошибка парсинга JSON:', e);
+        editorData = [];
+    }
+    {% endif %}
+    
+    // Инициализация Editor.js
+    const editorConfig = {
+        holder: 'editorjs',
+        tools: {
+            header: {
+                class: HeaderTool,
+                config: {
+                    placeholder: 'Введите заголовок',
+                    levels: [1, 2, 3, 4],
+                    defaultLevel: 2
+                }
+            },
+            list: {
+                class: ListTool,
+                inlineToolbar: true,
+                config: {
+                    defaultStyle: 'unordered'
+                }
+            },
+            image: {
+                class: ImageTool,
+                config: {
+                    endpoints: {
+                        byFile: '{% url "lesson:upload_image" %}',
+                    },
+                    field: 'image',
+                    types: 'image/*',
+                    captionPlaceholder: 'Подпись к изображению',
+                    buttonContent: 'Выберите изображение',
+                    uploader: {
+                        uploadByFile(file) {
+                            const formData = new FormData();
+                            formData.append('image', file);
+                            
+                            return fetch('{% url "lesson:upload_image" %}', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                                },
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(result => {
+                                if (result.success) {
+                                    return {
+                                        success: 1,
+                                        file: {
+                                            url: result.url
+                                        }
+                                    };
+                                } else {
+                                    return {
+                                        success: 0,
+                                        error: result.error || 'Ошибка загрузки'
+                                    };
+                                }
+                            });
+                        }
+                    }
+                }
+            },
+            code: {
+                class: CodeTool,
+                config: {
+                    placeholder: 'Введите код...',
+                }
+            },
+            quote: {
+                class: QuoteTool,
+                inlineToolbar: true,
+                shortcut: 'CMD+SHIFT+O',
+                config: {
+                    quotePlaceholder: 'Введите цитату',
+                    captionPlaceholder: 'Автор цитаты',
+                }
+            },
+            delimiter: DelimiterTool,
+            table: {
+                class: TableTool,
+                inlineToolbar: true,
+                config: {
+                    rows: 2,
+                    cols: 2,
+                }
+            },
+            checklist: {
+                class: ChecklistTool,
+                inlineToolbar: true,
+            }
+        },
+        placeholder: 'Начните вводить текст или нажмите "/" для выбора блока...',
+    };
+    
+    // Добавляем данные, если они есть
+    if (editorData.length > 0) {
+        editorConfig.data = {
+            blocks: editorData
+        };
+    }
+    
+    // Инициализируем редактор
+    let editor;
+    try {
+        editor = new EditorJS(editorConfig);
+        
+        // Обработка отправки формы
+        document.getElementById('lesson-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            editor.save().then((outputData) => {
+                // Сохраняем данные в скрытое поле
+                document.getElementById('content-blocks-json').value = JSON.stringify(outputData.blocks);
+                
+                // Отправляем форму
+                this.submit();
+            }).catch((error) => {
+                console.error('Ошибка сохранения:', error);
+                alert('Ошибка при сохранении контента. Попробуйте еще раз.');
+            });
+        });
+    } catch (error) {
+        console.error('Ошибка инициализации Editor.js:', error);
+        alert('Ошибка инициализации редактора: ' + error.message);
+    }
+});
+</script>
+{% endblock %}
+

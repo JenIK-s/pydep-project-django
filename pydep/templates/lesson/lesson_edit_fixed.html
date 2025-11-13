@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if lesson %}Редактирование урока: {{ lesson.title }}{% else %}Создание нового урока{% endif %}
+{% endblock %}
+
+{% block static %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Editor.js CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest/dist/editor.css">
+<style>
+    .editor-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+    
+    .editor-header {
+        margin-bottom: 30px;
+    }
+    
+    #editorjs {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        min-height: 500px;
+    }
+    
+    .editor-loading {
+        text-align: center;
+        padding: 40px;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="editor-container">
+        <div class="editor-header">
+            <h1>{% if lesson %}Редактирование урока: {{ lesson.title }}{% else %}Создание нового урока{% endif %}</h1>
+        </div>
+        
+        <form method="POST" id="lesson-form">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="{{ form.title.id_for_label }}" class="form-label">Название урока</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div class="text-danger">{{ form.title.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Контент урока (блочный редактор)</label>
+                <div id="editorjs">
+                    <div class="editor-loading">Загрузка редактора...</div>
+                </div>
+                <input type="hidden" name="content_blocks_json" id="content-blocks-json" value="{{ form.content_blocks_json.value|default:'' }}">
+            </div>
+            
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">{% if lesson %}Сохранить{% else %}Создать{% endif %}</button>
+                <a href="{% url 'lesson:courses' %}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Editor.js и плагины - используем правильные пути -->
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.27.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2.7.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@1.9.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/image@2.8.1/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/code@2.8.1/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@2.6.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@1.3.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/table@2.2.2/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/checklist@1.5.0/dist/bundle.js"></script>
+
+<script>
+(function() {
+    'use strict';
+    
+    // Ждем полной загрузки страницы
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initEditor);
+    } else {
+        initEditor();
+    }
+    
+    function initEditor() {
+        // Проверяем наличие EditorJS
+        if (typeof EditorJS === 'undefined') {
+            document.getElementById('editorjs').innerHTML = 
+                '<div class="alert alert-danger">Ошибка: EditorJS не загружен. Проверьте интернет-соединение.</div>';
+            return;
+        }
+        
+        // Получаем плагины - они должны быть доступны глобально после загрузки скриптов
+        const tools = {};
+        
+        // Пробуем получить плагины разными способами
+        if (typeof Header !== 'undefined') {
+            tools.header = {
+                class: Header,
+                config: {
+                    placeholder: 'Введите заголовок',
+                    levels: [1, 2, 3, 4],
+                    defaultLevel: 2
+                }
+            };
+        }
+        
+        if (typeof List !== 'undefined') {
+            tools.list = {
+                class: List,
+                inlineToolbar: true,
+                config: {
+                    defaultStyle: 'unordered'
+                }
+            };
+        }
+        
+        if (typeof Image !== 'undefined') {
+            tools.image = {
+                class: Image,
+                config: {
+                    uploader: {
+                        uploadByFile(file) {
+                            const formData = new FormData();
+                            formData.append('image', file);
+                            
+                            return fetch('{% url "lesson:upload_image" %}', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                                },
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(result => {
+                                if (result.success) {
+                                    return {
+                                        success: 1,
+                                        file: {
+                                            url: result.url
+                                        }
+                                    };
+                                }
+                                return {
+                                    success: 0,
+                                    error: result.error || 'Ошибка загрузки'
+                                };
+                            });
+                        }
+                    }
+                }
+            };
+        }
+        
+        if (typeof CodeTool !== 'undefined') {
+            tools.code = {
+                class: CodeTool,
+                config: {
+                    placeholder: 'Введите код...',
+                }
+            };
+        }
+        
+        if (typeof Quote !== 'undefined') {
+            tools.quote = {
+                class: Quote,
+                inlineToolbar: true,
+                config: {
+                    quotePlaceholder: 'Введите цитату',
+                    captionPlaceholder: 'Автор цитаты',
+                }
+            };
+        }
+        
+        if (typeof Delimiter !== 'undefined') {
+            tools.delimiter = Delimiter;
+        }
+        
+        if (typeof Table !== 'undefined') {
+            tools.table = {
+                class: Table,
+                inlineToolbar: true,
+                config: {
+                    rows: 2,
+                    cols: 2,
+                }
+            };
+        }
+        
+        if (typeof Checklist !== 'undefined') {
+            tools.checklist = {
+                class: Checklist,
+                inlineToolbar: true,
+            };
+        }
+        
+        // Проверяем, что есть хотя бы базовые инструменты
+        if (Object.keys(tools).length === 0) {
+            document.getElementById('editorjs').innerHTML = 
+                '<div class="alert alert-danger">Ошибка: Плагины Editor.js не загружены. Проверьте интернет-соединение и обновите страницу.</div>';
+            console.error('Доступные глобальные переменные:', Object.keys(window).filter(k => 
+                k.includes('Editor') || k.includes('Header') || k.includes('List')
+            ));
+            return;
+        }
+        
+        // Инициализация данных
+        let editorData = [];
+        const jsonInput = document.getElementById('content-blocks-json');
+        
+        if (jsonInput && jsonInput.value && jsonInput.value.trim() !== '' && jsonInput.value !== 'None') {
+            try {
+                editorData = JSON.parse(jsonInput.value);
+            } catch(e) {
+                console.error('Ошибка парсинга JSON:', e);
+                editorData = [];
+            }
+        }
+        
+        // Конфигурация редактора
+        const editorConfig = {
+            holder: 'editorjs',
+            tools: tools,
+            placeholder: 'Начните вводить текст или нажмите "/" для выбора блока...',
+        };
+        
+        // Добавляем данные, если они есть
+        if (editorData.length > 0) {
+            editorConfig.data = {
+                blocks: editorData
+            };
+        }
+        
+        // Инициализируем редактор
+        let editor;
+        try {
+            editor = new EditorJS(editorConfig);
+            
+            // Обработка отправки формы
+            document.getElementById('lesson-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                editor.save().then((outputData) => {
+                    // Сохраняем данные в скрытое поле
+                    document.getElementById('content-blocks-json').value = JSON.stringify(outputData.blocks);
+                    
+                    // Отправляем форму
+                    this.submit();
+                }).catch((error) => {
+                    console.error('Ошибка сохранения:', error);
+                    alert('Ошибка при сохранении контента. Попробуйте еще раз.');
+                });
+            });
+        } catch (error) {
+            console.error('Ошибка инициализации Editor.js:', error);
+            document.getElementById('editorjs').innerHTML = 
+                '<div class="alert alert-danger">Ошибка инициализации редактора: ' + error.message + '</div>';
+        }
+    }
+})();
+</script>
+{% endblock %}
+

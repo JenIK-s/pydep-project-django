@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block static %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
     .lesson-list {
         max-width: 700px;
@@ -99,11 +99,52 @@
         text-decoration: none;
         color: inherit;
     }
+    
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        margin-bottom: 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #ffffff !important;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        border: none;
+    }
+    
+    .back-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+    
+    .back-button:active {
+        transform: translateY(0);
+    }
+    
+    .back-button-icon {
+        font-size: 1.1rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .back-button:hover .back-button-icon {
+        transform: translateX(-3px);
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container py-4">
+    <a href="{% url "lesson:course_detail" course_name %}" class="back-button">
+        <span class="back-button-icon">←</span>
+        <span>Назад к курсу</span>
+    </a>
     <div class="text-center py-4">
         <h1 class="fw-bold">{{ module_name }}</h1>
     </div>

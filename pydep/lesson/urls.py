@@ -12,6 +12,9 @@ from .views import profile_edit
 
 from .views import category_detail
 from .views import complete_lesson
+from .views import lesson_edit
+from .views import lesson_create
+from .views import upload_image
 
 app_name = 'lesson'
 urlpatterns = [
@@ -71,6 +74,21 @@ urlpatterns = [
         '<str:course_name>/<str:module_name>/<str:lesson_name>/complete/',
         complete_lesson,
         name='complete_lesson'
+    ),
+    path(
+        'lesson/create/',
+        lesson_create,
+        name='lesson_create'
+    ),
+    path(
+        'lesson/<int:lesson_id>/edit/',
+        lesson_edit,
+        name='lesson_edit'
+    ),
+    path(
+        'upload-image/',
+        upload_image,
+        name='upload_image'
     ),
 
 ]

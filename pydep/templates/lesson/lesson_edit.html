@@ -1,0 +1,429 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if lesson %}Редактирование урока: {{ lesson.title }}{% else %}Создание нового урока{% endif %}
+{% endblock %}
+
+{% block static %}
+<!-- Editor.js CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest/dist/editor.css">
+<style>
+    .editor-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+    
+    .editor-header {
+        margin-bottom: 30px;
+    }
+    
+    #editorjs {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        min-height: 500px;
+    }
+    
+    .editor-loading {
+        text-align: center;
+        padding: 40px;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="editor-container">
+        <div class="editor-header">
+            <h1>{% if lesson %}Редактирование урока: {{ lesson.title }}{% else %}Создание нового урока{% endif %}</h1>
+        </div>
+        
+        <form method="POST" id="lesson-form">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="{{ form.title.id_for_label }}" class="form-label">Название урока</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div class="text-danger">{{ form.title.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Контент урока (блочный редактор)</label>
+                <div id="editorjs">
+                    <div class="editor-loading">Загрузка редактора...</div>
+                </div>
+                <input type="hidden" name="content_blocks_json" id="content-blocks-json" value="{{ form.content_blocks_json.value|default:'' }}">
+            </div>
+            
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">{% if lesson %}Сохранить{% else %}Создать{% endif %}</button>
+                <a href="{% url 'lesson:courses' %}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Editor.js и плагины -->
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.27.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2.7.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@1.9.0/dist/bundle.js"></script>
+<!-- Image плагин - используем unpkg для лучшей совместимости -->
+<script src="https://unpkg.com/@editorjs/image@2.8.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/code@2.8.1/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@2.6.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@1.3.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/table@2.2.2/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/checklist@1.5.0/dist/bundle.js"></script>
+
+<script>
+(function() {
+    'use strict';
+    
+    // Ждем загрузки всех скриптов перед инициализацией
+    function waitForScripts(callback, maxAttempts = 50) {
+        let attempts = 0;
+        const checkInterval = setInterval(function() {
+            attempts++;
+            if (typeof EditorJS !== 'undefined' && 
+                (typeof Header !== 'undefined' || typeof List !== 'undefined')) {
+                clearInterval(checkInterval);
+                callback();
+            } else if (attempts >= maxAttempts) {
+                clearInterval(checkInterval);
+                console.error('Таймаут загрузки скриптов Editor.js');
+                callback(); // Все равно пытаемся инициализировать
+            }
+        }, 100);
+    }
+    
+    // Ждем полной загрузки страницы и скриптов
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            waitForScripts(initEditor);
+        });
+    } else {
+        waitForScripts(initEditor);
+    }
+    
+    function initEditor() {
+        // Проверяем наличие EditorJS
+        if (typeof EditorJS === 'undefined') {
+            document.getElementById('editorjs').innerHTML = 
+                '<div class="alert alert-danger">Ошибка: EditorJS не загружен. Проверьте интернет-соединение.</div>';
+            return;
+        }
+        
+        // Получаем плагины - они должны быть доступны глобально после загрузки скриптов
+        const tools = {};
+        
+        // Пробуем получить плагины разными способами
+        if (typeof Header !== 'undefined') {
+            tools.header = {
+                class: Header,
+                config: {
+                    placeholder: 'Введите заголовок',
+                    levels: [1, 2, 3, 4],
+                    defaultLevel: 2
+                }
+            };
+        }
+        
+        if (typeof List !== 'undefined') {
+            tools.list = {
+                class: List,
+                inlineToolbar: true,
+                config: {
+                    defaultStyle: 'unordered'
+                }
+            };
+        }
+        
+        // Пробуем разные варианты имени для Image плагина
+        // Плагин Image может экспортироваться по-разному в зависимости от формата bundle
+        let ImageTool = null;
+        
+        // Проверяем разные варианты экспорта
+        // Через unpkg плагин обычно экспортируется как ImageTool или доступен через window
+        if (typeof window.ImageTool !== 'undefined') {
+            ImageTool = window.ImageTool;
+            console.log('Image плагин найден как window.ImageTool');
+        } else if (typeof ImageTool !== 'undefined') {
+            ImageTool = ImageTool;
+            console.log('Image плагин найден как ImageTool');
+        } else {
+            // Пробуем найти в глобальных переменных после загрузки
+            const possibleNames = ['ImageTool', 'ImageBlock', 'EditorImage'];
+            // Для Image проверяем отдельно, так как это встроенный объект браузера
+            if (typeof window.Image !== 'undefined' && 
+                typeof window.Image === 'function' &&
+                window.Image.toString().includes('ImageTool')) {
+                ImageTool = window.Image;
+                console.log('Image плагин найден как window.Image (переопределен)');
+            } else {
+                for (const name of possibleNames) {
+                    if (typeof window[name] !== 'undefined' && 
+                        typeof window[name] === 'function') {
+                        ImageTool = window[name];
+                        console.log('Image плагин найден как window.' + name);
+                        break;
+                    }
+                }
+            }
+            
+            // Если не нашли, ищем по паттерну
+            if (!ImageTool) {
+                const globalKeys = Object.keys(window).filter(k => 
+                    (k.toLowerCase().includes('image') || k.includes('ImageTool')) && 
+                    k !== 'Image' && 
+                    typeof window[k] === 'function' &&
+                    window[k].prototype &&
+                    window[k].prototype.constructor
+                );
+                if (globalKeys.length > 0) {
+                    ImageTool = window[globalKeys[0]];
+                    console.log('Image плагин найден как:', globalKeys[0]);
+                }
+            }
+        }
+        
+        if (ImageTool) {
+            tools.image = {
+                class: ImageTool,
+                config: {
+                    endpoints: {
+                        byFile: '{% url "lesson:upload_image" %}',
+                    },
+                    field: 'image',
+                    types: 'image/*',
+                    captionPlaceholder: 'Подпись к изображению',
+                    buttonContent: 'Выберите изображение',
+                    uploader: {
+                        uploadByFile(file) {
+                            // Проверка размера файла на клиенте (максимум 10 МБ)
+                            const maxSize = 10 * 1024 * 1024; // 10 МБ
+                            if (file.size > maxSize) {
+                                return Promise.resolve({
+                                    success: 0,
+                                    error: 'Файл слишком большой. Максимальный размер: 10 МБ'
+                                });
+                            }
+                            
+                            // Проверка типа файла
+                            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                            if (!allowedTypes.includes(file.type)) {
+                                return Promise.resolve({
+                                    success: 0,
+                                    error: 'Неподдерживаемый формат. Разрешены: JPG, PNG, GIF, WebP'
+                                });
+                            }
+                            
+                            // Показываем индикатор загрузки
+                            const loadingMessage = document.createElement('div');
+                            loadingMessage.className = 'alert alert-info';
+                            loadingMessage.textContent = 'Загрузка изображения...';
+                            const editorElement = document.getElementById('editorjs');
+                            if (editorElement) {
+                                editorElement.appendChild(loadingMessage);
+                            }
+                            
+                            const formData = new FormData();
+                            formData.append('image', file);
+                            
+                            return fetch('{% url "lesson:upload_image" %}', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                                },
+                                body: formData
+                            })
+                            .then(response => {
+                                // Убираем индикатор загрузки
+                                if (loadingMessage.parentNode) {
+                                    loadingMessage.parentNode.removeChild(loadingMessage);
+                                }
+                                
+                                if (!response.ok) {
+                                    return response.json().then(err => {
+                                        throw new Error(err.error || 'Ошибка загрузки');
+                                    });
+                                }
+                                return response.json();
+                            })
+                            .then(result => {
+                                if (result.success === 1) {
+                                    return {
+                                        success: 1,
+                                        file: {
+                                            url: result.url
+                                        }
+                                    };
+                                }
+                                return {
+                                    success: 0,
+                                    error: result.error || 'Ошибка загрузки'
+                                };
+                            })
+                            .catch(error => {
+                                // Убираем индикатор загрузки при ошибке
+                                if (loadingMessage.parentNode) {
+                                    loadingMessage.parentNode.removeChild(loadingMessage);
+                                }
+                                console.error('Ошибка загрузки изображения:', error);
+                                return {
+                                    success: 0,
+                                    error: error.message || 'Ошибка при загрузке изображения'
+                                };
+                            });
+                        },
+                        uploadByUrl(url) {
+                            // Опционально: загрузка по URL
+                            return Promise.resolve({
+                                success: 1,
+                                file: {
+                                    url: url
+                                }
+                            });
+                        }
+                    }
+                }
+            };
+        }
+        
+        if (typeof CodeTool !== 'undefined') {
+            tools.code = {
+                class: CodeTool,
+                config: {
+                    placeholder: 'Введите код...',
+                }
+            };
+        }
+        
+        if (typeof Quote !== 'undefined') {
+            tools.quote = {
+                class: Quote,
+                inlineToolbar: true,
+                config: {
+                    quotePlaceholder: 'Введите цитату',
+                    captionPlaceholder: 'Автор цитаты',
+                }
+            };
+        }
+        
+        if (typeof Delimiter !== 'undefined') {
+            tools.delimiter = Delimiter;
+        }
+        
+        if (typeof Table !== 'undefined') {
+            tools.table = {
+                class: Table,
+                inlineToolbar: true,
+                config: {
+                    rows: 2,
+                    cols: 2,
+                }
+            };
+        }
+        
+        if (typeof Checklist !== 'undefined') {
+            tools.checklist = {
+                class: Checklist,
+                inlineToolbar: true,
+            };
+        }
+        
+        // Отладочная информация о загруженных плагинах
+        console.log('Загруженные плагины:', {
+            Header: typeof Header,
+            List: typeof List,
+            Image: typeof Image,
+            ImageTool: typeof ImageTool,
+            CodeTool: typeof CodeTool,
+            Quote: typeof Quote,
+            Delimiter: typeof Delimiter,
+            Table: typeof Table,
+            Checklist: typeof Checklist,
+            toolsCount: Object.keys(tools).length,
+            availableTools: Object.keys(tools),
+            hasImageTool: !!tools.image
+        });
+        
+        // Проверяем, что есть хотя бы базовые инструменты
+        if (Object.keys(tools).length === 0) {
+            document.getElementById('editorjs').innerHTML = 
+                '<div class="alert alert-danger">Ошибка: Плагины Editor.js не загружены. Проверьте интернет-соединение и обновите страницу.</div>';
+            console.error('Доступные глобальные переменные:', Object.keys(window).filter(k => 
+                k.includes('Editor') || k.includes('Header') || k.includes('List') || 
+                k.includes('Image') || k.includes('Code') || k.includes('Quote')
+            ));
+            return;
+        }
+        
+        // Если Image не загружен, но другие плагины есть - предупреждение
+        if (!tools.image) {
+            console.warn('Плагин Image не загружен. Проверьте консоль для подробностей.');
+        }
+        
+        // Инициализация данных
+        let editorData = [];
+        const jsonInput = document.getElementById('content-blocks-json');
+        
+        if (jsonInput && jsonInput.value && jsonInput.value.trim() !== '' && jsonInput.value !== 'None') {
+            try {
+                editorData = JSON.parse(jsonInput.value);
+            } catch(e) {
+                console.error('Ошибка парсинга JSON:', e);
+                editorData = [];
+            }
+        }
+        
+        // Конфигурация редактора
+        const editorConfig = {
+            holder: 'editorjs',
+            tools: tools,
+            placeholder: 'Начните вводить текст или нажмите "/" для выбора блока...',
+        };
+        
+        // Добавляем данные, если они есть
+        if (editorData.length > 0) {
+            editorConfig.data = {
+                blocks: editorData
+            };
+        }
+        
+        // Инициализируем редактор
+        let editor;
+        try {
+            editor = new EditorJS(editorConfig);
+            
+            // Обработка отправки формы
+            document.getElementById('lesson-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                editor.save().then((outputData) => {
+                    // Сохраняем данные в скрытое поле
+                    document.getElementById('content-blocks-json').value = JSON.stringify(outputData.blocks);
+                    
+                    // Отправляем форму
+                    this.submit();
+                }).catch((error) => {
+                    console.error('Ошибка сохранения:', error);
+                    alert('Ошибка при сохранении контента. Попробуйте еще раз.');
+                });
+            });
+        } catch (error) {
+            console.error('Ошибка инициализации Editor.js:', error);
+            document.getElementById('editorjs').innerHTML = 
+                '<div class="alert alert-danger">Ошибка инициализации редактора: ' + error.message + '</div>';
+        }
+    }
+})();
+</script>
+{% endblock %}
+

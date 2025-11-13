@@ -2,6 +2,7 @@ from django_ckeditor_5.fields import CKEditor5Field
 from django.db import models
 from django.utils.text import slugify
 from transliterate import translit
+import json
 
 
 class Category(models.Model):
@@ -32,7 +33,14 @@ class Category(models.Model):
 
 class Lesson(models.Model):
     title = models.CharField(max_length=255)
-    description = CKEditor5Field('Text', config_name='extends')
+    description = CKEditor5Field('Text', config_name='extends', blank=True, null=True)
+    # Блочный контент урока - массив блоков в формате Editor.js
+    content_blocks = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name='Блоки контента',
+        help_text='Структурированный контент урока в формате блоков'
+    )
 
     class Meta:
         verbose_name = 'Урок'
@@ -40,6 +48,10 @@ class Lesson(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def has_blocks(self):
+        """Проверяет, есть ли блоки контента"""
+        return bool(self.content_blocks and len(self.content_blocks) > 0)
 
 
 class Module(models.Model):
