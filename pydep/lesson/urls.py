@@ -7,16 +7,15 @@ from .views import lesson_detail
 from .views import profile
 from .views import module_detail
 from .views import profile_edit
-# from .views import register_course_admin
-# from .views import register_course
-
 from .views import category_detail
 from .views import complete_lesson
-from .views import lesson_edit
-from .views import lesson_create
-from .views import upload_image
+# from .views import lesson_edit
+# from .views import lesson_create
+# from .views import upload_image
+from .views import course_editor
 
 app_name = 'lesson'
+
 urlpatterns = [
     path(
         '',
@@ -38,8 +37,6 @@ urlpatterns = [
         courses_list,
         name='courses'
     ),
-    # pat
-    # h("tutor/", tutor_students, name="tutor"),
     path(
         'course/<str:course_name>/',
         course_detail,
@@ -59,36 +56,24 @@ urlpatterns = [
         lesson_detail,
         name='lesson_detail'
     ),
-
-    # path(
-    #     'courses/register_course_admin/',
-    #     register_course_admin,
-    #     name='register_course_admin'
-    # ),
-    # path(
-    #     'courses/register_course/',
-    #     register_course,
-    #     name='register_course'
-    # ),
     path(
         '<str:course_name>/<str:module_name>/<str:lesson_name>/complete/',
         complete_lesson,
         name='complete_lesson'
     ),
-    path(
-        'lesson/create/',
-        lesson_create,
-        name='lesson_create'
-    ),
-    path(
-        'lesson/<int:lesson_id>/edit/',
-        lesson_edit,
-        name='lesson_edit'
-    ),
-    path(
-        'upload-image/',
-        upload_image,
-        name='upload_image'
-    ),
-
+    # path(
+    #     'lesson/create/',
+    #     lesson_create,
+    #     name='lesson_create'
+    # ),
+    # path(
+    #     'lesson/<int:lesson_id>/edit/',
+    #     lesson_edit,
+    #     name='lesson_edit'
+    # ),
+    # path(
+    #     'upload-image/',
+    #     upload_image,
+    #     name='upload_image'
+    # ),
 ]

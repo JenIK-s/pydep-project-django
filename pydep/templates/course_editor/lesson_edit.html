@@ -198,7 +198,7 @@
                 class: ImageTool,
                 config: {
                     endpoints: {
-                        byFile: '{% url "lesson:upload_image" %}',
+                        byFile: '{% url "course_editor:upload_image" %}',
                     },
                     field: 'image',
                     types: 'image/*',
@@ -236,7 +236,7 @@
                             const formData = new FormData();
                             formData.append('image', file);
                             
-                            return fetch('{% url "lesson:upload_image" %}', {
+                            return fetch('{% url "course_editor:upload_image" %}', {
                                 method: 'POST',
                                 headers: {
                                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value

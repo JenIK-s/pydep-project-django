@@ -7,6 +7,9 @@
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 small fw-bolder">
+                        {% if user.is_staff %}
+                            <li class="nav-item"><a class="nav-link {% if view_name  == 'lesson:courses' %}active{% endif %}" href={% url "course_editor:main" %}>Редактор курсов</a></li>
+                        {% endif %}
                             <li class="nav-item"><a class="nav-link {% if view_name  == 'lesson:courses' %}active{% endif %}" href={% url "lesson:courses" %}>Курсы</a></li>
                         <li class="nav-item"><a class="nav-link {% if view_name  == 'tutor:projectbox' %}active{% endif %}" href={% url "tutor:my_tutor" %}>Мой репетитор</a></li>
                             {% if user.is_authenticated %}

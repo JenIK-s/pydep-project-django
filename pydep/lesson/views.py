@@ -14,7 +14,7 @@ from django.views.decorators.http import require_http_methods
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 
-from .forms import EditProfile, CreateLessonForm
+from .forms import EditProfile
 from .models import Course
 from .models import Module
 from .models import Lesson
@@ -551,113 +551,113 @@ def profile(request):
     return render(request, 'lesson/profile.html', context)
 
 
-@login_required
-@require_http_methods(["GET", "POST"])
-def upload_image(request):
-    """
-    Endpoint для загрузки изображений в Editor.js
-    """
-    if request.method == 'POST':
-        if 'image' not in request.FILES:
-            return JsonResponse({'success': 0, 'error': 'Файл не найден'}, status=400)
-        
-        image_file = request.FILES['image']
-        
-        # Проверка типа файла
-        allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
-        if image_file.content_type not in allowed_types:
-            return JsonResponse({
-                'success': 0, 
-                'error': 'Неподдерживаемый формат изображения. Разрешены: JPG, PNG, GIF, WebP'
-            }, status=400)
-        
-        # Проверка размера файла (максимум 10 МБ)
-        max_size = 10 * 1024 * 1024  # 10 МБ
-        if image_file.size > max_size:
-            return JsonResponse({
-                'success': 0,
-                'error': f'Файл слишком большой. Максимальный размер: 10 МБ'
-            }, status=400)
-        
-        # Сохранение файла
-        try:
-            # Генерируем уникальное имя файла
-            file_extension = image_file.name.split('.')[-1] if '.' in image_file.name else 'jpg'
-            unique_filename = f"{uuid.uuid4().hex}.{file_extension}"
-            
-            # Создаем путь с датой для организации файлов
-            date_path = datetime.now().strftime('%Y/%m/%d')
-            file_path = default_storage.save(
-                f'editorjs/{date_path}/{unique_filename}',
-                ContentFile(image_file.read())
-            )
-            
-            # Получаем URL файла
-            file_url = default_storage.url(file_path)
-            
-            # Убеждаемся, что URL начинается с правильного пути
-            if not file_url.startswith('http') and not file_url.startswith('/'):
-                file_url = '/' + file_url.lstrip('/')
-            
-            return JsonResponse({
-                'success': 1,
-                'url': file_url
-            })
-        except Exception as e:
-            import traceback
-            print(f"Ошибка загрузки изображения: {e}")
-            print(traceback.format_exc())
-            return JsonResponse({
-                'success': 0,
-                'error': f'Ошибка при сохранении файла: {str(e)}'
-            }, status=500)
-    
-    return JsonResponse({'success': 0, 'error': 'Метод не разрешен'}, status=405)
-
-
-@login_required
-def lesson_create(request):
-    """
-    Создание нового урока с блочным редактором
-    """
-    if request.method == 'POST':
-        form = CreateLessonForm(request.POST)
-        if form.is_valid():
-            lesson = form.save()
-            return redirect('lesson:lesson_edit', lesson_id=lesson.id)
-    else:
-        form = CreateLessonForm()
-    
-    context = {
-        'form': form,
-        'lesson': None,
-    }
-    return render(request, 'lesson/lesson_edit.html', context)
-
-
-@login_required
-def lesson_edit(request, lesson_id):
-    """
-    Редактирование урока с блочным редактором
-    """
-    try:
-        lesson = Lesson.objects.get(id=lesson_id)
-    except Lesson.DoesNotExist:
-        return redirect('lesson:courses')
-    
-    if request.method == 'POST':
-        form = CreateLessonForm(request.POST, instance=lesson)
-        if form.is_valid():
-            form.save()
-            return redirect('lesson:courses')
-    else:
-        form = CreateLessonForm(instance=lesson)
-    
-    context = {
-        'form': form,
-        'lesson': lesson,
-    }
-    return render(request, 'lesson/lesson_edit.html', context)
+# @login_required
+# @require_http_methods(["GET", "POST"])
+# def upload_image(request):
+#     """
+#     Endpoint для загрузки изображений в Editor.js
+#     """
+#     if request.method == 'POST':
+#         if 'image' not in request.FILES:
+#             return JsonResponse({'success': 0, 'error': 'Файл не найден'}, status=400)
+#
+#         image_file = request.FILES['image']
+#
+#         # Проверка типа файла
+#         allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+#         if image_file.content_type not in allowed_types:
+#             return JsonResponse({
+#                 'success': 0,
+#                 'error': 'Неподдерживаемый формат изображения. Разрешены: JPG, PNG, GIF, WebP'
+#             }, status=400)
+#
+#         # Проверка размера файла (максимум 10 МБ)
+#         max_size = 10 * 1024 * 1024  # 10 МБ
+#         if image_file.size > max_size:
+#             return JsonResponse({
+#                 'success': 0,
+#                 'error': f'Файл слишком большой. Максимальный размер: 10 МБ'
+#             }, status=400)
+#
+#         # Сохранение файла
+#         try:
+#             # Генерируем уникальное имя файла
+#             file_extension = image_file.name.split('.')[-1] if '.' in image_file.name else 'jpg'
+#             unique_filename = f"{uuid.uuid4().hex}.{file_extension}"
+#
+#             # Создаем путь с датой для организации файлов
+#             date_path = datetime.now().strftime('%Y/%m/%d')
+#             file_path = default_storage.save(
+#                 f'editorjs/{date_path}/{unique_filename}',
+#                 ContentFile(image_file.read())
+#             )
+#
+#             # Получаем URL файла
+#             file_url = default_storage.url(file_path)
+#
+#             # Убеждаемся, что URL начинается с правильного пути
+#             if not file_url.startswith('http') and not file_url.startswith('/'):
+#                 file_url = '/' + file_url.lstrip('/')
+#
+#             return JsonResponse({
+#                 'success': 1,
+#                 'url': file_url
+#             })
+#         except Exception as e:
+#             import traceback
+#             print(f"Ошибка загрузки изображения: {e}")
+#             print(traceback.format_exc())
+#             return JsonResponse({
+#                 'success': 0,
+#                 'error': f'Ошибка при сохранении файла: {str(e)}'
+#             }, status=500)
+#
+#     return JsonResponse({'success': 0, 'error': 'Метод не разрешен'}, status=405)
+#
+#
+# @login_required
+# def lesson_create(request):
+#     """
+#     Создание нового урока с блочным редактором
+#     """
+#     if request.method == 'POST':
+#         form = CreateLessonForm(request.POST)
+#         if form.is_valid():
+#             lesson = form.save()
+#             return redirect('lesson:lesson_edit', lesson_id=lesson.id)
+#     else:
+#         form = CreateLessonForm()
+#
+#     context = {
+#         'form': form,
+#         'lesson': None,
+#     }
+#     return render(request, 'lesson/lesson_edit.html', context)
+#
+#
+# @login_required
+# def lesson_edit(request, lesson_id):
+#     """
+#     Редактирование урока с блочным редактором
+#     """
+#     try:
+#         lesson = Lesson.objects.get(id=lesson_id)
+#     except Lesson.DoesNotExist:
+#         return redirect('lesson:courses')
+#
+#     if request.method == 'POST':
+#         form = CreateLessonForm(request.POST, instance=lesson)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('lesson:courses')
+#     else:
+#         form = CreateLessonForm(instance=lesson)
+#
+#     context = {
+#         'form': form,
+#         'lesson': lesson,
+#     }
+#     return render(request, 'lesson/lesson_edit.html', context)
 
 
 @login_required
@@ -678,39 +678,5 @@ def profile_edit(request):
     return render(request, 'lesson/profile_edit.html', {'form': form})
 
 
-# def register_course_admin(request):
-#     """
-#     Обработка заявок на курсы
-#     """
-#     queryset = RegisterCourse.objects.all()
-#     if request.method == 'POST':
-#         result = request.POST.get('action').split('_')
-#         operation, register_id = result
-#         course = RegisterCourse.objects.filter(pk=register_id)
-#         match operation:
-#             case 'ap':
-#                 try:
-#                     course_object = course.first().course
-#                     course.first().user.courses_learn.add(course_object)
-#                     course.update(status="approved")
-#                 except Exception:
-#                     return HttpResponse(404)
-#             case 'rj':
-#                 course.update(status="rejected")
-#             case 'dl':
-#                 course.delete()
-#         return redirect('lesson:register_course_admin')
-#     return render(
-#         request,
-#         'lesson/register_course_admin.html',
-#         {'queryset': queryset}
-#     )
-#
-#
-# def register_course(request):
-#     queryset = RegisterCourse.objects.filter(user=request.user)
-#     return render(
-#         request,
-#         'lesson/register_course.html',
-#         {'queryset': queryset}
-#     )
+def course_editor(request):
+    pass

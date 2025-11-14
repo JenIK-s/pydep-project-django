@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'users',
     'core',
     "tutor",
+    "course_editor",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
