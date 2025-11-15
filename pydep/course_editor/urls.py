@@ -10,7 +10,7 @@ from .views import my_courses
 from .views import course_edit
 from .views import module_edit
 
-app_name = 'course_editor'
+app_name = 'studio'
 
 urlpatterns = [
     path(

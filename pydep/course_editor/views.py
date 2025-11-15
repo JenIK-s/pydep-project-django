@@ -4,6 +4,7 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.shortcuts import render
 from django.shortcuts import redirect
@@ -103,9 +104,9 @@ def lesson_create(request):
             if return_to_module:
                 del request.session['return_to_module_after_lesson']
                 messages.success(request, f'Урок «{lesson.title}» создан. Теперь добавьте его в модуль.')
-                return redirect(f"{reverse('course_editor:module_create')}?lesson_id={lesson.id}")
+                return redirect(f"{reverse('studio:module_create')}?lesson_id={lesson.id}")
             messages.success(request, f'Урок «{lesson.title}» успешно создан.')
-            return redirect('course_editor:main')
+            return redirect('studio:main')
     else:
         form = CreateLessonForm()
         # Сохраняем в session, что нужно вернуться к модулю
@@ -127,13 +128,13 @@ def lesson_edit(request, course_id, module_id, lesson_id):
     try:
         lesson = Lesson.objects.get(id=lesson_id)
     except Lesson.DoesNotExist:
-        return redirect('course_editor:main')
+        return redirect('studio:main')
 
     if request.method == 'POST':
         form = CreateLessonForm(request.POST, instance=lesson)
         if form.is_valid():
             form.save()
-            return redirect('course_editor:main')
+            return redirect('studio:main')
     else:
         form = CreateLessonForm(instance=lesson)
 
@@ -171,7 +172,7 @@ def course_edit(request, course_id):
     try:
         course = Course.objects.get(id=course_id)
     except Course.DoesNotExist:
-        return redirect('course_editor:course_create')
+        return redirect('studio:course_create')
 
     if request.method == 'POST':
         # Публикация курса
@@ -184,7 +185,7 @@ def course_edit(request, course_id):
             elif status_text == "скрыт":
                 messages.warning(request, f'Курс «{course.name}» успешно {status_text}.')
 
-            return redirect('course_editor:course_edit', course_id=course.id)
+            return redirect('studio:course_edit', course_id=course.id)
 
         form = CourseForm(request.POST, request.FILES, instance=course)
         if form.is_valid():
@@ -217,7 +218,7 @@ def course_edit(request, course_id):
 
             
             messages.success(request, f'Курс «{course.name}» успешно обновлен.')
-            return redirect('course_editor:course_edit', course_id=course.id)
+            return redirect('studio:course_edit', course_id=course.id)
     else:
         form = CourseForm(instance=course)
     
@@ -247,7 +248,7 @@ def module_create(request, course_id):
     try:
         course = Course.objects.get(id=course_id)
     except Course.DoesNotExist:
-        return redirect('course_editor:main')
+        return redirect('studio:main')
     
     if request.method == 'POST':
         form = ModuleForm(request.POST, request.FILES)
@@ -277,7 +278,7 @@ def module_create(request, course_id):
                         continue
             
             messages.success(request, f'Модуль «{module.title}» успешно создан.')
-            return redirect('course_editor:course_edit', course_id=course.id)
+            return redirect('studio:course_edit', course_id=course.id)
     else:
         form = ModuleForm()
         # Сохраняем в session, что нужно вернуться к курсу
@@ -310,7 +311,7 @@ def module_edit(request, course_id, module_id):
         module = Module.objects.get(id=module_id)
         course = Course.objects.get(id=course_id)
     except (Module.DoesNotExist, Course.DoesNotExist):
-        return redirect('course_editor:main')
+        return redirect('studio:main')
 
     if request.method == 'POST':
         form = ModuleForm(request.POST, request.FILES, instance=module)
@@ -341,7 +342,7 @@ def module_edit(request, course_id, module_id):
                         continue
             
             messages.success(request, f'Модуль «{module.title}» успешно обновлен.')
-            return redirect('course_editor:course_edit', course_id=course.id)
+            return redirect('studio:course_edit', course_id=course.id)
     else:
         form = ModuleForm(instance=module)
     

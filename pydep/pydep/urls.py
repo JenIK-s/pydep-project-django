@@ -8,7 +8,7 @@ from django.urls import include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('lesson.urls', namespace='lesson')),
-    path("course_editor/", include("course_editor.urls", namespace="course_editor")),
+    path("studio/", include("course_editor.urls", namespace="studio")),
     path('', include('users.urls', namespace='users')),
     path('tutor/', include('tutor.urls', namespace='tutor')),
     path("api/", include("api.urls", namespace="api")),

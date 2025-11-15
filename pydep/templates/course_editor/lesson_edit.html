@@ -92,7 +92,7 @@
         
         {% if request.GET.module_id %}
             <div class="mb-3">
-                <a href="{% url 'course_editor:module_create' %}" class="btn btn-outline-secondary btn-sm">
+                <a href="{% url 'studio:module_create' course.id module.id %}" class="btn btn-outline-secondary btn-sm">
                     <span>←</span> Назад к модулю
                 </a>
             </div>
@@ -139,7 +139,7 @@
             
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary btn-custom">{% if lesson %}Сохранить{% else %}Создать{% endif %}</button>
-                <a href="{% url 'course_editor:main' %}" class="btn btn-secondary btn-custom">Отмена</a>
+                <a href="{% url 'studio:main' %}" class="btn btn-secondary btn-custom">Отмена</a>
             </div>
         </form>
     </div>
@@ -274,7 +274,7 @@
                 class: ImageTool,
                 config: {
                     endpoints: {
-                        byFile: '{% url "course_editor:upload_image" %}',
+                        byFile: '{% url "studio:upload_image" %}',
                     },
                     field: 'image',
                     types: 'image/*',
@@ -312,7 +312,7 @@
                             const formData = new FormData();
                             formData.append('image', file);
                             
-                            return fetch('{% url "course_editor:upload_image" %}', {
+                            return fetch('{% url "studio:upload_image" %}', {
                                 method: 'POST',
                                 headers: {
                                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value

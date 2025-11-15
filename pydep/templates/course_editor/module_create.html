@@ -128,11 +128,11 @@
                     Уроки модуля
                 </h5>
                 {% if module %}
-                    <a href="{% url 'course_editor:lesson_create' course.id module.id %}?module_id=new" class="btn btn-outline-primary btn-sm">
+                    <a href="{% url 'studio:lesson_create' course.id module.id %}?module_id=new" class="btn btn-outline-primary btn-sm">
                         <i class="bi bi-plus-circle"></i> Создать урок
                     </a>
                 {% else %}
-                    <a href="{% url 'course_editor:lesson_create' course.id 0 %}" class="btn btn-outline-primary btn-sm" style="pointer-events: none; opacity: 0.5;">
+                    <a href="{% url 'studio:lesson_create' course.id module.id %}" class="btn btn-outline-primary btn-sm" style="pointer-events: none; opacity: 0.5;">
                         <i class="bi bi-plus-circle"></i> Создать урок
                     </a>
                 {% endif %}
@@ -166,7 +166,7 @@
                 <div class="alert alert-info">
                     <p class="mb-2">Уроки еще не созданы.</p>
                     {% if module %}
-                        <a href="{% url 'course_editor:lesson_create' course.id module.id %}" class="btn btn-primary btn-sm">Создать первый урок</a>
+                        <a href="{% url 'studio:lesson_create' course.id module.id %}" class="btn btn-primary btn-sm">Создать первый урок</a>
                     {% else %}
                         <a href="#" class="btn btn-primary btn-sm" style="pointer-events: none; opacity: 0.5;">Создать первый урок (сначала сохраните модуль)</a>
                     {% endif %}
@@ -178,11 +178,11 @@
     {% endif %}
         <div class="d-flex justify-content-between">
             {% if request.GET.course_id %}
-                <a href="{% url 'course_editor:course_create' %}" class="btn btn-secondary btn-custom">
+                <a href="{% url 'studio:course_create' %}" class="btn btn-secondary btn-custom">
                     <span>←</span> Назад к курсу
                 </a>
             {% else %}
-                <a href="{% url 'course_editor:main' %}" class="btn btn-secondary btn-custom">Отмена</a>
+                <a href="{% url 'studio:main' %}" class="btn btn-secondary btn-custom">Отмена</a>
             {% endif %}
             <button type="submit" class="btn btn-primary btn-custom">{% if module %}Сохранить{% else %}Создать модуль{% endif %}</button>
         </div>

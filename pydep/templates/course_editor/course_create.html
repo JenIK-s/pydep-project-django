@@ -214,7 +214,7 @@
                             <i class="bi bi-chevron-down collapsible-icon"></i>
                             Модули курса
                         </h5>
-                        <a href="{% url 'course_editor:module_create' course.id %}"
+                        <a href="{% url 'studio:module_create' course.id %}"
                            class="btn btn-outline-primary btn-sm">
                             <i class="bi bi-plus-circle"></i> Создать модуль
                         </a>
@@ -236,7 +236,7 @@
                                         <label class="form-check-label" for="module_{{ module.id }}">
                                             {{ module.title }}
                                         </label>
-                                    <a class="btn btn-primary" href="{% url "course_editor:module_edit" course.id module.id %}">Редактировать</a>
+                                    <a class="btn btn-primary" href="{% url "studio:module_edit" course.id module.id %}">Редактировать</a>
                                     </div>
                                 </div>
                             {% endfor %}
@@ -248,7 +248,7 @@
                     {% else %}
                         <div class="alert alert-info">
                             <p class="mb-2">Модули еще не созданы.</p>
-                            <a href="{% url 'course_editor:module_create' course.id %}" class="btn btn-primary btn-sm">Создать
+                            <a href="{% url 'studio:module_create' course.id %}" class="btn btn-primary btn-sm">Создать
                                 первый модуль</a>
                         </div>
                     {% endif %}
@@ -261,7 +261,7 @@
 
 
             <div class="d-flex justify-content-between">
-                <a href="{% url 'course_editor:main' %}" class="btn btn-secondary btn-custom">Отмена</a>
+                <a href="{% url 'studio:main' %}" class="btn btn-secondary btn-custom">Отмена</a>
                 <button type="submit" class="btn btn-primary btn-custom">{% if course %}Сохранить{% else %}Создать курс{% endif %}</button>
             </div>
         </form>
