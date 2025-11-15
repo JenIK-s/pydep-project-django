@@ -194,6 +194,10 @@ class LessonsInModule(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Урок'
     )
+    sequence_number = models.IntegerField(
+        default=1,
+        verbose_name="Порядковый номер урока"
+    )
 
     class Meta:
         verbose_name = 'Уроки в модуле'

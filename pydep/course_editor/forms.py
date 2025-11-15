@@ -50,15 +50,15 @@ class CreateLessonForm(forms.ModelForm):
 
 
 class CourseForm(forms.ModelForm):
-    # modules = forms.ModelMultipleChoiceField(
-    #     queryset=Module.objects.all(),
-    #     required=False,
-    #     widget=forms.CheckboxSelectMultiple(attrs={
-    #         "class": "form-check-input",
-    #     }),
-    #     label="Выберите модули",
-    #     help_text="Выберите существующие модули или создайте новый"
-    # )
+    modules = forms.ModelMultipleChoiceField(
+        queryset=Module.objects.all(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={
+            "class": "form-check-input",
+        }),
+        label="Выберите модули",
+        help_text="Выберите существующие модули или создайте новый"
+    )
     
     class Meta:
         model = Course

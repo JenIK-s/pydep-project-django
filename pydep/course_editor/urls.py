@@ -8,6 +8,7 @@ from .views import course_create
 from .views import module_create
 from .views import my_courses
 from .views import course_edit
+from .views import module_edit
 
 app_name = 'course_editor'
 
@@ -28,17 +29,22 @@ urlpatterns = [
         name="course_edit"
     ),
     path(
-        'module/create/',
+        'course/<int:course_id>/module/create/',
         module_create,
         name='module_create'
     ),
     path(
-        'lesson/create/',
+        'course/<int:course_id>/module/<int:module_id>/edit/',
+        module_edit,
+        name='module_edit'
+    ),
+    path(
+        'course/<int:course_id>/module/<int:module_id>/lesson/create/',
         lesson_create,
         name='lesson_create'
     ),
     path(
-        'lesson/<int:lesson_id>/edit/',
+        'course/<int:course_id>/module/<int:module_id>/lesson/<int:lesson_id>/edit/',
         lesson_edit,
         name='lesson_edit'
     ),

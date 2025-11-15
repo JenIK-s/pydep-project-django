@@ -30,6 +30,82 @@
         .module-checkbox-item:hover {
             background: #f0f4f8;
         }
+        
+        .collapsible-header {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: background 0.2s;
+        }
+        
+        .collapsible-header:hover {
+            background: #e9ecef;
+        }
+        
+        .collapsible-header h5 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .collapsible-icon {
+            transition: transform 0.3s;
+            font-size: 1.2rem;
+        }
+        
+        .collapsible-header.collapsed .collapsible-icon {
+            transform: rotate(-90deg);
+        }
+        
+        .collapsible-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+        }
+        
+        .collapsible-content.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        .publish-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: auto;
+        }
+        
+        .btn-publish {
+            padding: 0.5rem 1.25rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: 6px;
+            border: none;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-publish:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-publish.publish {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        
+        .btn-publish.unpublish {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+        }
     </style>
 {% endblock %}
 
@@ -39,6 +115,23 @@
             <h1 class="mb-2">{% if course %}Редактирование курса{% else %}Создание нового курса{% endif %}</h1>
             <p class="mb-0 text-muted">Заполните информацию о курсе и выберите модули. Модули можно создать
                 отдельно.</p>
+
+        {% if course %}
+
+            <div class="publish-buttons">
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" name="toggle_publish" class="btn-publish {% if course.is_published %}unpublish{% else %}publish{% endif %}">
+                        {% if course.is_published %}
+                            <i class="bi bi-eye-slash"></i> Скрыть
+                        {% else %}
+                            <i class="bi bi-eye"></i> Опубликовать
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
+
+        {% endif %}
         </div>
 
         {% if messages %}
@@ -49,11 +142,19 @@
             {% endfor %}
         {% endif %}
 
+
+
         <form method="post" enctype="multipart/form-data" id="course-form">
             {% csrf_token %}
             <div class="content-card course-form-section mb-4">
-                <h5 class="mb-3">Основная информация</h5>
-                <div class="row g-3">
+                <div class="collapsible-header {% if course %}collapsed{% endif %}" data-target="basic-info">
+                    <h5>
+                        <i class="bi bi-chevron-down collapsible-icon"></i>
+                        Основная информация
+                    </h5>
+                </div>
+                <div class="collapsible-content {% if course %}collapsed{% endif %}" id="basic-info">
+                    <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Название курса</label>
                         {{ form.name }}
@@ -102,45 +203,58 @@
                         {% if form.image.errors %}
                             <div class="text-danger small">{{ form.image.errors|join:", " }}</div>{% endif %}
                     </div>
+                    </div>
                 </div>
             </div>
 
-
-
             {% if course %}
                 <div class="content-card mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0">Модули курса</h5>
-                        <a href="{% url 'course_editor:module_create' %}?course_id=new"
-                           class="btn btn-outline-primary btn-custom">
+                    <div class="collapsible-header collapsed" data-target="modules-section">
+                        <h5>
+                            <i class="bi bi-chevron-down collapsible-icon"></i>
+                            Модули курса
+                        </h5>
+                        <a href="{% url 'course_editor:module_create' course.id %}"
+                           class="btn btn-outline-primary btn-sm">
                             <i class="bi bi-plus-circle"></i> Создать модуль
                         </a>
                     </div>
-                    <p class="text-muted mb-3">Выберите существующие модули для курса. Если нужных модулей нет, создайте
-                        новый.</p>
+                    <div class="collapsible-content collapsed" id="modules-section">
+                        <p class="text-muted mb-3">Выберите существующие модули для курса. Порядок модулей определяется порядком выбора чекбоксов (первый выбранный модуль будет первым в курсе). Если нужных модулей нет, создайте новый.</p>
 
-                    {% if form.modules.queryset.exists %}
+                    {% if modules %}
+                        <input type="hidden" name="modules_order" id="modules_order" value="">
                         <div class="modules-list">
-                            {% for module in form.modules %}
+                            {% for module in modules %}
                                 <div class="module-checkbox-item">
                                     <div class="form-check">
-                                        {{ module.tag }}
-                                        <label class="form-check-label" for="{{ module.id_for_label }}">
-                                            <strong>{{ module.choice_label }}</strong>
+                                        <input type="checkbox" 
+                                               class="form-check-input module-checkbox" 
+                                               id="module_{{ module.id }}" 
+                                               value="{{ module.id }}"
+                                               {% if module.id in existing_module_ids %}checked{% endif %}>
+                                        <label class="form-check-label" for="module_{{ module.id }}">
+                                            {{ module.title }}
                                         </label>
+                                    <a class="btn btn-primary" href="{% url "course_editor:module_edit" course.id module.id %}">Редактировать</a>
                                     </div>
                                 </div>
                             {% endfor %}
                         </div>
+                        <div class="mt-3">
+                            <small class="text-muted">Выбранные модули (в порядке добавления):</small>
+                            <div id="selected-modules-order" class="mt-2"></div>
+                        </div>
                     {% else %}
                         <div class="alert alert-info">
                             <p class="mb-2">Модули еще не созданы.</p>
-                            <a href="{% url 'course_editor:module_create' %}" class="btn btn-primary btn-sm">Создать
+                            <a href="{% url 'course_editor:module_create' course.id %}" class="btn btn-primary btn-sm">Создать
                                 первый модуль</a>
                         </div>
                     {% endif %}
                     {% if form.modules.errors %}
                         <div class="text-danger small mt-2">{{ form.modules.errors|join:", " }}</div>{% endif %}
+                    </div>
                 </div>
             {% endif %}
 
@@ -148,8 +262,107 @@
 
             <div class="d-flex justify-content-between">
                 <a href="{% url 'course_editor:main' %}" class="btn btn-secondary btn-custom">Отмена</a>
-                <button type="submit" class="btn btn-primary btn-custom">Создать курс</button>
+                <button type="submit" class="btn btn-primary btn-custom">{% if course %}Сохранить{% else %}Создать курс{% endif %}</button>
             </div>
         </form>
     </div>
+
+    {% if course and modules %}
+    <script>
+        (function() {
+            // Массив для хранения порядка выбранных модулей
+            let modulesOrder = [];
+            const modulesOrderInput = document.getElementById('modules_order');
+            const selectedModulesDisplay = document.getElementById('selected-modules-order');
+            const checkboxes = document.querySelectorAll('.module-checkbox');
+            
+            // Получаем существующие модули из контекста
+            const existingModuleIds = [{% for module_id in existing_module_ids %}{{ module_id }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+            
+            // Словарь для хранения названий модулей
+            const moduleTitles = {};
+            {% for module in modules %}
+            moduleTitles[{{ module.id }}] = "{{ module.title|escapejs }}";
+            {% endfor %}
+            
+            // Функция для обновления скрытого поля и отображения
+            function updateModulesOrder() {
+                modulesOrderInput.value = modulesOrder.join(',');
+                
+                // Обновляем отображение выбранных модулей
+                if (modulesOrder.length > 0) {
+                    let html = '<div class="d-flex flex-wrap gap-2">';
+                    modulesOrder.forEach((moduleId, index) => {
+                        html += `<span class="badge bg-primary">${index + 1}. ${moduleTitles[moduleId] || 'Модуль ' + moduleId}</span>`;
+                    });
+                    html += '</div>';
+                    selectedModulesDisplay.innerHTML = html;
+                } else {
+                    selectedModulesDisplay.innerHTML = '<span class="text-muted">Нет выбранных модулей</span>';
+                }
+            }
+            
+            // Инициализация: если есть существующие модули, добавляем их в порядке sequence_number
+            if (existingModuleIds.length > 0) {
+                // Получаем порядок из существующих модулей
+                // existingModuleIds уже отсортированы по sequence_number в представлении
+                modulesOrder = [...existingModuleIds];
+                updateModulesOrder();
+            }
+            
+            // Обработчик изменения чекбоксов
+            checkboxes.forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    const moduleId = parseInt(this.value);
+                    
+                    if (this.checked) {
+                        // Если модуль выбран, добавляем его в конец списка (если его там еще нет)
+                        if (!modulesOrder.includes(moduleId)) {
+                            modulesOrder.push(moduleId);
+                        }
+                    } else {
+                        // Если модуль снят, удаляем его из списка
+                        modulesOrder = modulesOrder.filter(id => id !== moduleId);
+                    }
+                    
+                    updateModulesOrder();
+                });
+            });
+            
+            // Обновляем отображение при загрузке страницы
+            updateModulesOrder();
+        })();
+    </script>
+    {% endif %}
+    
+    {% if course %}
+    <script>
+        // Сворачивающиеся блоки
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.collapsible-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const content = document.getElementById(targetId);
+                    const isCollapsed = this.classList.contains('collapsed');
+                    
+                    if (isCollapsed) {
+                        this.classList.remove('collapsed');
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                        setTimeout(() => {
+                            content.classList.remove('collapsed');
+                            content.style.maxHeight = '';
+                        }, 10);
+                    } else {
+                        this.classList.add('collapsed');
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                        setTimeout(() => {
+                            content.classList.add('collapsed');
+                            content.style.maxHeight = '0';
+                        }, 10);
+                    }
+                });
+            });
+        });
+    </script>
+    {% endif %}
 {% endblock %}

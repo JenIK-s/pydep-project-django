@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Создание модуля{% endblock %}
+{% block title %}{% if module %}Редактирование модуля{% else %}Создание модуля{% endif %}{% endblock %}
 
 {% block static %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -27,13 +27,58 @@
     .lesson-checkbox-item:hover {
         background: #f0f4f8;
     }
+    
+    .collapsible-header {
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        transition: background 0.2s;
+    }
+    
+    .collapsible-header:hover {
+        background: #e9ecef;
+    }
+    
+    .collapsible-header h5 {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .collapsible-icon {
+        transition: transform 0.3s;
+        font-size: 1.2rem;
+    }
+    
+    .collapsible-header.collapsed .collapsible-icon {
+        transform: rotate(-90deg);
+    }
+    
+    .collapsible-content {
+        overflow: hidden;
+        transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+    }
+    
+    .collapsible-content.collapsed {
+        max-height: 0 !important;
+        opacity: 0;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container py-4">
     <div class="content-card mb-4">
-        <h1 class="mb-2">Создание нового модуля</h1>
+        <h1 class="mb-2">{% if module %}Редактирование модуля{% else %}Создание нового модуля{% endif %}</h1>
         <p class="mb-0 text-muted">Заполните информацию о модуле и выберите уроки. Уроки можно создать отдельно.</p>
     </div>
 
@@ -48,8 +93,14 @@
     <form method="post" enctype="multipart/form-data" id="module-form">
         {% csrf_token %}
         <div class="content-card module-form-section mb-4">
-            <h5 class="mb-3">Основная информация</h5>
-            <div class="row g-3">
+            <div class="collapsible-header {% if module %}collapsed{% endif %}" data-target="basic-info">
+                <h5>
+                    <i class="bi bi-chevron-down collapsible-icon"></i>
+                    Основная информация
+                </h5>
+            </div>
+            <div class="collapsible-content {% if module %}collapsed{% endif %}" id="basic-info">
+                <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">Название модуля</label>
                     {{ form.title }}
@@ -65,40 +116,66 @@
                     {{ form.description }}
                     {% if form.description.errors %}<div class="text-danger small">{{ form.description.errors|join:", " }}</div>{% endif %}
                 </div>
+                </div>
             </div>
         </div>
 
+    {% if module or lessons %}
         <div class="content-card mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0">Уроки модуля</h5>
-                <a href="{% url 'course_editor:lesson_create' %}?module_id=new" class="btn btn-outline-primary btn-custom">
-                    <i class="bi bi-plus-circle"></i> Создать урок
-                </a>
+            <div class="collapsible-header {% if module %}collapsed{% endif %}" data-target="lessons-section">
+                <h5>
+                    <i class="bi bi-chevron-down collapsible-icon"></i>
+                    Уроки модуля
+                </h5>
+                {% if module %}
+                    <a href="{% url 'course_editor:lesson_create' course.id module.id %}?module_id=new" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-plus-circle"></i> Создать урок
+                    </a>
+                {% else %}
+                    <a href="{% url 'course_editor:lesson_create' course.id 0 %}" class="btn btn-outline-primary btn-sm" style="pointer-events: none; opacity: 0.5;">
+                        <i class="bi bi-plus-circle"></i> Создать урок
+                    </a>
+                {% endif %}
             </div>
-            <p class="text-muted mb-3">Выберите существующие уроки для модуля. Если нужных уроков нет, создайте новый.</p>
+            <div class="collapsible-content {% if module %}collapsed{% endif %}" id="lessons-section">
+                <p class="text-muted mb-3">Выберите существующие уроки для модуля. Порядок уроков определяется порядком выбора чекбоксов (первый выбранный урок будет первым в модуле). Если нужных уроков нет, создайте новый.</p>
             
-            {% if form.lessons.queryset.exists %}
+            {% if lessons %}
+                <input type="hidden" name="lessons_order" id="lessons_order" value="">
                 <div class="lessons-list">
-                    {% for lesson in form.lessons %}
+                    {% for lesson in lessons %}
                         <div class="lesson-checkbox-item">
                             <div class="form-check">
-                                {{ lesson.tag }}
-                                <label class="form-check-label" for="{{ lesson.id_for_label }}">
-                                    <strong>{{ lesson.choice_label }}</strong>
+                                <input type="checkbox" 
+                                       class="form-check-input lesson-checkbox" 
+                                       id="lesson_{{ lesson.id }}" 
+                                       value="{{ lesson.id }}"
+                                       {% if lesson.id in existing_lesson_ids %}checked{% endif %}>
+                                <label class="form-check-label" for="lesson_{{ lesson.id }}">
+                                    {{ lesson.title }}
                                 </label>
                             </div>
                         </div>
                     {% endfor %}
                 </div>
+                <div class="mt-3">
+                    <small class="text-muted">Выбранные уроки (в порядке добавления):</small>
+                    <div id="selected-lessons-order" class="mt-2"></div>
+                </div>
             {% else %}
                 <div class="alert alert-info">
                     <p class="mb-2">Уроки еще не созданы.</p>
-                    <a href="{% url 'course_editor:lesson_create' %}" class="btn btn-primary btn-sm">Создать первый урок</a>
+                    {% if module %}
+                        <a href="{% url 'course_editor:lesson_create' course.id module.id %}" class="btn btn-primary btn-sm">Создать первый урок</a>
+                    {% else %}
+                        <a href="#" class="btn btn-primary btn-sm" style="pointer-events: none; opacity: 0.5;">Создать первый урок (сначала сохраните модуль)</a>
+                    {% endif %}
                 </div>
             {% endif %}
             {% if form.lessons.errors %}<div class="text-danger small mt-2">{{ form.lessons.errors|join:", " }}</div>{% endif %}
+            </div>
         </div>
-
+    {% endif %}
         <div class="d-flex justify-content-between">
             {% if request.GET.course_id %}
                 <a href="{% url 'course_editor:course_create' %}" class="btn btn-secondary btn-custom">
@@ -107,8 +184,107 @@
             {% else %}
                 <a href="{% url 'course_editor:main' %}" class="btn btn-secondary btn-custom">Отмена</a>
             {% endif %}
-            <button type="submit" class="btn btn-primary btn-custom">Создать модуль</button>
+            <button type="submit" class="btn btn-primary btn-custom">{% if module %}Сохранить{% else %}Создать модуль{% endif %}</button>
         </div>
     </form>
 </div>
+
+    {% if lessons %}
+    <script>
+        (function() {
+            // Массив для хранения порядка выбранных уроков
+            let lessonsOrder = [];
+            const lessonsOrderInput = document.getElementById('lessons_order');
+            const selectedLessonsDisplay = document.getElementById('selected-lessons-order');
+            const checkboxes = document.querySelectorAll('.lesson-checkbox');
+            
+            // Получаем существующие уроки из контекста
+            const existingLessonIds = [{% for lesson_id in existing_lesson_ids %}{{ lesson_id }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+            
+            // Словарь для хранения названий уроков
+            const lessonTitles = {};
+            {% for lesson in lessons %}
+            lessonTitles[{{ lesson.id }}] = "{{ lesson.title|escapejs }}";
+            {% endfor %}
+            
+            // Функция для обновления скрытого поля и отображения
+            function updateLessonsOrder() {
+                lessonsOrderInput.value = lessonsOrder.join(',');
+                
+                // Обновляем отображение выбранных уроков
+                if (lessonsOrder.length > 0) {
+                    let html = '<div class="d-flex flex-wrap gap-2">';
+                    lessonsOrder.forEach((lessonId, index) => {
+                        html += `<span class="badge bg-primary">${index + 1}. ${lessonTitles[lessonId] || 'Урок ' + lessonId}</span>`;
+                    });
+                    html += '</div>';
+                    selectedLessonsDisplay.innerHTML = html;
+                } else {
+                    selectedLessonsDisplay.innerHTML = '<span class="text-muted">Нет выбранных уроков</span>';
+                }
+            }
+            
+            // Инициализация: если есть существующие уроки, добавляем их в порядке sequence_number
+            if (existingLessonIds.length > 0) {
+                // Получаем порядок из существующих уроков
+                // existingLessonIds уже отсортированы по sequence_number в представлении
+                lessonsOrder = [...existingLessonIds];
+                updateLessonsOrder();
+            }
+            
+            // Обработчик изменения чекбоксов
+            checkboxes.forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    const lessonId = parseInt(this.value);
+                    
+                    if (this.checked) {
+                        // Если урок выбран, добавляем его в конец списка (если его там еще нет)
+                        if (!lessonsOrder.includes(lessonId)) {
+                            lessonsOrder.push(lessonId);
+                        }
+                    } else {
+                        // Если урок снят, удаляем его из списка
+                        lessonsOrder = lessonsOrder.filter(id => id !== lessonId);
+                    }
+                    
+                    updateLessonsOrder();
+                });
+            });
+            
+            // Обновляем отображение при загрузке страницы
+            updateLessonsOrder();
+        })();
+    </script>
+    {% endif %}
+    
+    {% if module %}
+    <script>
+        // Сворачивающиеся блоки
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.collapsible-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const content = document.getElementById(targetId);
+                    const isCollapsed = this.classList.contains('collapsed');
+                    
+                    if (isCollapsed) {
+                        this.classList.remove('collapsed');
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                        setTimeout(() => {
+                            content.classList.remove('collapsed');
+                            content.style.maxHeight = '';
+                        }, 10);
+                    } else {
+                        this.classList.add('collapsed');
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                        setTimeout(() => {
+                            content.classList.add('collapsed');
+                            content.style.maxHeight = '0';
+                        }, 10);
+                    }
+                });
+            });
+        });
+    </script>
+    {% endif %}
 {% endblock %}

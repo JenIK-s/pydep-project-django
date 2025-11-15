@@ -27,6 +27,51 @@
         padding: 40px;
         color: #6c757d;
     }
+    
+    .collapsible-header {
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        transition: background 0.2s;
+    }
+    
+    .collapsible-header:hover {
+        background: #e9ecef;
+    }
+    
+    .collapsible-header h5 {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .collapsible-icon {
+        transition: transform 0.3s;
+        font-size: 1.2rem;
+    }
+    
+    .collapsible-header.collapsed .collapsible-icon {
+        transform: rotate(-90deg);
+    }
+    
+    .collapsible-content {
+        overflow: hidden;
+        transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+    }
+    
+    .collapsible-content.collapsed {
+        max-height: 0 !important;
+        opacity: 0;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
 </style>
 {% endblock %}
 
@@ -56,20 +101,40 @@
         <form method="POST" id="lesson-form">
             {% csrf_token %}
             
-            <div class="mb-3">
-                <label for="{{ form.title.id_for_label }}" class="form-label">Название урока</label>
-                {{ form.title }}
-                {% if form.title.errors %}
-                    <div class="text-danger">{{ form.title.errors }}</div>
-                {% endif %}
+            <div class="mb-4">
+                <div class="collapsible-header {% if lesson %}collapsed{% endif %}" data-target="title-section">
+                    <h5>
+                        <i class="bi bi-chevron-down collapsible-icon"></i>
+                        Название урока
+                    </h5>
+                </div>
+                <div class="collapsible-content {% if lesson %}collapsed{% endif %}" id="title-section">
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">Название урока</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="text-danger">{{ form.title.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
             
-            <div class="mb-3">
-                <label class="form-label">Контент урока (блочный редактор)</label>
-                <div id="editorjs">
-                    <div class="editor-loading">Загрузка редактора...</div>
+            <div class="mb-4">
+                <div class="collapsible-header {% if lesson %}collapsed{% endif %}" data-target="content-section">
+                    <h5>
+                        <i class="bi bi-chevron-down collapsible-icon"></i>
+                        Контент урока (блочный редактор)
+                    </h5>
                 </div>
-                <input type="hidden" name="content_blocks_json" id="content-blocks-json" value="{{ form.content_blocks_json.value|default:'' }}">
+                <div class="collapsible-content {% if lesson %}collapsed{% endif %}" id="content-section">
+                    <div class="mb-3">
+                        <label class="form-label">Контент урока (блочный редактор)</label>
+                        <div id="editorjs">
+                            <div class="editor-loading">Загрузка редактора...</div>
+                        </div>
+                        <input type="hidden" name="content_blocks_json" id="content-blocks-json" value="{{ form.content_blocks_json.value|default:'' }}">
+                    </div>
+                </div>
             </div>
             
             <div class="d-flex gap-2">
@@ -435,6 +500,33 @@
         }
     }
 })();
+
+{% if lesson %}
+// Сворачивающиеся блоки
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.collapsible-header').forEach(header => {
+        header.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const content = document.getElementById(targetId);
+            const isCollapsed = this.classList.contains('collapsed');
+            
+            if (isCollapsed) {
+                this.classList.remove('collapsed');
+                content.classList.remove('collapsed');
+                // Устанавливаем max-height для плавной анимации
+                content.style.maxHeight = content.scrollHeight + 'px';
+            } else {
+                this.classList.add('collapsed');
+                content.style.maxHeight = content.scrollHeight + 'px';
+                setTimeout(() => {
+                    content.classList.add('collapsed');
+                    content.style.maxHeight = '0';
+                }, 10);
+            }
+        });
+    });
+});
+{% endif %}
 </script>
 {% endblock %}
 

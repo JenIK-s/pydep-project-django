@@ -95,7 +95,9 @@ def lesson_create(request):
     if request.method == 'POST':
         form = CreateLessonForm(request.POST)
         if form.is_valid():
-            lesson = form.save()
+            lesson = form.save(commit=False)
+            lesson.save()
+            lesson.authors.add(request.user)
             # Проверяем, откуда пришли (из модуля или нет)
             return_to_module = request.session.get('return_to_module_after_lesson')
             if return_to_module:
@@ -118,7 +120,7 @@ def lesson_create(request):
 
 
 @login_required
-def lesson_edit(request, lesson_id):
+def lesson_edit(request, course_id, module_id, lesson_id):
     """
     Редактирование урока с блочным редактором
     """
@@ -164,6 +166,7 @@ def course_create(request):
     return render(request, 'course_editor/course_create.html', context)
 
 
+@login_required
 def course_edit(request, course_id):
     try:
         course = Course.objects.get(id=course_id)
@@ -171,43 +174,110 @@ def course_edit(request, course_id):
         return redirect('course_editor:course_create')
 
     if request.method == 'POST':
-        form = CourseForm(request.POST, instance=course)
+        # Публикация курса
+        if 'toggle_publish' in request.POST:
+            course.is_published = not course.is_published
+            course.save()
+            status_text = 'опубликован' if course.is_published else 'скрыт'
+            if status_text == "опубликован":
+                messages.success(request, f'Курс «{course.name}» успешно {status_text}.')
+            elif status_text == "скрыт":
+                messages.warning(request, f'Курс «{course.name}» успешно {status_text}.')
+
+            return redirect('course_editor:course_edit', course_id=course.id)
+
+        form = CourseForm(request.POST, request.FILES, instance=course)
         if form.is_valid():
-            form.save()
-            return redirect('course_editor:course_create')
+            course = form.save()
+            
+            # Обработка модулей: получаем порядок из скрытого поля
+            modules_order = request.POST.get('modules_order', '')
+            # Удаляем все существующие связи модулей с курсом
+            ModulesInCourse.objects.filter(course=course).delete()
+            
+            if modules_order:
+                # Парсим порядок модулей (список ID через запятую)
+                module_ids = [int(id.strip()) for id in modules_order.split(',') if id.strip().isdigit()]
+                
+                # Создаем новые связи в правильном порядке
+                for sequence_number, module_id in enumerate(module_ids, start=1):
+                    try:
+                        module = Module.objects.get(id=module_id)
+                        # Проверяем, что модуль принадлежит текущему пользователю
+                        if request.user in module.authors.all():
+                            ModulesInCourse.objects.create(
+                                course=course,
+                                module=module,
+                                sequence_number=sequence_number
+                            )
+                    except Module.DoesNotExist:
+                        continue
+
+            # Обработка переключения статуса публикации
+
+            
+            messages.success(request, f'Курс «{course.name}» успешно обновлен.')
+            return redirect('course_editor:course_edit', course_id=course.id)
     else:
         form = CourseForm(instance=course)
-
+    
+    # Получаем модули авторизованного пользователя
+    modules = request.user.authored_modules.all()
+    
+    # Получаем модули, уже добавленные в курс, с их порядком
+    existing_modules_in_course = ModulesInCourse.objects.filter(
+        course=course
+    ).select_related('module').order_by('sequence_number')
+    existing_module_ids = [mic.module.id for mic in existing_modules_in_course]
+    
     context = {
         'form': form,
         'course': course,
+        'modules': modules,
+        'existing_module_ids': existing_module_ids or [],
     }
     return render(request, 'course_editor/course_create.html', context)
 
 
 @login_required
-def module_create(request):
+def module_create(request, course_id):
     """
     Создание нового модуля - информация о модуле и выбор уроков
     """
+    try:
+        course = Course.objects.get(id=course_id)
+    except Course.DoesNotExist:
+        return redirect('course_editor:main')
+    
     if request.method == 'POST':
         form = ModuleForm(request.POST, request.FILES)
         if form.is_valid():
-            module = form.save()
-            # Связываем выбранные уроки с модулем
-            selected_lessons = form.cleaned_data.get('lessons', [])
-            for lesson in selected_lessons:
-                LessonsInModule.objects.get_or_create(module=module, lesson=lesson)
+            module = form.save(commit=False)
+            module.save()
+            module.authors.add(request.user)
             
-            # Проверяем, откуда пришли (из курса или нет)
-            return_to_course = request.session.get('return_to_course_after_module')
-            if return_to_course:
-                del request.session['return_to_course_after_module']
-                messages.success(request, f'Модуль «{module.title}» создан. Теперь добавьте его в курс.')
-                return redirect(f"{reverse('course_editor:course_create')}?module_id={module.id}")
+            # Обработка уроков: получаем порядок из скрытого поля
+            lessons_order = request.POST.get('lessons_order', '')
+            if lessons_order:
+                # Парсим порядок уроков (список ID через запятую)
+                lesson_ids = [int(id.strip()) for id in lessons_order.split(',') if id.strip().isdigit()]
+                
+                # Создаем связи в правильном порядке
+                for sequence_number, lesson_id in enumerate(lesson_ids, start=1):
+                    try:
+                        lesson = Lesson.objects.get(id=lesson_id)
+                        # Проверяем, что урок принадлежит текущему пользователю
+                        if request.user in lesson.authors.all():
+                            LessonsInModule.objects.create(
+                                module=module,
+                                lesson=lesson,
+                                sequence_number=sequence_number
+                            )
+                    except Lesson.DoesNotExist:
+                        continue
             
             messages.success(request, f'Модуль «{module.title}» успешно создан.')
-            return redirect('course_editor:main')
+            return redirect('course_editor:course_edit', course_id=course.id)
     else:
         form = ModuleForm()
         # Сохраняем в session, что нужно вернуться к курсу
@@ -222,8 +292,74 @@ def module_create(request):
             except Lesson.DoesNotExist:
                 pass
 
+    # Получаем уроки авторизованного пользователя
+    lessons = request.user.authored_lessons.all()
+    
     context = {
         'form': form,
+        'course': course,
+        'lessons': lessons,
+        'existing_lesson_ids': [],
+    }
+    return render(request, 'course_editor/module_create.html', context)
+
+
+@login_required
+def module_edit(request, course_id, module_id):
+    try:
+        module = Module.objects.get(id=module_id)
+        course = Course.objects.get(id=course_id)
+    except (Module.DoesNotExist, Course.DoesNotExist):
+        return redirect('course_editor:main')
+
+    if request.method == 'POST':
+        form = ModuleForm(request.POST, request.FILES, instance=module)
+        if form.is_valid():
+            module = form.save()
+            
+            # Обработка уроков: получаем порядок из скрытого поля
+            lessons_order = request.POST.get('lessons_order', '')
+            # Удаляем все существующие связи уроков с модулем
+            LessonsInModule.objects.filter(module=module).delete()
+            
+            if lessons_order:
+                # Парсим порядок уроков (список ID через запятую)
+                lesson_ids = [int(id.strip()) for id in lessons_order.split(',') if id.strip().isdigit()]
+                
+                # Создаем новые связи в правильном порядке
+                for sequence_number, lesson_id in enumerate(lesson_ids, start=1):
+                    try:
+                        lesson = Lesson.objects.get(id=lesson_id)
+                        # Проверяем, что урок принадлежит текущему пользователю
+                        if request.user in lesson.authors.all():
+                            LessonsInModule.objects.create(
+                                module=module,
+                                lesson=lesson,
+                                sequence_number=sequence_number
+                            )
+                    except Lesson.DoesNotExist:
+                        continue
+            
+            messages.success(request, f'Модуль «{module.title}» успешно обновлен.')
+            return redirect('course_editor:course_edit', course_id=course.id)
+    else:
+        form = ModuleForm(instance=module)
+    
+    # Получаем уроки авторизованного пользователя
+    lessons = request.user.authored_lessons.all()
+    
+    # Получаем уроки, уже добавленные в модуль, с их порядком
+    existing_lessons_in_module = LessonsInModule.objects.filter(
+        module=module
+    ).select_related('lesson').order_by('sequence_number')
+    existing_lesson_ids = [lim.lesson.id for lim in existing_lessons_in_module]
+    
+    context = {
+        'form': form,
+        'module': module,
+        'course': course,
+        'lessons': lessons,
+        'existing_lesson_ids': existing_lesson_ids or [],
     }
     return render(request, 'course_editor/module_create.html', context)
 
