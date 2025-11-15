@@ -22,6 +22,7 @@ from .models import Category
 from .models import UserLessonProgress
 from users.models import CancelledLesson
 from users.models import Schedule
+from .paginator import paginator
 
 
 def query_params_in_dict(query_params: str) -> dict:
@@ -119,7 +120,7 @@ def courses_list(request, queryset=None):
             courses = courses.filter(category__in=category_qs)
 
     context = {
-        'courses': courses,
+        'courses': paginator(request, courses),
         "categories": categories,
         "selected_category_slugs": selected_category_slugs
     }

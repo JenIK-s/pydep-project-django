@@ -240,3 +240,5 @@ CKEDITOR_5_CONFIGS = {
         }
     }
 }
+
+COUNT_POSTS = 3
