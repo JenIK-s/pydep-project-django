@@ -92,7 +92,7 @@
         
         {% if request.GET.module_id %}
             <div class="mb-3">
-                <a href="{% url 'studio:module_create' course.id module.id %}" class="btn btn-outline-secondary btn-sm">
+                <a href="{% url 'studio:module_edit' course_id module_id %}" class="btn btn-outline-secondary btn-sm">
                     <span>←</span> Назад к модулю
                 </a>
             </div>

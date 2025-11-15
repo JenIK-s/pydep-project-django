@@ -89,7 +89,7 @@ def upload_image(request):
 
 
 @login_required
-def lesson_create(request):
+def lesson_create(request, course_id, module_id):
     """
     Создание нового урока с блочным редактором
     """
@@ -104,7 +104,7 @@ def lesson_create(request):
             if return_to_module:
                 del request.session['return_to_module_after_lesson']
                 messages.success(request, f'Урок «{lesson.title}» создан. Теперь добавьте его в модуль.')
-                return redirect(f"{reverse('studio:module_create')}?lesson_id={lesson.id}")
+                return redirect(f"studio:module_edit", course_id, module_id)
             messages.success(request, f'Урок «{lesson.title}» успешно создан.')
             return redirect('studio:main')
     else:
@@ -116,6 +116,8 @@ def lesson_create(request):
     context = {
         'form': form,
         'lesson': None,
+        "course_id": course_id,
+        "module_id": module_id
     }
     return render(request, 'course_editor/lesson_edit.html', context)
 
