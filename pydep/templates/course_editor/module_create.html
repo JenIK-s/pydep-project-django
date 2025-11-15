@@ -1,10 +1,114 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
 
-</body>
-</html>
+{% block title %}Создание модуля{% endblock %}
+
+{% block static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .module-form-section h5 {
+        font-weight: 600;
+    }
+    .lessons-list {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        background: #f8f9fa;
+    }
+    .lesson-checkbox-item {
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        background: white;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+    }
+    .lesson-checkbox-item:hover {
+        background: #f0f4f8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="content-card mb-4">
+        <h1 class="mb-2">Создание нового модуля</h1>
+        <p class="mb-0 text-muted">Заполните информацию о модуле и выберите уроки. Уроки можно создать отдельно.</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} content-card mb-4">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" id="module-form">
+        {% csrf_token %}
+        <div class="content-card module-form-section mb-4">
+            <h5 class="mb-3">Основная информация</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Название модуля</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}<div class="text-danger small">{{ form.title.errors|join:", " }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Обложка модуля</label>
+                    {{ form.image }}
+                    {% if form.image.errors %}<div class="text-danger small">{{ form.image.errors|join:", " }}</div>{% endif %}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Описание модуля</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}<div class="text-danger small">{{ form.description.errors|join:", " }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Уроки модуля</h5>
+                <a href="{% url 'course_editor:lesson_create' %}?module_id=new" class="btn btn-outline-primary btn-custom">
+                    <i class="bi bi-plus-circle"></i> Создать урок
+                </a>
+            </div>
+            <p class="text-muted mb-3">Выберите существующие уроки для модуля. Если нужных уроков нет, создайте новый.</p>
+            
+            {% if form.lessons.queryset.exists %}
+                <div class="lessons-list">
+                    {% for lesson in form.lessons %}
+                        <div class="lesson-checkbox-item">
+                            <div class="form-check">
+                                {{ lesson.tag }}
+                                <label class="form-check-label" for="{{ lesson.id_for_label }}">
+                                    <strong>{{ lesson.choice_label }}</strong>
+                                </label>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-2">Уроки еще не созданы.</p>
+                    <a href="{% url 'course_editor:lesson_create' %}" class="btn btn-primary btn-sm">Создать первый урок</a>
+                </div>
+            {% endif %}
+            {% if form.lessons.errors %}<div class="text-danger small mt-2">{{ form.lessons.errors|join:", " }}</div>{% endif %}
+        </div>
+
+        <div class="d-flex justify-content-between">
+            {% if request.GET.course_id %}
+                <a href="{% url 'course_editor:course_create' %}" class="btn btn-secondary btn-custom">
+                    <span>←</span> Назад к курсу
+                </a>
+            {% else %}
+                <a href="{% url 'course_editor:main' %}" class="btn btn-secondary btn-custom">Отмена</a>
+            {% endif %}
+            <button type="submit" class="btn btn-primary btn-custom">Создать модуль</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

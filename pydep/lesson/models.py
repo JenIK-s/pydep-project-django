@@ -41,6 +41,11 @@ class Lesson(models.Model):
         verbose_name='Блоки контента',
         help_text='Структурированный контент урока в формате блоков'
     )
+    authors = models.ManyToManyField(
+        "users.CustomUser",
+        related_name="authored_lessons",
+        verbose_name="Авторы"
+    )
 
     class Meta:
         verbose_name = 'Урок'
@@ -71,6 +76,11 @@ class Module(models.Model):
         Lesson,
         through="LessonsInModule",
         verbose_name="Уроки"
+    )
+    authors = models.ManyToManyField(
+        "users.CustomUser",
+        related_name="authored_modules",
+        verbose_name="Авторы"
     )
 
     class Meta:
@@ -127,6 +137,15 @@ class Course(models.Model):
         verbose_name='Модули'
     )
     programming_language = models.CharField(max_length=255)
+    authors = models.ManyToManyField(
+        "users.CustomUser",
+        related_name="authored_courses",
+        verbose_name="Авторы"
+    )
+    is_published = models.BooleanField(
+        default=False,
+        verbose_name="Опубликован"
+    )
 
     class Meta:
         verbose_name = 'Курс'
@@ -154,9 +173,10 @@ class ModulesInCourse(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Курс'
     )
-    # sequence_number = models.IntegerField(
-    #     verbose_name="Порядковый номер модуля"
-    # )
+    sequence_number = models.IntegerField(
+        default=1,
+        verbose_name="Порядковый номер модуля"
+    )
 
     class Meta:
         verbose_name = 'Модули в курсе'

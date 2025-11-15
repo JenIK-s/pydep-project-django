@@ -39,6 +39,7 @@ class ModuleAdmin(admin.ModelAdmin):
 class CourseAdmin(admin.ModelAdmin):
     inlines = [ModulesInCourseInline,]
     list_display = (
+        "pk",
         'name',
     )
 

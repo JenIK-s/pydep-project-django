@@ -42,10 +42,10 @@ def search_course_with_name(
     """
     name = unquote(name).strip()
     if not name:
-        return base_queryset or Course.objects.all()
+        return base_queryset or Course.objects.filter(is_published=True)
 
     if base_queryset is None:
-        base_queryset = Course.objects.all()
+        base_queryset = Course.objects.filter(is_published=True)
 
     # Перебираем только объекты из базового QuerySet
     result = [
@@ -85,7 +85,6 @@ def courses_list(request, queryset=None):
     """
     query_params = request.GET.urlencode()
     query_params_dict = query_params_in_dict(query_params)
-    print("query_params_dict".upper(), query_params_dict)
     categories = Category.objects.all()
     if request.method == "POST":
         params = {}
@@ -105,9 +104,9 @@ def courses_list(request, queryset=None):
 
     selected_category_slugs = []
     if not query_params_dict:
-        courses = Course.objects.prefetch_related()
+        courses = Course.objects.prefetch_related().filter(is_published=True)
     else:
-        courses = Course.objects.prefetch_related()
+        courses = Course.objects.prefetch_related().filter(is_published=True)
         q = query_params_dict.get("q")
         category_param = query_params_dict.get("category")
         if q:
