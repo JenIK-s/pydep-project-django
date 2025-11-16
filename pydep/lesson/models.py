@@ -234,3 +234,26 @@ class UserLessonProgress(models.Model):
 
     def __str__(self):
         return f"{self.user} {self.lesson} {self.completed}"
+
+
+class Cohort(models.Model):
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name="cohorts",
+        verbose_name="Когорта"
+    )
+    students = models.ManyToManyField(
+        "users.CustomUser",
+        verbose_name="Студенты"
+    )
+    start_date = models.DateField(
+        verbose_name="Дата старта"
+    )
+
+    class Meta:
+        verbose_name = "Когорта"
+        verbose_name_plural = "Когорты"
+
+    def __str__(self):
+        return f"№{self.id} - {self.course.name} ({self.start_date})"

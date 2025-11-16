@@ -7,6 +7,7 @@ from .models import Module
 from .models import LessonsInModule
 from .models import Category
 from .models import UserLessonProgress
+from .models import Cohort
 
 
 class ModulesInCourseInline(admin.TabularInline):
@@ -67,3 +68,8 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(UserLessonProgress)
 class UserLessonProgressAdmin(admin.ModelAdmin):
     list_display = ("user", "course", "module", "lesson", "completed", "current",)
+
+
+@admin.register(Cohort)
+class CohortAdmin(admin.ModelAdmin):
+    list_display = ("pk", "course", "start_date")
