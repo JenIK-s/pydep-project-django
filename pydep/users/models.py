@@ -31,17 +31,6 @@ class CustomUser(AbstractUser):
     birthday = models.DateTimeField(
         auto_now_add=True,
     )
-    # courses_learn = models.ManyToManyField(
-    #     'lesson.Course',
-    #     blank=True,
-    #     verbose_name='Прохожу курсы',
-    #     related_name='user_course',
-    # )
-    # courses_teach = models.ManyToManyField(
-    #     'lesson.Course',
-    #     blank=True,
-    #     verbose_name='Преподаю курсы'
-    # )
     is_teacher = models.BooleanField(default=False)
     is_student = models.BooleanField(default=True)
     is_tutor_student = models.BooleanField(default=False)

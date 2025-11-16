@@ -53,7 +53,7 @@ class Lesson(models.Model):
 
     def __str__(self):
         return self.title
-    
+
     def has_blocks(self):
         """Проверяет, есть ли блоки контента"""
         return bool(self.content_blocks and len(self.content_blocks) > 0)
@@ -257,3 +257,28 @@ class Cohort(models.Model):
 
     def __str__(self):
         return f"№{self.id} - {self.course.name} ({self.start_date})"
+
+
+class CourseEnrollment(models.Model):
+    user = models.ForeignKey(
+        "users.CustomUser",
+        on_delete=models.CASCADE,
+        related_name="course_learn",
+        verbose_name="Пользователь"
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        verbose_name="Курс"
+    )
+    enrolled_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Куплен"
+    )
+
+    class Meta:
+        verbose_name = "Запись на курс"
+        verbose_name_plural = "Записи на курсы"
+
+    def __str__(self):
+        return f"{self.user} - {self.course}"
